@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --font-anton: "Anton", sans-serif;
+}
 
 @custom-variant dark (&:is(.dark *));
 :root {

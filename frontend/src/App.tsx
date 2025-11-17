@@ -1,14 +1,13 @@
 import { Routes, Route } from "react-router-dom"
-import HomePage from "@/pages/HomePage"
+import AuthPage from "@/pages/AuthPage"
 import { Toaster } from "sonner"
 
 function App() {
   return (
     <>
       <Toaster position="top-center" richColors/>
-
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<AuthPage />} />
       </Routes>
     </>
   )
