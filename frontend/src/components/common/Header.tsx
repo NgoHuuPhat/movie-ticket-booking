@@ -24,14 +24,16 @@ const Header = () => {
               />
             </div>
 
-            <div className="transition-all duration-500">
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-900">
-                LÊ ĐỘ
-              </h1>
-              <p className="text-xs text-white/70 group-hover:text-white/90 transition-colors">
-                Đặt vé xem phim
-              </p>
-            </div>
+            <a href="/" className="group">
+              <div className="transition-all duration-500">
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-900">
+                  LÊ ĐỘ
+                </h1>
+                <p className="text-xs text-white/70 group-hover:text-white/90 transition-colors">
+                  Đặt vé xem phim
+                </p>
+              </div>
+            </a>
           </div>
 
 
@@ -57,7 +59,7 @@ const Header = () => {
               />
             </div>
 
-            <a href="#" className="hidden md:flex items-center gap-2 px-4 py-2 group">
+            <a href="/login" className="hidden md:flex items-center gap-2 px-4 py-2 group">
               <CircleUser className="w-6 h-6 group-hover:text-yellow-300" />
               <span className="font-medium group-hover:text-yellow-300">Đăng nhập</span>
             </a>
@@ -75,15 +77,15 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t border-gray-200 space-y-3 animate-in slide-in-from-top">
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input type="text" placeholder="Tìm phim, rạp..." className="pl-10 pr-4 py-2 w-full border-gray-200 rounded-lg" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
+              <Input type="text" placeholder="Tìm phim, rạp..." className="pl-10 pr-4 py-2 w-full bg-white text-black border-gray-200 rounded-lg" />
             </div>
-            <a href="#" className="block py-2 text-gray-700 hover:text-purple-600 font-medium transition-colors">Trang chủ</a>
-            <a href="#" className="block py-2 text-gray-700 hover:text-purple-600 font-medium transition-colors">Phim đang chiếu</a>
-            <a href="#" className="block py-2 text-gray-700 hover:text-purple-600 font-medium transition-colors">Phim sắp chiếu</a>
-            <a href="#" className="block py-2 text-gray-700 hover:text-purple-600 font-medium transition-colors">Rạp chiếu</a>
-            <a href="#" className="block py-2 text-gray-700 hover:text-purple-600 font-medium transition-colors">Khuyến mãi</a>
-            <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700">
+            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Trang chủ</a>
+            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim đang chiếu</a>
+            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim sắp chiếu</a>
+            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Rạp chiếu</a>
+            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Khuyến mãi</a>
+            <Button variant="gradYOB" className="w-full">
               <CircleUser className="w-5 h-5 mr-2" />
               Đăng nhập
             </Button>

@@ -5,7 +5,7 @@ import UserLayout from "@/components/layout/UserLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ILogin, IRegister } from "@/types/auth";
 
-export default function AuthPage() {
+const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [loginData, setLoginData] = useState<ILogin>({ email: "", password: "" });
   const [registerData, setRegisterData] = useState<IRegister>({
@@ -40,11 +40,11 @@ export default function AuthPage() {
         <div className="absolute -bottom-40 left-1/4 w-96 h-96 bg-blue-500/40 rounded-full opacity-30 blur-3xl animate-pulse"></div>
       </div>
 
-      <div className="flex flex-col items-center mt-6">
+      <div className="flex flex-col items-center mt-10 mb-30 px-4 md:px-0">
           <div className="w-full max-w-[500px] flex gap-2 mb-2">
             <button
               onClick={() => setActiveTab("login")}
-              className={`flex-1 py-4 font-anton text-sm transition-all bg-white duration-500 rounded-xl ${
+              className={`flex-1 py-4 font-anton text-sm transition-all bg-white duration-300 rounded-xl ${
                 activeTab === "login" ? "text-black " : "text-white/50 bg-white/0 hover:bg-white/20"
               }`}
             >
@@ -52,7 +52,7 @@ export default function AuthPage() {
             </button>
             <button
               onClick={() => setActiveTab("register")}
-              className={`flex-1 py-4 font-anton text-sm transition-all bg-white duration-500 rounded-xl ${
+              className={`flex-1 py-4 font-anton text-sm transition-all bg-white duration-300 rounded-xl ${
                 activeTab === "register" ? "text-black" : "text-white/50 bg-white/0 hover:bg-white/20"
               }`}
             >
@@ -81,3 +81,5 @@ export default function AuthPage() {
     </UserLayout>
   );
 }
+
+export default AuthPage;
