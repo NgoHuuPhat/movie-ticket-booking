@@ -19,11 +19,11 @@ const Footer = () => {
                     className="w-10 h-10 relative z-10 transform group-hover:rotate-6 group-hover:scale-110 transition-transform duration-500 ease-out"
                   />
                 </div>
-                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-800">
+                <h3 className="text-2xl font-sans font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-800">
                   LÊ ĐỘ
                 </h3>
               </div>
-              <p className="text-gray-300 text-sm leading-relaxed">
+              <p className="text-gray-300 text-base leading-loose">
                 Nền tảng đặt vé xem phim trực tuyến hàng đầu Việt Nam. Trải nghiệm giải trí đỉnh cao với công nghệ hiện đại.
               </p>
               <div className="flex gap-3">

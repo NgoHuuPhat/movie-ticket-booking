@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Calendar, Tag, ChevronRight, ChevronLeft, Phone, Mail, MapPin, Clock, Star, User, Play, Ticket } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import UserLayout from '@/components/layout/UserLayout';
 
 export default function MovieBookingHomepage() {
@@ -39,7 +40,7 @@ export default function MovieBookingHomepage() {
     return () => clearInterval(id);
   }, []);
 
-  // Pagination phim
+  // Pagination for now showing movies
   const moviesPerPage = 4;
   const totalPages = Math.ceil(nowShowingMovies.length / moviesPerPage);
   const displayedMovies = nowShowingMovies.slice(currentPage * moviesPerPage, (currentPage + 1) * moviesPerPage);
@@ -52,21 +53,43 @@ export default function MovieBookingHomepage() {
 
   return (
     <UserLayout>
-      <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply blur-3xl opacity-40 animate-pulse" />
-        <div className="absolute top-1/4 -right-40 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply blur-3xl opacity-40 animate-pulse" />
-        <div className="absolute -bottom-40 left-1/4 w-96 h-96 bg-blue-700 rounded-full mix-blend-multiply blur-3xl opacity-30 animate-pulse" />
+      <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500 rounded-full opacity-30 blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/4 -right-40 w-96 h-96 bg-pink-500 rounded-full opacity-30 blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 left-1/4 w-96 h-96 bg-blue-500/40 rounded-full opacity-30 blur-3xl animate-pulse"></div>
       </div>
 
-      <div className="px-4 md:px-10 lg:px-20 mx-auto">
-        <section className="-mx-4 sm:-mx-6 lg:-mx-8 mt-8 mb-25 px-4 sm:px-6 lg:px-8">
-          <div className="relative h-96 sm:h-80 rounded-sm overflow-hidden shadow-2xl">
+      <div className="mx-auto px-4 max-w-7xl">
+        {/* Banner slideshow */}
+        <section className="relative mb-25">
+          <button
+            onClick={prevSlide}
+            className="hidden lg:block absolute top-1/2 -translate-y-1/2 -translate-x-14 text-white hover:text-yellow-300 2xl:left-0 xl:left-10 lg:left-15 z-10"
+          >
+            <ChevronLeft className="w-12 h-12" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="hidden lg:block absolute top-1/2 -translate-y-1/2 translate-x-14 text-white hover:text-yellow-300 2xl:right-0 xl:right-10 lg:right-15 z-10"
+          >
+            <ChevronRight className="w-12 h-12" />
+          </button>
+
+          <div className="relative h-96 sm:h-80 lg:h-96 rounded overflow-hidden shadow-2xl ">
             {bannerSlides.map((slide, i) => (
-              <div key={slide.id} className={`absolute inset-0 transition-opacity duration-1000 ${i === activeSlide ? 'opacity-100' : 'opacity-0'}`}>
-                <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/50" />
+              <div
+                key={slide.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ${
+                  i === activeSlide ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                  <h1 className="text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-anton text-white uppercase mb-4 tracking-tight drop-shadow-2xl">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-anton text-white uppercase mb-4 tracking-tight drop-shadow-2xl">
                     {slide.title}
                   </h1>
                   <p className="text-xl sm:text-2xl lg:text-3xl text-yellow-300 font-semibold mb-8 drop-shadow-lg">
@@ -79,45 +102,27 @@ export default function MovieBookingHomepage() {
                 </div>
               </div>
             ))}
-
-            {/* Nút prev/next banner */}
-            <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-yellow-500 text-white p-3 sm:p-4 rounded-full transition hover:scale-110 shadow-xl">
-              <ChevronLeft className="w-8 h-8 sm:w-10 sm:h-10" />
-            </button>
-            <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-yellow-500 text-white p-3 sm:p-4 rounded-full transition hover:scale-110 shadow-xl">
-              <ChevronRight className="w-8 h-8 sm:w-10 sm:h-10" />
-            </button>
-
-            {/* Dots */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
-              {bannerSlides.map((_, i) => (
-                <button key={i} onClick={() => setActiveSlide(i)}
-                  className={`transition-all ${i === activeSlide ? 'bg-yellow-400 w-12 h-3 rounded-full' : 'bg-white/60 hover:bg-white w-3 h-3 rounded-full'}`}
-                />
-              ))}
-            </div>
           </div>
         </section>
 
-        {/* Phim đang chiếu */}
+        {/* Movie is showing */}
         <section className="mb-25">
           <h2 className="text-center text-4xl sm:text-4xl font-anton text-white mb-12 uppercase tracking-wider">
             Phim đang chiếu
           </h2>
-
+          
           <div className="relative">
-            {/* Nút prev/next desktop */}
-            <button onClick={prevPage} className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 z-10 bg-black/70 hover:bg-yellow-500 text-white p-4 rounded-full shadow-xl transition hover:scale-110">
-              <ChevronLeft className="w-10 h-10" />
+            <button onClick={prevPage} className="hidden lg:block absolute top-1/2 -translate-y-1/2 -translate-x-14 text-white hover:text-yellow-300 2xl:left-0 xl:left-10 lg:left-15 z-10">
+              <ChevronLeft className="w-12 h-12" />
             </button>
-            <button onClick={nextPage} className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 z-10 bg-black/70 hover:bg-yellow-500 text-white p-4 rounded-full shadow-xl transition hover:scale-110">
-              <ChevronRight className="w-10 h-10" />
+            <button onClick={nextPage} className="hidden lg:block absolute top-1/2 -translate-y-1/2 translate-x-14 text-white hover:text-yellow-300 2xl:right-0 xl:right-10 lg:right-15 z-10">
+              <ChevronRight className="w-12 h-12" />
             </button>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedMovies.map(movie => (
                 <div key={movie.id} className="group cursor-pointer">
-                  <div className="relative overflow-hidden rounded-xl shadow-2xl border border-white/20">
+                  <div className="relative overflow-hidden rounded shadow-2xl border border-white/20">
                     <div className="absolute top-3 left-3 bg-red-600 text-white font-anton px-3 py-1 rounded text-sm z-10">{movie.age}</div>
                     <div className="absolute top-3 right-3 bg-black/80 text-yellow-400 font-anton px-3 py-1 rounded flex items-center gap-1 text-sm z-10">
                       <Star className="w-4 h-4 fill-current" /> {movie.rating}
@@ -142,7 +147,7 @@ export default function MovieBookingHomepage() {
           </div>
 
           {/* Pagination mobile */}
-          <div className="flex flex-col items-center gap-8 mt-12">
+          <div className="flex flex-col items-center gap-8 mt-10">
             <div className="flex items-center gap-4">
               <button onClick={prevPage} className="lg:hidden bg-black/70 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition">
                 <ChevronLeft className="w-7 h-7" />
@@ -150,7 +155,7 @@ export default function MovieBookingHomepage() {
               <div className="flex gap-3">
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button key={i} onClick={() => setCurrentPage(i)}
-                    className={`transition-all ${i === currentPage ? 'bg-yellow-400 w-12 h-3 rounded-full' : 'bg-white/50 hover:bg-white/80 w-3 h-3 rounded-full'}`}
+                    className={`transition-all ${i === currentPage ? 'bg-yellow-400 w-3 h-3 rounded-full' : 'bg-white/50 hover:bg-white/80 w-3 h-3 rounded-full'}`}
                   />
                 ))}
               </div>
@@ -159,13 +164,13 @@ export default function MovieBookingHomepage() {
               </button>
             </div>
 
-            <button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-anton py-5 px-16 rounded-full uppercase text-xl tracking-wider transition-all hover:scale-105 hover:shadow-2xl shadow-yellow-400/50 flex items-center gap-3">
-              Xem thêm <ChevronRight className="w-7 h-7 group-hover:translate-x-2 transition" />
-            </button>
+            <Button variant="transparentToYellowOrange" className="w-66 h-12">
+              <span className="font-anton uppercase">Xem thêm</span> 
+            </Button>
           </div>
         </section>
 
-        {/* Khuyến mãi */}
+        {/* Promotions */}
         <section className="mt-25">
           <h2 className="text-center text-4xl sm:text-4xl font-anton text-white mb-12 uppercase">
             Khuyến mãi đặc biệt
@@ -174,7 +179,7 @@ export default function MovieBookingHomepage() {
             {promotions.map(promo => {
               const Icon = promo.icon;
               return (
-                <div key={promo.id} className={`bg-gradient-to-br ${promo.color} rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer`}>
+                <div key={promo.id} className={`bg-gradient-to-br ${promo.color} rounded p-8 shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer`}>
                   <div className="flex items-center gap-4 mb-6">
                     <div className="bg-white/20 p-4 rounded-2xl"><Icon className="w-10 h-10 text-white" /></div>
                     <h3 className="text-2xl font-anton text-white uppercase">{promo.title}</h3>
@@ -189,18 +194,18 @@ export default function MovieBookingHomepage() {
           </div>
         </section>
 
-        {/* Liên hệ */}
+        {/* Contact */}
         <section className="mt-40 mb-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-8">
               <h2 className="text-4xl font-anton text-center text-white uppercase">Liên hệ với chúng tôi</h2>
-              <a href="#" className="flex items-center  gap-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-3xl p-8 transition shadow-xl">
+              <a href="#" className="flex items-center gap-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded p-8 transition shadow-xl">
                 <div className="bg-white/20 p-5 rounded-2xl">
                   <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                 </div>
                 <span className="text-2xl font-anton text-white uppercase">Facebook</span>
               </a>
-              <a href="#" className="flex items-center gap-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-3xl p-8 transition shadow-xl">
+              <a href="#" className="flex items-center gap-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded p-8 transition shadow-xl">
                 <div className="bg-white/20 p-5 rounded-2xl">
                   <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
                 </div>
@@ -208,7 +213,7 @@ export default function MovieBookingHomepage() {
               </a>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-600/90 to-purple-700/90 rounded-3xl p-8 shadow-2xl backdrop-blur">
+            <div className="bg-gradient-to-br from-blue-600/90 to-purple-700/90 rounded p-8 shadow-2xl backdrop-blur">
               <h3 className="text-3xl font-anton text-white mb-8 uppercase">Gửi phản ánh cho chúng tôi</h3>
               <div className="space-y-4 text-white mb-8">
                 <div className="flex items-center gap-3"><Mail className="w-5 h-5" /> cskh@cinestar.com.vn</div>

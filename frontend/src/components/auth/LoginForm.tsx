@@ -68,7 +68,7 @@ const LoginForm = ({ loginData, setLoginData, handleLogin }: ILoginProps) => {
 
       <Button
         onClick={handleLogin}
-        variant="gradYOB"
+        variant="yellowToPinkPurple"
         className="w-full h-12"
       >
         <span className="flex items-center font-anton justify-center gap-2 text-base">

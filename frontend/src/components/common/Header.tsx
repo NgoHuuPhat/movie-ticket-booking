@@ -9,8 +9,8 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState<string>("")
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 text-white backdrop-blur-lg border-b border-white/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 text-white backdrop-blur-lg border-b border-white/40">
+      <div className="max-w-7xl mx-auto px-4 md:px-10 2xl:px-0">
         <div className="flex items-center justify-between py-4">
 
           {/* Logo */}
@@ -26,10 +26,10 @@ const Header = () => {
 
             <a href="/" className="group">
               <div className="transition-all duration-500">
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-900">
+                <h1 className="text-2xl font-sans font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-900">
                   LÊ ĐỘ
                 </h1>
-                <p className="text-xs text-white/70 group-hover:text-white/90 transition-colors">
+                <p className="text-xs font-sans text-white/70 group-hover:text-white/90 transition-colors">
                   Đặt vé xem phim
                 </p>
               </div>
@@ -49,14 +49,14 @@ const Header = () => {
           {/* Right actions */}
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center relative group">
-              <Search className="absolute left-3 w-5 h-5 text-gray-600" />
               <Input
                 type="text"
-                placeholder="Tìm phim, rạp..."
+                placeholder="Tìm phim, rạp"
                 value={searchQuery}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-64 bg-white text-gray-900"
+                className="pl-4 pr-10 py-2 w-64 bg-white rounded-full placeholder:text-gray-400 text-gray-900"
               />
+              <Search className="absolute right-3 w-4 h-4 text-gray-600" />
             </div>
 
             <a href="/login" className="hidden md:flex items-center gap-2 px-4 py-2 group">
@@ -66,7 +66,7 @@ const Header = () => {
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden hover:bg-gray-100 rounded-lg transition-colors"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -78,16 +78,16 @@ const Header = () => {
           <div className="lg:hidden py-4 border-t border-gray-200 space-y-3 animate-in slide-in-from-top">
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
-              <Input type="text" placeholder="Tìm phim, rạp..." className="pl-10 pr-4 py-2 w-full bg-white text-black border-gray-200 rounded-lg" />
+              <Input type="text" placeholder="Tìm phim, rạp..." className="pl-10 pr-4 py-2 w-full bg-white text-black border-gray-200" />
             </div>
             <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Trang chủ</a>
             <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim đang chiếu</a>
             <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim sắp chiếu</a>
             <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Rạp chiếu</a>
             <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Khuyến mãi</a>
-            <Button variant="gradYOB" className="w-full">
+            <Button variant="yellowToPinkPurple" className="w-full">
               <CircleUser className="w-5 h-5 mr-2" />
-              Đăng nhập
+              <span>Đăng nhập</span>
             </Button>
           </div>
         )}

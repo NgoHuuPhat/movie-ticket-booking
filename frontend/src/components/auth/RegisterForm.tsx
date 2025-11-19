@@ -117,7 +117,7 @@ const RegisterForm = ({ registerData, setRegisterData, handleRegister }: IRegist
       <Button
         onClick={handleRegister}
         disabled={!acceptedTerms}
-        variant="gradYOB"
+        variant="yellowToPinkPurple"
         className="w-full h-12"
       >
         <span className="flex items-center font-anton justify-center gap-2 text-base">
