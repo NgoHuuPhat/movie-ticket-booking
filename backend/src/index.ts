@@ -1,8 +1,9 @@
 import express from 'express'
+import router from '@/routes/index.routes'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import { Request, Response } from 'express'
+import '@/workers/email.worker'
 
 dotenv.config()
 
@@ -17,9 +18,7 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser())
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to the Movie Ticket Booking API')
-})
+app.use('/api', router)
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)

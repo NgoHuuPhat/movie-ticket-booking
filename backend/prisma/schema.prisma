@@ -1,0 +1,42 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model LOAINGUOIDUNG {
+  maLoaiNguoiDung  String @id
+  tenLoaiNguoiDung String   
+  moTa             String?  
+  nguoiDungs       NGUOIDUNG[]
+}
+
+enum TRANGTHAINGUOIDUNG {
+  HoatDong
+  BiKhoa
+} 
+enum GIOITINH {
+  Nam
+  Nu
+  Khac
+}
+model NGUOIDUNG {
+  maNguoiDung   String  @id 
+  hoTen         String           
+  email         String  @unique
+  matKhau       String           
+  soDienThoai   String  @unique
+  maLoaiNguoiDung String         
+  ngaySinh      DateTime
+  gioiTinh      GIOITINH        
+  anhDaiDien    String?          
+  trangThai     TRANGTHAINGUOIDUNG @default(HoatDong)       
+  ngayTao       DateTime  @default(now())
+  diemTichLuy   Int @default(0)
+
+  loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
+}
