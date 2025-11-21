@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Calendar, Tag, ChevronRight, ChevronLeft, Phone, Mail, MapPin, Clock, Star, User, Play, Ticket } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import UserLayout from '@/components/layout/UserLayout';
+import { useEffect, useState } from 'react'
+import { Calendar, Tag, ChevronRight, ChevronLeft, Phone, Mail, MapPin, Clock, Star, User, Play, Ticket } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import UserLayout from '@/components/layout/UserLayout'
 
 export default function MovieBookingHomepage() {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0)
+  const [currentPage, setCurrentPage] = useState(0)
 
   const bannerSlides = [
     { id: 1, title: 'KHÁM PHÁ TRẢI NGHIỆM ĐỈNH CAO', subtitle: 'Hệ thống âm thanh Dolby Atmos & màn hình 4K', image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&h=800&fit=crop', cta: 'Đặt vé ngay' },
     { id: 2, title: 'GIẢM 50% MỌI SUẤT CHIẾU THỨ 3', subtitle: 'Áp dụng cho tất cả các phim đang chiếu', image: 'https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=1920&h=800&fit=crop', cta: 'Xem chi tiết' },
     { id: 3, title: 'COMBO BẮP NƯỚC ƯU ĐÃI', subtitle: 'Mua 1 tặng 1 - Chỉ hôm nay', image: 'https://images.unsplash.com/photo-1515634928627-2a4e0dae3ddf?w=1920&h=800&fit=crop', cta: 'Khám phá ngay' },
-  ];
+  ]
 
   const nowShowingMovies = [
     { id: 1, title: 'Núi Tế Vong', age: 'T18', rating: 8.7, duration: '128 phút', image: 'https://i.imgur.com/5z3mXKp.jpeg' },
@@ -26,30 +26,30 @@ export default function MovieBookingHomepage() {
     { id: 10, title: 'Gladiator II', age: 'T18', rating: 9.2, duration: '148 phút', image: 'https://i.imgur.com/pR5vY7t.jpeg' },
     { id: 11, title: 'Wicked', age: 'T13', rating: 8.8, duration: '140 phút', image: 'https://i.imgur.com/nF6gH9j.jpeg' },
     { id: 12, title: 'Inside Out 2', age: 'K', rating: 8.9, duration: '96 phút', image: 'https://i.imgur.com/qW3xZmL.jpeg' },
-  ];
+  ]
 
   const promotions = [
     { id: 1, title: 'Thứ 3 Vui Vẻ', description: 'Giảm 50% cho tất cả suất chiếu vào Thứ 3', code: 'TUE50', icon: Calendar, color: 'from-purple-500 to-pink-500' },
     { id: 2, title: 'Combo Bắp Nước', description: 'Mua 1 tặng 1 combo bắp nước size L', code: 'COMBO11', icon: Tag, color: 'from-orange-500 to-red-500' },
     { id: 3, title: 'Học Sinh - Sinh Viên', description: 'Giảm 30% khi xuất trình thẻ học sinh/sinh viên', code: 'STUDENT30', icon: User, color: 'from-blue-500 to-cyan-500' }
-  ];
+  ]
 
   // Auto slide
   useEffect(() => {
-    const id = setInterval(() => setActiveSlide(prev => (prev + 1) % bannerSlides.length), 5000);
-    return () => clearInterval(id);
-  }, []);
+    const id = setInterval(() => setActiveSlide(prev => (prev + 1) % bannerSlides.length), 5000)
+    return () => clearInterval(id)
+  }, [])
 
   // Pagination for now showing movies
-  const moviesPerPage = 4;
-  const totalPages = Math.ceil(nowShowingMovies.length / moviesPerPage);
-  const displayedMovies = nowShowingMovies.slice(currentPage * moviesPerPage, (currentPage + 1) * moviesPerPage);
+  const moviesPerPage = 4
+  const totalPages = Math.ceil(nowShowingMovies.length / moviesPerPage)
+  const displayedMovies = nowShowingMovies.slice(currentPage * moviesPerPage, (currentPage + 1) * moviesPerPage)
 
-  const nextPage = () => setCurrentPage(p => p === totalPages - 1 ? 0 : p + 1);
-  const prevPage = () => setCurrentPage(p => p === 0 ? totalPages - 1 : p - 1);
+  const nextPage = () => setCurrentPage(p => p === totalPages - 1 ? 0 : p + 1)
+  const prevPage = () => setCurrentPage(p => p === 0 ? totalPages - 1 : p - 1)
 
-  const nextSlide = () => setActiveSlide(p => (p + 1) % bannerSlides.length);
-  const prevSlide = () => setActiveSlide(p => p === 0 ? bannerSlides.length - 1 : p - 1);
+  const nextSlide = () => setActiveSlide(p => (p + 1) % bannerSlides.length)
+  const prevSlide = () => setActiveSlide(p => p === 0 ? bannerSlides.length - 1 : p - 1)
 
   return (
     <UserLayout>
@@ -177,7 +177,7 @@ export default function MovieBookingHomepage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {promotions.map(promo => {
-              const Icon = promo.icon;
+              const Icon = promo.icon
               return (
                 <div key={promo.id} className={`bg-gradient-to-br ${promo.color} rounded p-8 shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer`}>
                   <div className="flex items-center gap-4 mb-6">
@@ -189,7 +189,7 @@ export default function MovieBookingHomepage() {
                     <span className="text-yellow-300 font-mono text-xl font-anton">Mã: {promo.code}</span>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         </section>
@@ -234,5 +234,5 @@ export default function MovieBookingHomepage() {
 
       </div>
     </UserLayout>
-  );
+  )
 }

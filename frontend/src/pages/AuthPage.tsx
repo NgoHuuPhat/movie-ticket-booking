@@ -1,35 +1,11 @@
-import { useState } from "react";
-import LoginForm from "@/components/auth/LoginForm";
-import RegisterForm from "@/components/auth/RegisterForm";
-import UserLayout from "@/components/layout/UserLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import type { ILogin, IRegister } from "@/types/auth";
+import { useState } from "react"
+import LoginForm from "@/components/auth/LoginForm"
+import RegisterForm from "@/components/auth/RegisterForm"
+import UserLayout from "@/components/layout/UserLayout"
+import { Card, CardContent } from "@/components/ui/card"
 
 const AuthPage = () => {
-  const [activeTab, setActiveTab] = useState("login");
-  const [loginData, setLoginData] = useState<ILogin>({ email: "", password: "" });
-  const [registerData, setRegisterData] = useState<IRegister>({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    dateOfBirth: "",
-    confirmPassword: ""
-  });
-
-  const handleLogin = () => {
-    console.log("Đăng nhập:", loginData);
-    alert("Đăng nhập thành công! 🎬");
-  };
-
-  const handleRegister = () => {
-    if (registerData.password !== registerData.confirmPassword) {
-      alert("Mật khẩu không khớp!");
-      return;
-    }
-    console.log("Đăng ký:", registerData);
-    alert("Đăng ký thành công! 🎉");
-  };
+  const [activeTab, setActiveTab] = useState("login")
 
   return (
     <UserLayout>
@@ -63,22 +39,22 @@ const AuthPage = () => {
           <CardContent className="p-8">
             {activeTab === "login" ? (
               <LoginForm
-                loginData={loginData}
-                setLoginData={setLoginData}
-                handleLogin={handleLogin}
+                // loginData={loginData}
+                // setLoginData={setLoginData}
+                // handleLogin={handleLogin}
               />
             ) : (
               <RegisterForm
-                registerData={registerData}
-                setRegisterData={setRegisterData}
-                handleRegister={handleRegister}
+                // registerData={registerData}
+                // setRegisterData={setRegisterData}
+                // handleRegister={handleRegister}
               />
             )}
           </CardContent>
         </Card>
       </div>
     </UserLayout>
-  );
+  )
 }
 
-export default AuthPage;
+export default AuthPage
