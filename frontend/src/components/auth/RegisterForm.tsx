@@ -11,6 +11,8 @@ import { format } from "date-fns"
 import { z } from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import useAuthStore from "@/stores/useAuthStore"
+import { useNavigate } from "react-router-dom"
 
 const signUpSchema = z.object({
   hoTen: z.string().min(1, "Họ tên không được để trống"),
@@ -30,6 +32,8 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [checked, setChecked] = useState(false)
+  const { signUp } = useAuthStore()
+  const navigate = useNavigate()
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -39,10 +43,9 @@ const RegisterForm = () => {
   })
 
   const onSubmit = async (data: SignUpFormData) => {
-    console.log("Dữ liệu hợp lệ:", {
-      ...data,
-      ngaySinh: format(data.ngaySinh, "yyyy-MM-dd"),
-    })
+    const { hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh } = data
+    await signUp(hoTen, email, matKhau, soDienThoai, format(ngaySinh, "yyyy-MM-dd"), gioiTinh)
+    navigate("/login")
   }
 
   return (

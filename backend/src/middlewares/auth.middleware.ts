@@ -17,7 +17,7 @@ const authenticateToken = (req: IUserRequest, res: Response, next: NextFunction)
     }
 
     const payload = verifyRefreshToken(refreshToken)
-    const newAccessToken = generateAccessToken({ id: payload.id, maLoaiNguoiDung: payload.maLoaiNguoiDung })
+    const newAccessToken = generateAccessToken({ maNguoiDung: payload.maNguoiDung, maLoaiNguoiDung: payload.maLoaiNguoiDung })
 
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
@@ -26,7 +26,7 @@ const authenticateToken = (req: IUserRequest, res: Response, next: NextFunction)
       maxAge: 15 * 60 * 1000 
     })
     
-    req.user = { id: payload.id, maLoaiNguoiDung: payload.maLoaiNguoiDung }
+    req.user = { maNguoiDung: payload.maNguoiDung, maLoaiNguoiDung: payload.maLoaiNguoiDung }
     return next()
   } catch (error) {
     return res.status(403).json({ message: 'Invalid token' })

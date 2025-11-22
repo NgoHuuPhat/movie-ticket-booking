@@ -1,6 +1,6 @@
 import { Request } from 'express'
 export interface IUserPayload {
-  id: string
+  maNguoiDung: string
   maLoaiNguoiDung: string
 }
 

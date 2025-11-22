@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import useAuthStore from "@/stores/useAuthStore"
+import { useNavigate } from "react-router"
 
 const loginSchema = z.object({
   email: z.email("Email không hợp lệ"),
@@ -16,12 +18,18 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const { signIn } = useAuthStore()
+  const navigate = useNavigate()
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
 
+
   const onSubmit = async (data: LoginFormData) => {
-    console.log("Dữ liệu hợp lệ:", data)
+    const { email, matKhau } = data
+    await signIn(email, matKhau)
+    navigate("/") 
   }
 
   return (
@@ -89,7 +97,7 @@ const LoginForm = () => {
         className="w-full h-12"
       >
         <span className="flex items-center font-anton justify-center gap-2 text-base">
-          ĐĂNG NHẬP NGAY
+          {isSubmitting ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
         </span>
       </Button>
     </form>

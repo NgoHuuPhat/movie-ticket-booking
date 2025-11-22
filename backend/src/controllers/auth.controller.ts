@@ -14,7 +14,7 @@ class AuthController {
   // [POST] /auth/register
   async register(req: Request, res: Response) {
     try {
-      const { hoTen, email, matKhau, soDienThoai, maLoaiNguoiDung, ngaySinh, gioiTinh, anhDaiDien } = req.body
+      const { hoTen, email, matKhau, soDienThoai, maLoaiNguoiDung, ngaySinh, gioiTinh } = req.body
 
       const existingUser = await prisma.nGUOIDUNG.findUnique({ where: { email } })
       if (existingUser) {
@@ -44,11 +44,10 @@ class AuthController {
           hoTen,
           email,
           matKhau: hashedPassword,
-          maLoaiNguoiDung,
+          maLoaiNguoiDung: 'KH',
           soDienThoai,
           ngaySinh: new Date(ngaySinh),
           gioiTinh,
-          anhDaiDien,
         }
       })
       return res.status(201).json({ message: `Tạo tài khoản thành công` })
@@ -70,7 +69,7 @@ class AuthController {
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Mật khẩu bạn nhập không đúng' })
       }
-      const payload = { id: user.maNguoiDung, maLoaiNguoiDung: user.maLoaiNguoiDung }
+      const payload = { maNguoiDung: user.maNguoiDung, maLoaiNguoiDung: user.maLoaiNguoiDung }
       const accessToken = generateAccessToken(payload)
       const refreshToken = generateRefreshToken(payload)
       res.cookie('accessToken', accessToken, { 
@@ -131,12 +130,12 @@ class AuthController {
   // [GET] /auth/me
   async getMe(req: IUserRequest, res: Response) {
     try {
-      const user = await prisma.nGUOIDUNG.findUnique({ where: { maNguoiDung: req.user?.id }, include: { loaiNguoiDung: true } })
+      const user = await prisma.nGUOIDUNG.findUnique({ where: { maNguoiDung: req.user?.maNguoiDung }, include: { loaiNguoiDung: true } })
       if (!user) {
         return res.status(404).json({ message: 'Người dùng không tồn tại' })
       }
       const { matKhau, ...userWithoutPassword } = user
-      return res.status(200).json({ user: userWithoutPassword })
+      return res.status(200).json(userWithoutPassword)
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
