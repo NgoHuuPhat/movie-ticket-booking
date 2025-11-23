@@ -1,13 +1,15 @@
 import { useEffect } from "react"
-import { Routes, Route, Navigate } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import AuthPage from "@/pages/AuthPage"
 import HomePage from "@/pages/HomePage"
-import { Toaster } from "sonner"
+import ProtectedRoute from "@/components/auth/ProtectedRoute"
+import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
+import { Toaster } from "sonner"
 
 function App(){
-  const { fetchMe, isCheckingAuth, user } = useAuthStore()
+  const { fetchMe, isCheckingAuth } = useAuthStore()
 
   useEffect(() => {
     fetchMe()
@@ -24,11 +26,14 @@ function App(){
     <>
       <Toaster position="top-center" richColors/>
       <Routes>
-        <Route path="/login" element={!user ? <AuthPage /> : <Navigate to="/" />} />
-        <Route path="/register" element={<AuthPage />} />
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/register" element={<AuthPage />} />
+        </Route>
 
-        <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" />} />
-
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
       </Routes>
     </>
   )
