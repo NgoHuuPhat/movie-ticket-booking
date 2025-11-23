@@ -17,12 +17,6 @@ const AuthPage = () => {
 
   return (
     <UserLayout>
-      <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500 rounded-full opacity-30 blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/4 -right-40 w-96 h-96 bg-pink-500 rounded-full opacity-30 blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 left-1/4 w-96 h-96 bg-blue-500/40 rounded-full opacity-30 blur-3xl animate-pulse"></div>
-      </div>
-
       <div className="flex flex-col items-center mb-30 px-4">
         <div className="w-full max-w-[500px] flex gap-2 mb-2">
           <button
