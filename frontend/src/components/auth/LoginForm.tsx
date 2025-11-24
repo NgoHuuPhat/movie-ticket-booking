@@ -8,17 +8,18 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import useAuthStore from "@/stores/useAuthStore"
 import { useNavigate } from "react-router"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const loginSchema = z.object({
   email: z.email("Email không hợp lệ"),
-  matKhau: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
+  matKhau: z.string().min(1, "Vui lòng nhập mật khẩu"),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const { signIn } = useAuthStore()
+  const { signIn, errorLogin } = useAuthStore()
   const navigate = useNavigate()
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
@@ -33,7 +34,7 @@ const LoginForm = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Email */}
       <div className="space-y-2">
         <Label htmlFor="login-email" className="text-sm font-medium text-gray-700">
@@ -89,6 +90,12 @@ const LoginForm = () => {
           </a>
         </div>
       </div>
+
+      { errorLogin && (
+        <Alert className="bg-red-100/50 border-red-300/50">
+          <AlertDescription className="text-red-700">{errorLogin}</AlertDescription>
+        </Alert>
+      )}
 
       <Button
         type="submit"

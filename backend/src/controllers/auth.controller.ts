@@ -171,7 +171,7 @@ class AuthController {
       const { email, otp } = req.body
       const storedOtp = await redisClient.get(`otp:${email}`)
             
-      if (!storedOtp) return res.status(400).json({ message: 'OTP đã hết hạn' })
+      if (!storedOtp) return res.status(400).json({ message: 'OTP đã hết hạn. Vui lòng yêu cầu OTP mới.' })
       if (storedOtp !== otp.toString()) return res.status(400).json({ message: 'OTP không hợp lệ' })
       await redisClient.del(`otp:${email}`)
 

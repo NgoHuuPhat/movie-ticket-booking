@@ -2,10 +2,13 @@
   import { toast } from "sonner"
   import { fetchMe, signIn, signOut, signUp } from "@/services/api"
   import type { AuthState } from "@/types/store"
+  import { handleError } from "@/utils/handleError.utils"
 
   const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     isCheckingAuth: true,
+    errorLogin: "",
+    errorRegister: "",
 
     signUp: async (hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh) => {
       try {
@@ -14,6 +17,7 @@
       } catch (error) {
         console.error("Registration error:", error)
         toast.error("Đăng ký thất bại. Vui lòng thử lại.")
+        set({ errorRegister: handleError(error) })
       } 
     },
 
@@ -24,8 +28,8 @@
         await get().fetchMe()
       } catch (error) {
         console.error("Sign-in error:", error)
-        toast.error("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.")
-      } 
+        set({ isCheckingAuth: false, errorLogin: handleError(error) })
+      }
     },
 
     signOut: async () => {
@@ -48,7 +52,7 @@
       } finally {
         setTimeout(() => {
           set({ isCheckingAuth: false })
-        }, 200)
+        }, 300) 
       }
     }
 

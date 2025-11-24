@@ -13,6 +13,7 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import useAuthStore from "@/stores/useAuthStore"
 import { useNavigate } from "react-router-dom"
+import { Alert, AlertDescription } from "../ui/alert"
 
 const signUpSchema = z.object({
   hoTen: z.string().min(1, "Họ tên không được để trống"),
@@ -32,7 +33,7 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [checked, setChecked] = useState(false)
-  const { signUp } = useAuthStore()
+  const { signUp, errorRegister } = useAuthStore()
   const navigate = useNavigate()
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<SignUpFormData>({
@@ -40,12 +41,15 @@ const RegisterForm = () => {
     defaultValues: {
       gioiTinh: "Nam",
     },
+    mode: "onTouched",
   })
 
   const onSubmit = async (data: SignUpFormData) => {
     const { hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh } = data
     await signUp(hoTen, email, matKhau, soDienThoai, format(ngaySinh, "yyyy-MM-dd"), gioiTinh)
-    navigate("/login")
+    if (!errorRegister) {
+      navigate("/login")
+    }
   }
 
   return (
@@ -215,6 +219,12 @@ const RegisterForm = () => {
           <span className="text-purple-600 font-medium">Chính sách bảo mật</span>
         </Label>
       </div>
+
+      { errorRegister && (
+        <Alert className="bg-red-100/50 border-red-300/50 mt-4">
+          <AlertDescription className="text-red-700">{errorRegister}</AlertDescription>
+        </Alert>
+      )}
 
       <Button
         type="submit"

@@ -24,3 +24,18 @@ export const fetchMe = async () => {
   const res = await request.get("/auth/me")
   return res.data
 }
+
+export const forgotPassword = async (email: string) => {
+  const res = await request.post("/auth/forgot-password", { email })
+  return res.data
+}
+
+export const verifyOTP = async (email: string, otp: string) => {
+  const res = await request.post("/auth/verify-otp", { email, otp })
+  return res.data
+}
+
+export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => {
+  const res = await request.post("/auth/reset-password", { matKhau, xacNhanMatKhau })
+  return res.data
+}
