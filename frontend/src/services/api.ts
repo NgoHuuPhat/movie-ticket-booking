@@ -39,3 +39,8 @@ export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => 
   const res = await request.post("/auth/reset-password", { matKhau, xacNhanMatKhau })
   return res.data
 }
+
+export const listPhim = async () => {
+  const res = await request.get("/phim")
+  return res.data
+}

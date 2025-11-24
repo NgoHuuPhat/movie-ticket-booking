@@ -20,7 +20,7 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         yellowToPinkPurple: `
-          relative cursor-pointer overflow-hidden bg-yellow-300 text-black
+          relative cursor-pointer overflow-hidden rounded bg-yellow-300 text-black
           hover:text-white transition-colors duration-300
           after:absolute after:inset-0 after:bg-gradient-to-r
           after:from-pink-500 after:to-purple-500 after:translate-x-[-100%] hover:after:translate-x-0

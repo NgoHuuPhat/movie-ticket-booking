@@ -40,3 +40,43 @@ model NGUOIDUNG {
 
   loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
 }
+
+model THELOAI {
+  maTheLoai String @id
+  tenTheLoai String
+  moTa       String?
+  phimTheLoais PHIM_THELOAI[]
+}
+
+model PHIM_THELOAI {
+  maPhim     String
+  maTheLoai  String
+
+  phim       PHIM      @relation(fields: [maPhim], references: [maPhim])
+  theLoai    THELOAI   @relation(fields: [maTheLoai], references: [maTheLoai])
+
+  @@id([maPhim, maTheLoai])
+}
+
+enum PHIENBAN {
+  TWO_D 
+  THREE_D 
+}
+model PHIM {
+  maPhim        String      @id
+  tenPhim       String
+  daoDien       String
+  dienVien      String
+  thoiLuong     Int
+  moTa          String
+  anhBia        String
+  ngayKhoiChieu DateTime
+  ngayKetThuc   DateTime
+  doTuoiChoPhep String
+  trailerPhim   String
+  quocGia       String
+  ngayTao       DateTime    @default(now())
+  phienBan      PHIENBAN
+
+  phimTheLoais  PHIM_THELOAI[]
+}
