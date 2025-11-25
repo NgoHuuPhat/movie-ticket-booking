@@ -36,6 +36,12 @@ export default function Homepage() {
     }
     fetchPhim()
   }, [])
+
+  const phienBan: Record<string, string> = {
+    TWO_D: '2D',
+    THREE_D: '3D',
+  }
+
   const moviesPerPage = 4
 
   const displayedNow = phimDangChieu.slice(currentPageNow * moviesPerPage, (currentPageNow + 1) * moviesPerPage)
@@ -121,7 +127,7 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedNow.map((movie) => (
-                <div className="group relative bg-black/40 rounded-xl overflow-hidden shadow-2xl border border-white/20 
+                <div className="group relative bg-black/40 rounded overflow-hidden shadow-2xl border border-white/20 
                  flex flex-col h-full hover:border-yellow-400/60 transition-all duration-300">
                   <div className="relative aspect-[3/3] overflow-hidden bg-black">
                     {movie.anhBia ? (
@@ -135,8 +141,17 @@ export default function Homepage() {
                         <p className="text-sm font-anton uppercase tracking-wider text-white/60">Poster coming soon</p>
                       </div>
                     )}
-                    <div className="absolute top-3 left-3 bg-red-600 text-white font-bold px-3 py-1.5 rounded text-xs shadow-lg">
-                      {movie.doTuoiChoPhep || 'T18'}
+                    <div className="absolute top-0 flex">
+                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-yellow-300 text-black shadow-lg">
+                        <span className="md:text-base text-sm font-anton">
+                          {phienBan[movie.phienBan] || '2D'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-red-600 text-white shadow-lg">
+                          <span className="md:text-xl text-sm font-anton">
+                            {movie.tenPhanLoaiDoTuoi || 'T18'}
+                          </span>
+                      </div>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
@@ -224,7 +239,7 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedComing.map((movie) => (
-                <div className="group relative bg-black/40 rounded-xl overflow-hidden shadow-2xl border border-white/20 
+                <div className="group relative bg-black/40 rounded overflow-hidden shadow-2xl border border-white/20 
                  flex flex-col h-full hover:border-yellow-400/60 transition-all duration-300">
                   <div className="relative aspect-[3/3] overflow-hidden bg-black">
                     {movie.anhBia ? (
@@ -238,8 +253,17 @@ export default function Homepage() {
                         <p className="text-sm font-anton uppercase tracking-wider text-white/60">Poster coming soon</p>
                       </div>
                     )}
-                    <div className="absolute top-3 left-3 bg-red-600 text-white font-bold px-3 py-1.5 rounded text-xs shadow-lg">
-                      {movie.doTuoiChoPhep || 'T18'}
+                    <div className="absolute top-0 flex">
+                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-yellow-300 text-black shadow-lg">
+                        <span className="md:text-lg text-sm font-anton">
+                          {phienBan[movie.phienBan] || '2D'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-red-600 text-white shadow-lg">
+                          <span className="md:text-xl text-sm font-anton">
+                            {movie.tenPhanLoaiDoTuoi || 'T18'}
+                          </span>
+                      </div>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>

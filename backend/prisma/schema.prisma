@@ -58,9 +58,21 @@ model PHIM_THELOAI {
   @@id([maPhim, maTheLoai])
 }
 
+model PHANLOAIDOTUOI {
+  maPhanLoaiDoTuoi String @id
+  tenPhanLoaiDoTuoi String
+  moTa              String
+  phims             PHIM[]
+}
+
+
 enum PHIENBAN {
-  TWO_D 
+  TWO_D
   THREE_D 
+}
+enum NGONNGU {
+  LongTieng 
+  PhuDe
 }
 model PHIM {
   maPhim        String      @id
@@ -72,11 +84,13 @@ model PHIM {
   anhBia        String
   ngayKhoiChieu DateTime
   ngayKetThuc   DateTime
-  doTuoiChoPhep String
+  maPhanLoaiDoTuoi String
+  phanLoaiDoTuoi  PHANLOAIDOTUOI @relation(fields: [maPhanLoaiDoTuoi], references: [maPhanLoaiDoTuoi])
   trailerPhim   String
   quocGia       String
-  ngayTao       DateTime    @default(now())
   phienBan      PHIENBAN
+  ngonNgu       NGONNGU
+  hienThi       Boolean     @default(true)
 
   phimTheLoais  PHIM_THELOAI[]
-}
+}   

@@ -8,13 +8,15 @@ class PhimController {
     try {
         const result = (await prisma.pHIM.findMany({
           include: {
+            phanLoaiDoTuoi: { select: { tenPhanLoaiDoTuoi: true } },
             phimTheLoais: {
               include: { theLoai: { select: { tenTheLoai: true } } }
             }
           }
-        })).map(({ phimTheLoais, ...phim }) => ({
+        })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
           ...phim,
-          theLoais: phimTheLoais.map(ptl => ptl.theLoai.tenTheLoai)
+          theLoais: phimTheLoais.map(ptl => ptl.theLoai.tenTheLoai),
+          tenPhanLoaiDoTuoi: phanLoaiDoTuoi.tenPhanLoaiDoTuoi,
         }))
       
         const phimDangChieu = result.filter(phim => phim.ngayKhoiChieu <= new Date() && phim.ngayKetThuc >= new Date())

@@ -8,9 +8,10 @@ export interface IPhim {
   anhBia: string
   ngayKhoiChieu: string
   ngayKetThuc: string
-  doTuoiChoPhep: string
+  tenPhanLoaiDoTuoi: string
   trailerPhim: string
   quocGia: string
   phienBan: string
+  ngonNgu: string
   theLoais: string[]
 }
