@@ -1,5 +1,5 @@
-export interface IPhim {
-  id: number
+export interface IMovie {
+  maPhim: string
   tenPhim: string
   daoDien: string
   dienVien: string
@@ -14,4 +14,10 @@ export interface IPhim {
   phienBan: string
   ngonNgu: string
   theLoais: string[]
+}
+
+export interface IPhimCardProps {
+  movie: IMovie
+  isComingSoon: boolean  
+  onWatchTrailer: () => void
 }

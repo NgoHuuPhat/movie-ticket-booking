@@ -1,55 +1,41 @@
-import { useEffect, useState } from 'react'
-import { Calendar, Tag, ChevronRight, ChevronLeft, Phone, Mail, MapPin, Clock, User, Play, Ticket } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import UserLayout from '@/components/layout/UserLayout'
-import { listPhim } from '@/services/api'
-import type { IPhim } from '@/types/phim'
+import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+import { Calendar, Tag, ChevronRight, ChevronLeft, Phone, Mail, MapPin, User, Ticket } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import UserLayout from "@/components/layout/UserLayout"
+import MovieCard from "@/components/common/CardMovie"
+import useListMovieShowing from "@/hooks/useListMovieShowing" 
+import useListMovieUpcoming from "@/hooks/useListMovieUpcoming"
 
 export default function Homepage() {
   const [activeSlide, setActiveSlide] = useState(0)
   const [currentPageNow, setCurrentPageNow] = useState(0)
   const [currentPageComing, setCurrentPageComing] = useState(0)
-  const [phimDangChieu, setPhimDangChieu] = useState<IPhim[]>([])
-  const [phimSapChieu, setPhimSapChieu] = useState<IPhim[]>([])
 
   const bannerSlides = [
-    { id: 1, title: 'KHÁM PHÁ TRẢI NGHIỆM ĐỈNH CAO', subtitle: 'Hệ thống âm thanh Dolby Atmos & màn hình 4K', image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&h=800&fit=crop', cta: 'Đặt vé ngay' },
-    { id: 2, title: 'GIẢM 50% MỌI SUẤT CHIẾU THỨ 3', subtitle: 'Áp dụng cho tất cả các phim đang chiếu', image: 'https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=1920&h=800&fit=crop', cta: 'Xem chi tiết' },
-    { id: 3, title: 'COMBO BẮP NƯỚC ƯU ĐÃI', subtitle: 'Mua 1 tặng 1 - Chỉ hôm nay', image: 'https://images.unsplash.com/photo-1515634928627-2a4e0dae3ddf?w=1920&h=800&fit=crop', cta: 'Khám phá ngay' },
+    { id: 1, title: "KHÁM PHÁ TRẢI NGHIỆM ĐỈNH CAO", subtitle: "Hệ thống âm thanh Dolby Atmos & màn hình 4K", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&h=800&fit=crop", cta: "Đặt vé ngay" },
+    { id: 2, title: "GIẢM 50% MỌI SUẤT CHIẾU THỨ 3", subtitle: "Áp dụng cho tất cả các phim đang chiếu", image: "https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=1920&h=800&fit=crop", cta: "Xem chi tiết" },
+    { id: 3, title: "COMBO BẮP NƯỚC ƯU ĐÃI", subtitle: "Mua 1 tặng 1 - Chỉ hôm nay", image: "https://images.unsplash.com/photo-1515634928627-2a4e0dae3ddf?w=1920&h=800&fit=crop", cta: "Khám phá ngay" },
   ]
 
   const promotions = [
-    { id: 1, title: 'Thứ 3 Vui Vẻ', description: 'Giảm 50% cho tất cả suất chiếu vào Thứ 3', code: 'TUE50', icon: Calendar, color: 'from-purple-500 to-pink-500' },
-    { id: 2, title: 'Combo Bắp Nước', description: 'Mua 1 tặng 1 combo bắp nước size L', code: 'COMBO11', icon: Tag, color: 'from-orange-500 to-red-500' },
-    { id: 3, title: 'Học Sinh - Sinh Viên', description: 'Giảm 30% khi xuất trình thẻ học sinh/sinh viên', code: 'STUDENT30', icon: User, color: 'from-blue-500 to-cyan-500' }
+    { id: 1, title: "Thứ 3 Vui Vẻ", description: "Giảm 50% cho tất cả suất chiếu vào Thứ 3", code: "TUE50", icon: Calendar, color: "from-purple-500 to-pink-500" },
+    { id: 2, title: "Combo Bắp Nước", description: "Mua 1 tặng 1 combo bắp nước size L", code: "COMBO11", icon: Tag, color: "from-orange-500 to-red-500" },
+    { id: 3, title: "Học Sinh - Sinh Viên", description: "Giảm 30% khi xuất trình thẻ học sinh/sinh viên", code: "STUDENT30", icon: User, color: "from-blue-500 to-cyan-500" }
   ]
 
-  useEffect(() => {
-    const fetchPhim = async () => {
-      try {
-        const data = await listPhim()
-        setPhimDangChieu(data.phimDangChieu || [])
-        setPhimSapChieu(data.phimSapChieu || [])
-      } catch (err: unknown) {
-        console.error('Error fetching movies:', err)
-      }
-    }
-    fetchPhim()
-  }, [])
-
-  const phienBan: Record<string, string> = {
-    TWO_D: '2D',
-    THREE_D: '3D',
-  }
+  const { movieShowing } = useListMovieShowing()
+  const { movieUpcoming } = useListMovieUpcoming()
 
   const moviesPerPage = 4
+  const moviesShowingLimited = movieShowing.slice(0, 8)
+  const moviesUpcomingLimited = movieUpcoming.slice(0, 8)
 
-  const displayedNow = phimDangChieu.slice(currentPageNow * moviesPerPage, (currentPageNow + 1) * moviesPerPage)
-  const displayedComing = phimSapChieu.slice(currentPageComing * moviesPerPage, (currentPageComing + 1) * moviesPerPage)
+  const displayedNow =  moviesShowingLimited.slice(currentPageNow * moviesPerPage, (currentPageNow + 1) * moviesPerPage)
+  const displayedComing = moviesUpcomingLimited.slice(currentPageComing * moviesPerPage, (currentPageComing + 1) * moviesPerPage)
 
-  const totalPagesNow = Math.ceil(phimDangChieu.length / moviesPerPage)
-  const totalPagesComing = Math.ceil(phimSapChieu.length / moviesPerPage)
-
+  const totalPagesNow = Math.ceil(moviesShowingLimited.length / moviesPerPage)
+  const totalPagesComing = Math.ceil(moviesUpcomingLimited.length / moviesPerPage)
   const nextPageNow = () => setCurrentPageNow(p => p === totalPagesNow - 1 ? 0 : p + 1)
   const prevPageNow = () => setCurrentPageNow(p => p === 0 ? totalPagesNow - 1 : p - 1)
   const nextPageComing = () => setCurrentPageComing(p => p === totalPagesComing - 1 ? 0 : p + 1)
@@ -64,8 +50,6 @@ export default function Homepage() {
     return () => clearInterval(id)
   }, [])
 
-  console.log({ phimDangChieu, phimSapChieu })
-
   return (
     <UserLayout>
       <div className="mx-auto px-4 max-w-7xl">
@@ -73,13 +57,13 @@ export default function Homepage() {
         <section className="relative mb-25">
           <button
             onClick={prevSlide}
-            className="hidden lg:block absolute top-1/2 -translate-y-1/2 -translate-x-14 text-white hover:text-yellow-300 2xl:left-0 xl:left-10 lg:left-15 z-10"
+            className="hidden lg:block cursor-pointer absolute top-1/2 -translate-y-1/2 -translate-x-14 text-white hover:text-yellow-300 2xl:left-0 xl:left-10 lg:left-15 z-10"
           >
             <ChevronLeft className="w-12 h-12" />
           </button>
           <button
             onClick={nextSlide}
-            className="hidden lg:block absolute top-1/2 -translate-y-1/2 translate-x-14 text-white hover:text-yellow-300 2xl:right-0 xl:right-10 lg:right-15 z-10"
+            className="hidden lg:block cursor-pointer absolute top-1/2 -translate-y-1/2 translate-x-14 text-white hover:text-yellow-300 2xl:right-0 xl:right-10 lg:right-15 z-10"
           >
             <ChevronRight className="w-12 h-12" />
           </button>
@@ -89,7 +73,7 @@ export default function Homepage() {
               <div
                 key={slide.id}
                 className={`absolute inset-0 transition-opacity duration-1000 ${
-                  i === activeSlide ? 'opacity-100' : 'opacity-0'
+                  i === activeSlide ? "opacity-100" : "opacity-0"
                 }`}
               >
                 <img
@@ -127,91 +111,25 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedNow.map((movie) => (
-                <div className="group relative bg-black/40 rounded overflow-hidden shadow-2xl border border-white/20 
-                 flex flex-col h-full hover:border-yellow-400/60 transition-all duration-300">
-                  <div className="relative aspect-[3/3] overflow-hidden bg-black">
-                    {movie.anhBia ? (
-                      <img
-                        src={movie.anhBia}
-                        alt={movie.tenPhim}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-104"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-                        <p className="text-sm font-anton uppercase tracking-wider text-white/60">Poster coming soon</p>
-                      </div>
-                    )}
-                    <div className="absolute top-0 flex">
-                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-yellow-300 text-black shadow-lg">
-                        <span className="md:text-base text-sm font-anton">
-                          {phienBan[movie.phienBan] || '2D'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-red-600 text-white shadow-lg">
-                          <span className="md:text-xl text-sm font-anton">
-                            {movie.tenPhanLoaiDoTuoi || 'T18'}
-                          </span>
-                      </div>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </div>
-
-                  <div className="p-5 flex flex-col flex-1 justify-between">
-                    <div>
-                      <h3 className="text-xs lg:text-xl text-white uppercase mb-4">
-                        {movie.tenPhim}
-                      </h3>
-                      {movie.theLoais && movie.theLoais.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {movie.theLoais.slice(0, 3).map((genre) => (
-                            <span
-                              key={genre}
-                              className="text-xs bg-white/10 text-white/70 px-2 py-1 rounded whitespace-nowrap"
-                            >
-                              {genre}
-                            </span>
-                          ))}
-                          {movie.theLoais.length > 3 && (
-                            <span className="text-xs text-white/50">+{movie.theLoais.length - 3}</span>
-                          )}
-                        </div>
-                      )}
-                      {movie.thoiLuong && (
-                        <p className="flex items-center gap-2 text-white/70 text-sm mb-4">
-                          <Clock className="w-4 h-4 text-yellow-400" />
-                          {movie.thoiLuong} phút
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex gap-6 mt-4 pt-4 border-t border-white/10">
-                      <button className="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 text-sm font-medium transition">
-                        <Play className="w-5 h-5" />
-                        <span className="hidden sm:inline">Trailer</span>
-                      </button>
-
-                      <Button
-                        variant="yellowToPinkPurple"
-                        className="flex-1 h-10 font-anton uppercase text-sm"
-                      >
-                        <span>Đặt vé</span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <MovieCard
+                  key={movie.maPhim}
+                  movie={movie}
+                  isComingSoon={false}
+                  onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
+                />
               ))}
             </div>
           </div>
 
           {/* Pagination movie is showing mobile*/}
-          <div className="flex justify-center gap-4 mt-12">
+          <div className="flex justify-center gap-4 mt-8">
             <button onClick={prevPageNow} className="md:hidden hover:bg-yellow-500 text-white p-3 rounded-full">
               <ChevronLeft className="w-7 h-7" />
             </button>
             <div className="flex gap-3 items-center">
               {Array.from({ length: totalPagesNow }, (_, i) => (
                 <button key={i} onClick={() => setCurrentPageNow(i)}
-                  className={`w-3 h-3 rounded-full transition ${i === currentPageNow ? 'bg-yellow-400' : 'bg-white/50'}`}
+                  className={`w-3 h-3 rounded-full transition ${i === currentPageNow ? "bg-yellow-400" : "bg-white/50"}`}
                 />
               ))}
             </div>
@@ -221,9 +139,11 @@ export default function Homepage() {
           </div>
 
           <div className="text-center mt-8">
-            <Button variant="transparentToYellowOrange" className="h-10 px-20">
+            <Link to="/movie/showing">
+              <Button variant="transparentToYellowOrange" className="h-10 px-20">
               <span className="font-anton uppercase text-base">Xem thêm</span>
             </Button>
+            </Link>
           </div>
         </section>
 
@@ -239,91 +159,25 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedComing.map((movie) => (
-                <div className="group relative bg-black/40 rounded overflow-hidden shadow-2xl border border-white/20 
-                 flex flex-col h-full hover:border-yellow-400/60 transition-all duration-300">
-                  <div className="relative aspect-[3/3] overflow-hidden bg-black">
-                    {movie.anhBia ? (
-                      <img
-                        src={movie.anhBia}
-                        alt={movie.tenPhim}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-104"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-                        <p className="text-sm font-anton uppercase tracking-wider text-white/60">Poster coming soon</p>
-                      </div>
-                    )}
-                    <div className="absolute top-0 flex">
-                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-yellow-300 text-black shadow-lg">
-                        <span className="md:text-lg text-sm font-anton">
-                          {phienBan[movie.phienBan] || '2D'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 bg-red-600 text-white shadow-lg">
-                          <span className="md:text-xl text-sm font-anton">
-                            {movie.tenPhanLoaiDoTuoi || 'T18'}
-                          </span>
-                      </div>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </div>
-
-                  <div className="p-5 flex flex-col flex-1 justify-between">
-                    <div>
-                      <h3 className="text-xs lg:text-xl text-white uppercase mb-4">
-                        {movie.tenPhim}
-                      </h3>
-                      {movie.theLoais && movie.theLoais.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {movie.theLoais.slice(0, 3).map((genre) => (
-                            <span
-                              key={genre}
-                              className="text-xs bg-white/10 text-white/70 px-2 py-1 rounded whitespace-nowrap"
-                            >
-                              {genre}
-                            </span>
-                          ))}
-                          {movie.theLoais.length > 3 && (
-                            <span className="text-xs text-white/50">+{movie.theLoais.length - 3}</span>
-                          )}
-                        </div>
-                      )}
-                      {movie.thoiLuong && (
-                        <p className="flex items-center gap-2 text-white/70 text-sm mb-4">
-                          <Clock className="w-4 h-4 text-yellow-400" />
-                          {movie.thoiLuong} phút
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex gap-6 mt-4 pt-4 border-t border-white/10">
-                      <button className="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 text-sm font-medium transition">
-                        <Play className="w-5 h-5" />
-                        <span className="hidden sm:inline">Trailer</span>
-                      </button>
-
-                      <Button
-                        variant="yellowToPinkPurple"
-                        className="flex-1 h-10 font-anton uppercase text-sm"
-                      >
-                        <span>Đặt vé</span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <MovieCard
+                  key={movie.maPhim}
+                  movie={movie}
+                  isComingSoon={true}
+                  onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
+                />
               ))}
             </div>
           </div>
 
           {/* Pagination movie coming is mobile*/}
-          <div className="flex justify-center gap-4 mt-12">
+          <div className="flex justify-center gap-4 mt-8">
             <button onClick={prevPageComing} className="md:hidden hover:bg-yellow-500 text-white p-3 rounded-full">
               <ChevronLeft className="w-7 h-7" />
             </button>
             <div className="flex gap-3 items-center">
               {Array.from({ length: totalPagesComing }, (_, i) => (
                 <button key={i} onClick={() => setCurrentPageComing(i)}
-                  className={`w-3 h-3 rounded-full transition ${i === currentPageComing ? 'bg-yellow-400' : 'bg-white/50'}`}
+                  className={`w-3 h-3 rounded-full transition ${i === currentPageComing ? "bg-yellow-400" : "bg-white/50"}`}
                 />
               ))}
             </div>
@@ -332,9 +186,11 @@ export default function Homepage() {
             </button>
           </div>
           <div className="text-center mt-8">
-            <Button variant="transparentToYellowOrange" className="h-10 px-20">
+            <Link to="/movie/upcoming">
+              <Button variant="transparentToYellowOrange" className="h-10 px-20">
               <span className="font-anton uppercase text-base">Xem thêm</span>
             </Button>
+            </Link>
           </div>
         </section>
 

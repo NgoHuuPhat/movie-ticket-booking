@@ -91,6 +91,7 @@ model PHIM {
   phienBan      PHIENBAN
   ngonNgu       NGONNGU
   hienThi       Boolean     @default(true)
+  slug          String      @unique
 
   phimTheLoais  PHIM_THELOAI[]
 }   

@@ -2,11 +2,13 @@ import { useEffect } from "react"
 import { Routes, Route } from "react-router-dom"
 import AuthPage from "@/pages/AuthPage"
 import HomePage from "@/pages/HomePage"
-import ProtectedRoute from "@/components/auth/ProtectedRoute"
-import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
+import MovieShowing from "@/pages/MovieShowing"
+import MovieUpcoming from "@/pages/MovieUpcoming"
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
 import VerifyOTPPage from "@/pages/VerifyOTPPage"
 import ResetPasswordPage from "@/pages/ResetPasswordPage"
+import ProtectedRoute from "@/components/auth/ProtectedRoute"
+import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
 import { Toaster } from "sonner"
@@ -37,6 +39,8 @@ function App(){
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/movie/showing" element={<MovieShowing />} />
+          <Route path="/movie/upcoming" element={<MovieUpcoming />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-otp" element={<VerifyOTPPage />} />

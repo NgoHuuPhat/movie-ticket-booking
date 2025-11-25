@@ -40,7 +40,17 @@ export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => 
   return res.data
 }
 
-export const listPhim = async () => {
-  const res = await request.get("/phim")
+export const listMovies = async () => {
+  const res = await request.get("/movie")
+  return res.data
+}
+
+export const listMoviesShowing = async () => {
+  const res = await request.get("/movie/showing")
+  return res.data
+}
+
+export const listMoviesUpcoming = async () => {
+  const res = await request.get("/movie/upcoming")
   return res.data
 }

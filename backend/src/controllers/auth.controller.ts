@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { generateAccessToken, generateRefreshToken, verifyResetToken, generateResetToken, verifyRefreshToken} from '@/services/token.service'
 import bcrypt from 'bcrypt'
-import { generateIncrementalId } from '@/utils/generateId'
+import { generateIncrementalId } from '@/utils/generateId.utils'
 import validator from 'validator';
 import { prisma } from '@/lib/prisma'
 import { IUserRequest } from '@/types/user'
