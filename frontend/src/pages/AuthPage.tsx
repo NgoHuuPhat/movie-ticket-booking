@@ -17,7 +17,7 @@ const AuthPage = () => {
 
   return (
     <UserLayout>
-      <div className="flex flex-col items-center mb-30 px-4">
+      <div className="flex flex-col items-center mb-30 mt-10 px-4">
         <div className="w-full max-w-[500px] flex gap-2 mb-2">
           <button
             onClick={() => handleTabChange("login")}

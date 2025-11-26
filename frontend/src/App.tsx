@@ -12,6 +12,7 @@ import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
 import { Toaster } from "sonner"
+import MovieDetailPage from "./pages/MovieDetailPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -41,6 +42,7 @@ function App(){
           <Route path="/" element={<HomePage />} />
           <Route path="/movie/showing" element={<MovieShowing />} />
           <Route path="/movie/upcoming" element={<MovieUpcoming />} />
+          <Route path="/movie/:slug" element={<MovieDetailPage />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-otp" element={<VerifyOTPPage />} />

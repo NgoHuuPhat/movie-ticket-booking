@@ -54,3 +54,8 @@ export const listMoviesUpcoming = async () => {
   const res = await request.get("/movie/upcoming")
   return res.data
 }
+
+export const getMovieDetails = async (slug: string) => {
+  const res = await request.get(`/movie/${slug}`)
+  return res.data
+}

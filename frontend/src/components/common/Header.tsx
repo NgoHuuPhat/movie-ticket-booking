@@ -26,7 +26,6 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-10 2xl:px-0">
         <div className="flex items-center justify-between py-4">
 
-
           {/* Logo */}
           <div className="flex items-center gap-2 group cursor-pointer">
             <div className="relative">

@@ -13,6 +13,8 @@ export interface IMovie {
   quocGia: string
   phienBan: string
   ngonNgu: string
+  slug: string
+  moTaPhanLoaiDoTuoi?: string
   theLoais: string[]
 }
 

@@ -1,12 +1,8 @@
 import { Clock, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { IPhimCardProps } from "@/types/movie"
-import { Link } from "react-router-dom"  
-
-const phienBan: Record<string, string> = {
-  TWO_D: "2D",
-  THREE_D: "3D",
-}
+import { Link } from "react-router-dom"
+import { phienBan } from "@/constants/version"  
 
 export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }: IPhimCardProps) {
   return (

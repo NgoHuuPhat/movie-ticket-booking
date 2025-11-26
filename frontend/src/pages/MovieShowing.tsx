@@ -7,7 +7,7 @@ export default function MovieShowingpage() {
 
   return (
     <UserLayout>
-      <div className="mx-auto px-4 max-w-7xl">
+      <div className="mx-auto max-w-7xl mt-10">
         {/* Movie is showing */}
         <section className="mb-20">
           <h2 className="text-center text-4xl font-anton text-white mb-12 uppercase tracking-wider">Phim đang chiếu</h2>
@@ -16,7 +16,7 @@ export default function MovieShowingpage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {movieShowing.map((movie) => (
                 <MovieCard
-                  key={movie.id}
+                  key={movie.maPhim}
                   movie={movie}
                   isComingSoon={false}
                   onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}

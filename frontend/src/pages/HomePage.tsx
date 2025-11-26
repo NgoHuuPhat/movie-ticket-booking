@@ -52,7 +52,7 @@ export default function Homepage() {
 
   return (
     <UserLayout>
-      <div className="mx-auto px-4 max-w-7xl">
+      <div className="mx-auto max-w-7xl mt-10">
         {/* Banner slideshow */}
         <section className="relative mb-25">
           <button
@@ -111,12 +111,14 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedNow.map((movie) => (
-                <MovieCard
-                  key={movie.maPhim}
-                  movie={movie}
-                  isComingSoon={false}
-                  onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
-                />
+                <Link to={`/movie/${movie.slug}`}>
+                  <MovieCard
+                    key={movie.maPhim}
+                    movie={movie}
+                    isComingSoon={false}
+                    onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
+                  />
+                </Link>
               ))}
             </div>
           </div>
@@ -159,12 +161,14 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedComing.map((movie) => (
-                <MovieCard
-                  key={movie.maPhim}
-                  movie={movie}
-                  isComingSoon={true}
-                  onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
-                />
+                <Link to={`/movie/${movie.slug}`}>
+                  <MovieCard
+                    key={movie.maPhim}
+                    movie={movie}
+                    isComingSoon={true}
+                    onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
+                  />
+                </Link>
               ))}
             </div>
           </div>

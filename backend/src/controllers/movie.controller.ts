@@ -86,6 +86,36 @@ async getPhimSapChieu(req: Request, res: Response) {
     }
   }
 
+  // [GET] /movie/:slug
+  async getPhimById(req: Request, res: Response) {
+    try {
+      const { slug } = req.params
+      const phim = await prisma.pHIM.findUnique({
+        where: { slug: slug },
+        include: {
+          phanLoaiDoTuoi: { select: { tenPhanLoaiDoTuoi: true, moTa: true } }, 
+          phimTheLoais: {
+            include: { theLoai: { select: { tenTheLoai: true } } }
+          }
+        }
+      })
+      if (!phim) {
+        return res.status(404).json({ message: 'Phim không tồn tại' })
+      }
+      const { phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phimData } = phim
+      const result = {
+        ...phimData,
+        theLoais: phimTheLoais.map(ptl => ptl.theLoai.tenTheLoai),
+        tenPhanLoaiDoTuoi: phanLoaiDoTuoi.tenPhanLoaiDoTuoi,
+        moTaPhanLoaiDoTuoi: phanLoaiDoTuoi.moTa,
+      }
+      return res.status(200).json(result)
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
 }
 
 export default new PhimController()
