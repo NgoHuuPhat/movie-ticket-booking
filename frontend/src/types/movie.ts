@@ -23,3 +23,9 @@ export interface IPhimCardProps {
   isComingSoon: boolean  
   onWatchTrailer: () => void
 }
+
+export interface ITrailerModalProps {
+  show: boolean
+  trailerId: string
+  onClose: () => void
+}

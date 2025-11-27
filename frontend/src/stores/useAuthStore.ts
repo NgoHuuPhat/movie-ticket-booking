@@ -11,6 +11,7 @@
     errorRegister: "",
 
     signUp: async (hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh) => {
+      set({ errorRegister: "" })
       try {
         await signUp(hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh)
         toast.success("Đăng ký thành công! Bạn được chuyển sang trang đăng nhập.")
@@ -22,7 +23,7 @@
     },
 
     signIn: async (email, matKhau) => {
-      set({ isCheckingAuth: true })
+      set({ isCheckingAuth: true, errorLogin: "" })
       try {
         await signIn(email, matKhau)
         await get().fetchMe()

@@ -1,7 +1,6 @@
 import { Clock, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { IPhimCardProps } from "@/types/movie"
-import { Link } from "react-router-dom"
 import { phienBan } from "@/constants/version"  
 
 export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }: IPhimCardProps) {
@@ -70,7 +69,11 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
         {/* Action buttons */}
         <div className="flex gap-4 mt-4 pt-4 border-t border-white/10">
           <button
-            onClick={onWatchTrailer}
+            onClick={(e) => {
+              e.preventDefault();  
+              e.stopPropagation(); 
+              onWatchTrailer();
+            }}
             className="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 text-sm font-medium transition"
           >
             <Play className="w-5 h-5" />
@@ -79,23 +82,17 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
           
           {isComingSoon ? (
             <Button
-              asChild
               variant="yellowToPinkPurple"
               className="flex-1 h-10 font-anton uppercase text-sm cursor-pointer"
             >
-              <Link to={`/phim/${movie.maPhim}`}>
-                <span>Tìm hiểu thêm</span>
-              </Link>
+              <span>Tìm hiểu thêm</span>
             </Button>
           ) : (
             <Button
-              asChild
               variant="yellowToPinkPurple"
               className="flex-1 h-10 font-anton uppercase text-sm"
             >
-              <Link to={`/dat-ve/${movie.maPhim}`}>
-                <span>Đặt vé</span>
-              </Link>
+              <span>Đặt vé</span>
             </Button>
           )}
         </div>

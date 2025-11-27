@@ -6,11 +6,14 @@ import UserLayout from "@/components/layout/UserLayout"
 import MovieCard from "@/components/common/CardMovie"
 import useListMovieShowing from "@/hooks/useListMovieShowing" 
 import useListMovieUpcoming from "@/hooks/useListMovieUpcoming"
+import TrailerModal from "@/components/common/TrailerModal"
+import useTrailerModal from "@/hooks/useTrailerModal"
 
 export default function Homepage() {
   const [activeSlide, setActiveSlide] = useState(0)
   const [currentPageNow, setCurrentPageNow] = useState(0)
   const [currentPageComing, setCurrentPageComing] = useState(0)
+  const { show, trailerId, openModal, closeModal } = useTrailerModal()
 
   const bannerSlides = [
     { id: 1, title: "KHÁM PHÁ TRẢI NGHIỆM ĐỈNH CAO", subtitle: "Hệ thống âm thanh Dolby Atmos & màn hình 4K", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&h=800&fit=crop", cta: "Đặt vé ngay" },
@@ -26,7 +29,6 @@ export default function Homepage() {
 
   const { movieShowing } = useListMovieShowing()
   const { movieUpcoming } = useListMovieUpcoming()
-
   const moviesPerPage = 4
   const moviesShowingLimited = movieShowing.slice(0, 8)
   const moviesUpcomingLimited = movieUpcoming.slice(0, 8)
@@ -111,12 +113,13 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedNow.map((movie) => (
-                <Link to={`/movie/${movie.slug}`}>
+                <Link key={movie.maPhim} to={`/movie/${movie.slug}`}>
                   <MovieCard
-                    key={movie.maPhim}
                     movie={movie}
                     isComingSoon={false}
-                    onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
+                    onWatchTrailer={() => {
+                      openModal(movie.trailerPhim)
+                    }}
                   />
                 </Link>
               ))}
@@ -161,17 +164,25 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedComing.map((movie) => (
-                <Link to={`/movie/${movie.slug}`}>
+                <Link key={movie.maPhim} to={`/movie/${movie.slug}`}>
                   <MovieCard
-                    key={movie.maPhim}
                     movie={movie}
                     isComingSoon={true}
-                    onWatchTrailer={() => console.log("Xem trailer:", movie.tenPhim)}
+                    onWatchTrailer={() => { openModal(movie.trailerPhim) }}
                   />
                 </Link>
               ))}
             </div>
           </div>
+
+          {/* Trailer Modal */}
+          {show && trailerId && (
+            <TrailerModal
+              show={show}
+              trailerId={trailerId}
+              onClose={closeModal}
+            />
+          )}
 
           {/* Pagination movie coming is mobile*/}
           <div className="flex justify-center gap-4 mt-8">
