@@ -38,7 +38,7 @@ model NGUOIDUNG {
   ngayTao       DateTime  @default(now())
   diemTichLuy   Int @default(0)
 
-  loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
+  loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model THELOAI {
@@ -52,8 +52,8 @@ model PHIM_THELOAI {
   maPhim     String
   maTheLoai  String
 
-  phim       PHIM      @relation(fields: [maPhim], references: [maPhim])
-  theLoai    THELOAI   @relation(fields: [maTheLoai], references: [maTheLoai])
+  phim       PHIM      @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
+  theLoai    THELOAI   @relation(fields: [maTheLoai], references: [maTheLoai], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([maPhim, maTheLoai])
 }
@@ -76,16 +76,15 @@ enum NGONNGU {
 }
 model PHIM {
   maPhim        String      @id
-  tenPhim       String
+  tenPhim       String      
   daoDien       String
   dienVien      String
   thoiLuong     Int
   moTa          String
-  anhBia        String
-  ngayKhoiChieu DateTime
-  ngayKetThuc   DateTime
+  anhBia        String      
+  ngayKhoiChieu DateTime    
+  ngayKetThuc   DateTime    
   maPhanLoaiDoTuoi String
-  phanLoaiDoTuoi  PHANLOAIDOTUOI @relation(fields: [maPhanLoaiDoTuoi], references: [maPhanLoaiDoTuoi])
   trailerPhim   String
   quocGia       String
   phienBan      PHIENBAN
@@ -93,5 +92,49 @@ model PHIM {
   hienThi       Boolean     @default(true)
   slug          String      @unique
 
+  phanLoaiDoTuoi  PHANLOAIDOTUOI @relation(fields: [maPhanLoaiDoTuoi], references: [maPhanLoaiDoTuoi], onDelete: Cascade, onUpdate: Cascade)
+
+  suatChieus    SUATCHIEU[]
   phimTheLoais  PHIM_THELOAI[]
 }   
+
+model RAP {
+  maRap       String    @id
+  tenRap      String
+  diaChi      String
+  soDienThoai String
+  email       String    @unique
+  trangThai   Boolean   @default(true)
+  phongChieus PHONGCHIEU[]
+}
+
+model PHONGCHIEU {
+  maPhong         String   @id
+  tenPhong        String
+  maLoaiPhong     String
+  maRap           String
+
+  loaiPhongChieu  LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong], onDelete: Cascade, onUpdate: Cascade)
+  rap             RAP            @relation(fields: [maRap], references: [maRap], onDelete: Cascade, onUpdate: Cascade)
+
+  suatChieus      SUATCHIEU[]
+}
+
+model LOAIPHONGCHIEU {
+  maLoaiPhong   String  @id
+  tenLoaiPhong  String
+  moTa          String?
+  phongChieus   PHONGCHIEU[]
+}
+
+model SUATCHIEU {
+  maSuatChieu   String    @id
+  maPhim        String
+  maPhong       String
+  ngayChieu     DateTime  @db.Date
+  gioChieu      DateTime  @db.Time
+  gioKetThuc    DateTime  @db.Time
+
+  phim          PHIM        @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
+  phongChieu    PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
+}

@@ -59,3 +59,8 @@ export const getMovieDetails = async (slug: string) => {
   const res = await request.get(`/movie/${slug}`)
   return res.data
 }
+
+export const getMovieShowtimes = async (maPhim: string) => {
+  const res = await request.get(`/movie/${maPhim}/showtimes`)
+  return res.data
+}

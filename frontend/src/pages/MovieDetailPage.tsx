@@ -1,81 +1,26 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { Clock, Star, Play, ChevronRight, MapPin, Tags, UserRoundCheck } from "lucide-react"
+import { Clock, Play, Tags, UserRoundCheck } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
-import { getMovieDetails } from "@/services/api"
+import { getMovieDetails, getMovieShowtimes } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
-import type { IMovie } from "@/types/movie"
+import type { IGroupedShowtime, IMovie, IMovieShowtime } from "@/types/movie"
 import { phienBan } from "@/constants/version"
 import { Button } from "@/components/ui/button"
 import useScrollToTop from "@/hooks/useScrollToTop"
 import TrailerModal from "@/components/common/TrailerModal"
 import useTrailerModal from "@/hooks/useTrailerModal"
-import { formatDate } from "@/utils/formatDate"
-
-const showtimes = [
-  {
-    rapId: 1,
-    tenRap: "CGV Vincom Center",
-    diaChi: "191 Bà Triệu, Hai Bà Trưng, Hà Nội",
-    lichChieu: [
-      { gio: "09:00", phongChieu: "Rạp 1", giaVe: 80000, ghe: 45 },
-      { gio: "11:30", phongChieu: "Rạp 2", giaVe: 90000, ghe: 32 },
-      { gio: "14:00", phongChieu: "Rạp 1", giaVe: 100000, ghe: 18 },
-      { gio: "16:30", phongChieu: "Rạp 3", giaVe: 100000, ghe: 28 },
-      { gio: "19:00", phongChieu: "Rạp 2", giaVe: 120000, ghe: 12 },
-      { gio: "21:30", phongChieu: "Rạp 1", giaVe: 100000, ghe: 25 },
-    ]
-  },
-  {
-    rapId: 2,
-    tenRap: "Lotte Cinema Liễu Giai",
-    diaChi: "54 Liễu Giai, Ba Đình, Hà Nội",
-    lichChieu: [
-      { gio: "10:00", phongChieu: "Rạp 5", giaVe: 85000, ghe: 38 },
-      { gio: "13:00", phongChieu: "Rạp 3", giaVe: 95000, ghe: 22 },
-      { gio: "15:30", phongChieu: "Rạp 5", giaVe: 105000, ghe: 15 },
-      { gio: "18:00", phongChieu: "Rạp 3", giaVe: 115000, ghe: 8 },
-      { gio: "20:30", phongChieu: "Rạp 5", giaVe: 105000, ghe: 20 },
-    ]
-  },
-]
-
-const relatedMovies = [
-  { 
-    maPhim: 2, 
-    tenPhim: "GUARDIANS OF THE GALAXY VOL. 3",
-    anhBia: "https://image.tmdb.org/t/p/original/r2J02Z2OpNTctfOSN1Ydgii51I3.jpg",
-    theLoais: ["Hành động", "Phiêu lưu"],
-    danhGia: 8.2
-  },
-  { 
-    maPhim: 3, 
-    tenPhim: "THE SUPER MARIO BROS. MOVIE",
-    anhBia: "https://image.tmdb.org/t/p/original/qNBAXBIQlnOThrVvA6mA2B5ggV6.jpg",
-    theLoais: ["Hoạt hình", "Phiêu lưu"],
-    danhGia: 7.8
-  },
-  { 
-    maPhim: 4, 
-    tenPhim: "SPIDER-MAN: ACROSS THE SPIDER-VERSE",
-    anhBia: "https://image.tmdb.org/t/p/original/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
-    theLoais: ["Hoạt hình", "Hành động"],
-    danhGia: 9.0
-  },
-  { 
-    maPhim: 5, 
-    tenPhim: "OPPENHEIMER",
-    anhBia: "https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-    theLoais: ["Tiểu sử", "Lịch sử"],
-    danhGia: 8.9
-  },
-]
+import { formatDate, formatTime } from "@/utils/formatDate"
 
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string>("")
+  const [showtimesData, setShowtimesData] = useState<IGroupedShowtime>({})
+  const [availableDates, setAvailableDates] = useState<string[]>([])
+  const [loadingShowtimes, setLoadingShowtimes] = useState(true)
   const { slug } = useParams<{ slug: string }>()
+  
   const { show, trailerId, openModal, closeModal } = useTrailerModal()
-
   useScrollToTop()
 
   useEffect(() => {
@@ -91,6 +36,37 @@ export default function MovieDetailPage() {
     }
   }, [slug])
 
+  useEffect(() => {
+    if(!movieDetail?.maPhim) return
+
+    const fetchShowtimes = async () => {
+      try {
+        setLoadingShowtimes(true)
+        const data = await getMovieShowtimes(movieDetail.maPhim)
+
+        const grouped = data.reduce((acc: IGroupedShowtime, show: IMovieShowtime) => {
+          const dateKey = formatDate(show.ngayChieu,"dd/MM")
+          if(!acc[dateKey]) {
+            acc[dateKey] = {}
+          }
+          if(!acc[dateKey][show.tenLoaiPhong]) {
+            acc[dateKey][show.tenLoaiPhong] = []
+          }
+          acc[dateKey][show.tenLoaiPhong].push(show)
+          return acc
+        }, {})
+
+        setAvailableDates(Object.keys(grouped))
+        setSelectedDate(Object.keys(grouped)[0] || "")
+        setShowtimesData(grouped)
+      } catch (error) {
+        console.error("Failed to fetch showtimes:", handleError(error))
+      } finally {
+        setLoadingShowtimes(false)
+      }
+    }
+    fetchShowtimes()
+  }, [movieDetail?.maPhim])
 
   return (
     <UserLayout>
@@ -199,83 +175,75 @@ export default function MovieDetailPage() {
       </section>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto py-8 md:py-12 space-y-12">
-        {/* Showtimes Section */}
-        <section>
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 uppercase text-white">Lịch chiếu</h2>
-          <div className="space-y-6">
-            {showtimes.map((cinema) => (
-              <div 
-                key={cinema.rapId}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-yellow-300/30 hover:bg-white/10 transition-all"
-              >
-                <div className="flex items-start gap-3 mb-4">
-                  <MapPin className="w-5 h-5 text-yellow-300 flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-1">{cinema.tenRap}</h3>
-                    <p className="text-gray-400 text-sm">{cinema.diaChi}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                  {cinema.lichChieu.map((show, index) => (
-                    <button
-                      key={index}
-                      className="bg-gradient-to-r from-yellow-300 to-pink-500 hover:from-yellow-500 hover:to-pink-600 text-black font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-lg"
-                    >
-                      <div className="text-lg font-bold">{show.gio}</div>
-                      <div className="text-xs opacity-80 mt-1">{show.ghe} ghế trống</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+      <section className="max-w-7xl mx-auto pt-8">
+        <h2 className="text-4xl font-anton uppercase text-white text-center">Lịch chiếu</h2>
 
-        {/* Related Movies */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold uppercase text-white">Phim liên quan</h2>
-            <button className="flex items-center gap-2 text-yellow-300 hover:text-yellow-300 transition">
-              <span className="hidden sm:inline font-semibold">Xem tất cả</span>
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {relatedMovies.map((movie) => (
-              <div 
-                key={movie.maPhim}
-                className="group cursor-pointer"
-              >
-                <div className="relative aspect-[2/3] rounded-xl overflow-hidden mb-3 shadow-lg">
-                  <img 
-                    src={movie.anhBia}
-                    alt={movie.tenPhim}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
-                    <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                    <span className="font-bold text-white text-sm">{movie.danhGia}</span>
+        {availableDates.length > 0 ? (
+          <div className="overflow-x-auto mb-10">
+            <div className="flex gap-4 min-w-max justify-center my-10">
+              {availableDates.map((date) => {
+                return (
+                  <button
+                    key={date}
+                    onClick={() => setSelectedDate(date)}
+                    disabled={loadingShowtimes}
+                    className={`w-24 cursor-pointer flex flex-col aspect-square items-center justify-center rounded border transition-all ${
+                      selectedDate === date
+                        ? 'bg-gradient-to-br from-yellow-300 to-yellow-400 border-yellow-300 text-purple-900 font-bold shadow-lg'
+                        : 'bg-white/10 border-yellow-300 text-yellow-300 hover:bg-white/20'
+                    }`}
+                  >
+                    <span className="text-xl font-anton">{date}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="space-y-6">
+              {loadingShowtimes ? (
+                <div className="text-center py-12 text-gray-400">
+                  <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-yellow-300 border-t-transparent"></div>
+                  <p className="mt-4">Đang tải lịch chiếu...</p>
+                </div>
+              ) : showtimesData[selectedDate] ? (
+                Object.entries(showtimesData[selectedDate]).map(([roomType, shows]) => (
+                  <div
+                    key={roomType}
+                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:border-yellow-300/50 hover:bg-white/10 transition-all"
+                  >
+                    <h4 className="font-semibold text-yellow-300 text-lg mb-4 pl-3 border-l-3 border-yellow-300">
+                      {roomType}
+                    </h4>
+                    <div className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-10 gap-3">
+                      {shows.map((show) => (
+                        <button
+                          key={show.maSuatChieu}
+                          className="bg-gradient-to-r cursor-pointer border border-yellow-300 from-yellow-300 to-pink-500 hover:from-yellow-400 hover:to-pink-500 text-black font-bold p-2 rounded transition-all shadow-lg"
+                          onClick={() => {
+                            console.log("Chọn suất:", show.maSuatChieu)
+                          }}
+                        >
+                          {formatTime(show.gioChieu)}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-16 text-gray-400 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl">Không có suất chiếu trong ngày này</p>
+                  <p className="text-sm mt-2">Vui lòng chọn ngày khác</p>
                 </div>
-                <h3 className="font-semibold text-sm line-clamp-2 text-white group-hover:text-yellow-300 transition mb-1">
-                  {movie.tenPhim}
-                </h3>
-                <div className="flex gap-1 flex-wrap">
-                  {movie.theLoais.slice(0, 2).map((genre, index) => (
-                    <span key={index} className="text-xs text-gray-400">
-                      {genre}{index < movie.theLoais.slice(0, 2).length - 1 ? "," : ""}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+              )}
+            </div>
           </div>
-        </section>
-      </div>
+        ) : (
+          <div className="text-center py-16 my-10 text-gray-400 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-xl">Chưa có lịch chiếu cho phim này</p>
+            <p className="text-sm mt-2">Vui lòng quay lại sau</p>
+          </div>
+        )}
+      </section>
 
       {/* Trailer Modal */}
       {movieDetail?.trailerPhim && trailerId && (

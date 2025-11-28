@@ -6,7 +6,8 @@ const router = Router()
 router.get('/', movieController.getAllPhim)
 router.get('/showing', movieController.getPhimDangChieu)
 router.get('/upcoming', movieController.getPhimSapChieu)
-router.get('/:slug', movieController.getPhimById)
+router.get('/:id/showtimes', movieController.getSuatChieuByPhimId)
 
+router.get('/:slug', movieController.getPhimById)
 
 export default router

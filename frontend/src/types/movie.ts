@@ -1,3 +1,4 @@
+
 export interface IMovie {
   maPhim: string
   tenPhim: string
@@ -28,4 +29,19 @@ export interface ITrailerModalProps {
   show: boolean
   trailerId: string
   onClose: () => void
+}
+
+export interface IMovieShowtime {
+  maSuatChieu: string
+  maPhim: string
+  ngayChieu: string
+  gioChieu: string
+  gioKetThuc: string
+  tenLoaiPhong: string
+}
+
+export interface IGroupedShowtime {
+  [date: string]: {
+    [roomType: string]: IMovieShowtime[]
+  }
 }

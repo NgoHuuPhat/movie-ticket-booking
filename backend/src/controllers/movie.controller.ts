@@ -116,6 +116,30 @@ async getPhimSapChieu(req: Request, res: Response) {
     }
   }
 
+  // [GET] /movie/:id/showtimes
+  async getSuatChieuByPhimId(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const suatChieus = (await prisma.sUATCHIEU.findMany({
+        where: { maPhim: id, ngayChieu: { gte: new Date()}},
+        include: {
+          phongChieu: {
+            include: {
+              loaiPhongChieu: { select: { tenLoaiPhong: true } },
+            }
+          },
+        }
+      })).map(({ maPhong, phongChieu, ...suatChieu }) => ({
+        ...suatChieu,
+        tenLoaiPhong: phongChieu.loaiPhongChieu.tenLoaiPhong,
+      }))
+      return res.status(200).json(suatChieus)
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
 }
 
 export default new PhimController()
