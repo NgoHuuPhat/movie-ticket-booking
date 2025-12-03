@@ -118,13 +118,16 @@ model PHONGCHIEU {
   rap             RAP            @relation(fields: [maRap], references: [maRap], onDelete: Cascade, onUpdate: Cascade)
 
   suatChieus      SUATCHIEU[]
+  ghes            GHE[]
 }
 
 model LOAIPHONGCHIEU {
   maLoaiPhong   String  @id
   tenLoaiPhong  String
   moTa          String?
+
   phongChieus   PHONGCHIEU[]
+  giaGhePhongs  GIAGHEPHONG[]
 }
 
 model SUATCHIEU {
@@ -135,6 +138,60 @@ model SUATCHIEU {
   gioChieu      DateTime  @db.Time
   gioKetThuc    DateTime  @db.Time
 
+  gheSuatChieus GHE_SUATCHIEU[]
+
   phim          PHIM        @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
   phongChieu    PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model GIAGHEPHONG {
+  maLoaiPhong   String  
+  maLoaiGhe     String
+  giaTien       Float   
+
+  loaiGhe       LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe], onDelete: Cascade, onUpdate: Cascade)
+  loaiPhongChieu LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([maLoaiPhong, maLoaiGhe])
+}
+
+model LOAIGHE {
+  maLoaiGhe   String  @id
+  tenLoaiGhe  String
+  moTa        String? 
+
+  giaGhePhongs GIAGHEPHONG[]
+  ghes         GHE[]
+}
+
+model GHE {
+  maGhe       String  @id
+  maPhong     String
+  hangGhe     String
+  soGhe       Int
+  maLoaiGhe   String
+
+  gheSuatChieus GHE_SUATCHIEU[]
+
+  loaiGhe     LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe], onDelete: Cascade, onUpdate: Cascade)
+  phongChieu  PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
+}
+
+
+enum TRANGTHAIGHE {
+  DangTrong
+  KhongSuDung
+  DangDuocChon
+  DaDat
+}
+
+model GHE_SUATCHIEU {
+  maGhe          String
+  maSuatChieu    String
+  trangThaiGhe   TRANGTHAIGHE @default(DangTrong)
+
+  ghe            GHE         @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade, onUpdate: Cascade)
+  suatChieu      SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([maGhe, maSuatChieu])
 }

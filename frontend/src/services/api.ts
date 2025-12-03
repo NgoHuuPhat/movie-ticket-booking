@@ -64,3 +64,8 @@ export const getMovieShowtimes = async (maPhim: string) => {
   const res = await request.get(`/movie/${maPhim}/showtimes`)
   return res.data
 }
+
+export const getSeatsByShowTimeId = async (showTimeId: string) => {
+  const res = await request.get(`/showtime/${showTimeId}/seats`)
+  return res.data
+}
