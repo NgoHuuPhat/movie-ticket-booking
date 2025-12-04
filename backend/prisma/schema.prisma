@@ -181,7 +181,7 @@ model GHE {
 enum TRANGTHAIGHE {
   DangTrong
   KhongSuDung
-  DangDuocChon
+  TamGiu
   DaDat
 }
 

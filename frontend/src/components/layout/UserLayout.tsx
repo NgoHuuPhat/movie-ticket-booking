@@ -1,6 +1,7 @@
 import React from "react"
 import Header from "@/components/common/Header"
 import Footer from "@/components/common/Footer"
+import AlertModal from "@/components/common/AlertModal"
 
 const UserLayout = ({children}: {children: React.ReactNode}) => {
   return (
@@ -17,6 +18,7 @@ const UserLayout = ({children}: {children: React.ReactNode}) => {
           </div>
         </main>
       <Footer />
+      <AlertModal />
     </div>
   )
 }

@@ -13,6 +13,7 @@ import TrailerModal from "@/components/common/TrailerModal"
 import useTrailerModal from "@/hooks/useTrailerModal"
 import { formatDate, formatTime } from "@/utils/formatDate"
 import Seat from "@/components/common/Seat"
+import { useAlert } from "@/stores/useAlert"
 
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
@@ -26,6 +27,7 @@ export default function MovieDetailPage() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
   const seatRef = useRef<HTMLDivElement | null>(null)
   const { slug } = useParams<{ slug: string }>()
+  const { showToast } = useAlert()
   
   const { show, trailerId, openModal, closeModal } = useTrailerModal()
   useScrollToTop()
@@ -95,13 +97,71 @@ export default function MovieDetailPage() {
     }
   }
 
+  const isSeatFilled = (seat: ISeatData | null, selected: string[]) => {
+    if (!seat) return false
+    if (seat.trangThai === "DaDat") return true
+    if (selected.includes(seat.maGhe)) return true
+    return false
+  }
+  const checkSeatGap = (
+    seatId: string,
+    currentSelectedSeats: string[],
+    isSelecting: boolean
+  ): { hasGap: boolean; message: string } => {
+
+    const currentSeat = seats.find(s => s.maGhe === seatId)
+    if (!currentSeat) return { hasGap: false, message: "" }
+
+    const rowSeats = seats.filter(s => s.hangGhe === currentSeat.hangGhe).sort((a, b) => a.soGhe - b.soGhe)
+    const newSelectedSeats = isSelecting ? [...currentSelectedSeats, seatId] : currentSelectedSeats.filter(id => id !== seatId)
+
+    for (let i = 0; i < rowSeats.length; i++) {
+      const seat = rowSeats[i]
+
+      const isSelectable = (seat.trangThai === "DangTrong") && !newSelectedSeats.includes(seat.maGhe)
+      if (!isSelectable) continue  
+      if(seat.tenLoaiGhe === "Couple") continue
+
+      const leftSeat = rowSeats[i - 1] || null
+      const rightSeat = rowSeats[i + 1] || null
+
+      const leftFilled = isSeatFilled(leftSeat, newSelectedSeats)
+      const rightFilled = isSeatFilled(rightSeat, newSelectedSeats)
+
+      if (leftFilled && rightFilled) {
+        return {
+          hasGap: true,
+          message: `Không được để ghế ${seat.hangGhe}${seat.soGhe} trống ở giữa!`
+        }
+      }
+    }
+
+    return { hasGap: false, message: "" }
+  }
+
   const handleSeatClick = (maGhe: string) => {
+    const seat = seats.find(s => s.maGhe === maGhe)
+    if (!seat) return
+
+    const isCurrentlySelected = selectedSeats.includes(maGhe)
+
+    const gapCheck = checkSeatGap(maGhe, selectedSeats, !isCurrentlySelected)
+    if (gapCheck.hasGap) {
+      showToast(gapCheck.message)
+      return
+    }
+
     setSelectedSeats(prev => {
       if (prev.includes(maGhe)) {
         return prev.filter(id => id !== maGhe)
-      } else {
-        return [...prev, maGhe]
       }
+
+      if (prev.length >= 8) {
+        showToast("Bạn chỉ có thể chọn tối đa 8 ghế!")
+        return prev
+      }
+
+      return [...prev, maGhe]
     })
   }
 

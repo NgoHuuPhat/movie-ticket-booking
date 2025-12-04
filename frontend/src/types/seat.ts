@@ -4,5 +4,5 @@ export interface ISeatData {
   soGhe: number
   tenLoaiGhe: "Standard" | "Couple"
   giaTien: number
-  trangThai: "DangTrong" | "DaDat" | "DangDuocChon" | "KhongSuDung"
+  trangThai: "DangTrong" | "DaDat" | "TamGiu" | "KhongSuDung"
 }
