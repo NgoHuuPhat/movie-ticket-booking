@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 class SuatChieuController {
 
   // [GET] /showtime/:id/seats
-  async getSeatsByShowTimeId(req: Request, res: Response) {
+  async getGheTheoSuatChieuId(req: Request, res: Response) {
     try {
       const { id } = req.params
 

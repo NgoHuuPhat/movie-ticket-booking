@@ -38,6 +38,7 @@ export interface IMovieShowtime {
   gioChieu: string
   gioKetThuc: string
   tenLoaiPhong: string
+  tenPhongChieu: string
 }
 
 export interface IGroupedShowtime {

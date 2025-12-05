@@ -195,3 +195,44 @@ model GHE_SUATCHIEU {
 
   @@id([maGhe, maSuatChieu])
 }
+
+model DANHMUCSANPHAM {
+  maDanhMucSanPham   String   @id
+  tenDanhMucSanPham  String
+  
+  sanPhams           SANPHAM[]
+}
+
+model SANPHAM {
+  maSanPham   String    @id
+  tenSanPham  String
+  giaTien     Float
+  anhSanPham  String
+  hienThi     Boolean   @default(true)
+  maDanhMucSanPham  String
+
+  danhMucSanPham   DANHMUCSANPHAM  @relation(fields: [maDanhMucSanPham], references: [maDanhMucSanPham], onDelete: Cascade, onUpdate: Cascade)
+  chiTietCombos    CHITIETCOMBO[]
+}
+
+model CHITIETCOMBO {
+  maCombo        String
+  maSanPham      String
+  soLuong        Int      
+
+  combo          COMBO     @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade, onUpdate: Cascade)
+  sanPham        SANPHAM   @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([maCombo, maSanPham])
+}
+
+model COMBO {
+  maCombo       String   @id
+  tenCombo      String
+  anhCombo      String
+  giaGoc        Float
+  giaBan        Float
+  hienThi       Boolean   @default(true)
+
+  chiTietCombos CHITIETCOMBO[]
+}

@@ -132,6 +132,7 @@ async getPhimSapChieu(req: Request, res: Response) {
       })).map(({ maPhong, phongChieu, ...suatChieu }) => ({
         ...suatChieu,
         tenLoaiPhong: phongChieu.loaiPhongChieu.tenLoaiPhong,
+        tenPhongChieu: phongChieu.tenPhong,
       }))
       return res.status(200).json(suatChieus)
     } catch (error) {

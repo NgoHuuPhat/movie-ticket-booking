@@ -1,0 +1,48 @@
+-- CreateTable
+CREATE TABLE "DANHMUCSANPHAM" (
+    "maDanhMucSanPham" TEXT NOT NULL,
+    "tenDanhMucSanPham" TEXT NOT NULL,
+
+    CONSTRAINT "DANHMUCSANPHAM_pkey" PRIMARY KEY ("maDanhMucSanPham")
+);
+
+-- CreateTable
+CREATE TABLE "SANPHAM" (
+    "maSanPham" TEXT NOT NULL,
+    "tenSanPham" TEXT NOT NULL,
+    "giaTien" DOUBLE PRECISION NOT NULL,
+    "anhSanPham" TEXT NOT NULL,
+    "hienThi" BOOLEAN NOT NULL DEFAULT true,
+    "maDanhMucSanPham" TEXT NOT NULL,
+
+    CONSTRAINT "SANPHAM_pkey" PRIMARY KEY ("maSanPham")
+);
+
+-- CreateTable
+CREATE TABLE "CHITIETCOMBO" (
+    "maCombo" TEXT NOT NULL,
+    "maSanPham" TEXT NOT NULL,
+    "soLuong" INTEGER NOT NULL,
+
+    CONSTRAINT "CHITIETCOMBO_pkey" PRIMARY KEY ("maCombo","maSanPham")
+);
+
+-- CreateTable
+CREATE TABLE "COMBO" (
+    "maCombo" TEXT NOT NULL,
+    "tenCombo" TEXT NOT NULL,
+    "anhCombo" TEXT NOT NULL,
+    "giaTien" DOUBLE PRECISION NOT NULL,
+    "hienThi" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "COMBO_pkey" PRIMARY KEY ("maCombo")
+);
+
+-- AddForeignKey
+ALTER TABLE "SANPHAM" ADD CONSTRAINT "SANPHAM_maDanhMucSanPham_fkey" FOREIGN KEY ("maDanhMucSanPham") REFERENCES "DANHMUCSANPHAM"("maDanhMucSanPham") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CHITIETCOMBO" ADD CONSTRAINT "CHITIETCOMBO_maCombo_fkey" FOREIGN KEY ("maCombo") REFERENCES "COMBO"("maCombo") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CHITIETCOMBO" ADD CONSTRAINT "CHITIETCOMBO_maSanPham_fkey" FOREIGN KEY ("maSanPham") REFERENCES "SANPHAM"("maSanPham") ON DELETE CASCADE ON UPDATE CASCADE;
