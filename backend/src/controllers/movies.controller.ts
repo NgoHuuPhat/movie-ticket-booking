@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 
-class PhimController {
+class PhimsController {
 
   // [GET] /movie
   async getAllPhim(req: Request, res: Response) {
@@ -143,4 +143,4 @@ async getPhimSapChieu(req: Request, res: Response) {
 
 }
 
-export default new PhimController()
+export default new PhimsController()

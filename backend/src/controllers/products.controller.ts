@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 
-class SanPhamController {
+class SanPhamsController {
 
   // [GET] /product/categories-with-products
   async getDanhMucVoiSanPhams(req: Request, res: Response) {
@@ -18,4 +18,4 @@ class SanPhamController {
   }
 }
 
-export default new SanPhamController()
+export default new SanPhamsController()

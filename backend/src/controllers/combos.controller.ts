@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 
-class ComboController {
+class CombosController {
 
   // [GET] /combo
   async getAllCombo(req: Request, res: Response) {
@@ -30,4 +30,4 @@ class ComboController {
   }
 }
 
-export default new ComboController()
+export default new CombosController()

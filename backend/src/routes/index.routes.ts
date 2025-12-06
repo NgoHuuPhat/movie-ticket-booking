@@ -1,17 +1,17 @@
 import { Router } from 'express'
 import authRouter from '@/routes/auth.routes'
-import movieRouter from '@/routes/movie.routes'
-import showtimeRouter from '@/routes/showtime.routes'
-import productRouter from '@/routes/product.routes'
-import comboRouter from '@/routes/combo.routes'
+import moviesRouter from '@/routes/movies.routes'
+import showtimesRouter from '@/routes/showtimes.routes'
+import productsRouter from '@/routes/products.routes'
+import combosRouter from '@/routes/combos.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 
 const router = Router()
 
 router.use('/auth', authRouter)
-router.use('/movie', authenticateToken, movieRouter)
-router.use('/showtime', authenticateToken, showtimeRouter)
-router.use('/product', authenticateToken, productRouter)
-router.use('/combo', authenticateToken, comboRouter)
+router.use('/movies', authenticateToken, moviesRouter)
+router.use('/showtimes', authenticateToken, showtimesRouter)
+router.use('/products', authenticateToken, productsRouter)
+router.use('/combos', authenticateToken, combosRouter)
 
 export default router

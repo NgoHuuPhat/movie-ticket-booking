@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import showTimeController from '@/controllers/showtime.controller'
+import showTimeController from '@/controllers/showtimes.controller'
 
 const router = Router()
 

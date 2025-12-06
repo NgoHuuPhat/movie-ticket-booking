@@ -41,41 +41,41 @@ export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => 
 }
 
 export const listMovies = async () => {
-  const res = await request.get("/movie")
+  const res = await request.get("/movies")
   return res.data
 }
 
 export const listMoviesShowing = async () => {
-  const res = await request.get("/movie/showing")
+  const res = await request.get("/movies/showing")
   return res.data
 }
 
 export const listMoviesUpcoming = async () => {
-  const res = await request.get("/movie/upcoming")
+  const res = await request.get("/movies/upcoming")
   return res.data
 }
 
 export const getMovieDetails = async (slug: string) => {
-  const res = await request.get(`/movie/${slug}`)
+  const res = await request.get(`/movies/${slug}`)
   return res.data
 }
 
 export const getMovieShowtimes = async (maPhim: string) => {
-  const res = await request.get(`/movie/${maPhim}/showtimes`)
+  const res = await request.get(`/movies/${maPhim}/showtimes`)
   return res.data
 }
 
 export const getSeatsByShowTimeId = async (showTimeId: string) => {
-  const res = await request.get(`/showtime/${showTimeId}/seats`)
+  const res = await request.get(`/showtimes/${showTimeId}/seats`)
   return res.data
 }
 
 export const getCategoriesWithProducts = async () => {
-  const res = await request.get("/product/categories-with-products")
+  const res = await request.get("/products/categories-with-products")
   return res.data
 }
 
 export const getAllCombos = async () => {
-  const res = await request.get("/combo")
+  const res = await request.get("/combos")
   return res.data
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 
-class SuatChieuController {
+class SuatChieusController {
 
   // [GET] /showtime/:id/seats
   async getGheTheoSuatChieuId(req: Request, res: Response) {
@@ -43,4 +43,4 @@ class SuatChieuController {
   }
 }
 
-export default new SuatChieuController()
+export default new SuatChieusController()

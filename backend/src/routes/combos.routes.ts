@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import comboController from '@/controllers/combo.controller'
+import comboController from '@/controllers/combos.controller'
 
 const router = Router()
 
