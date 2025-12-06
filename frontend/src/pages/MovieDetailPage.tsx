@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Clock, Play, Tags, UserRoundCheck, X } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
-import { getMovieDetails, getMovieShowtimes, getSeatsByShowTimeId } from "@/services/api"
+import { getAllCombos, getCategoriesWithProducts, getMovieDetails, getMovieShowtimes, getSeatsByShowTimeId } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
 import type { IGroupedShowtime, IMovie, IMovieShowtime } from "@/types/movie"
 import type { ISeatData } from "@/types/seat"
@@ -14,6 +14,8 @@ import useTrailerModal from "@/hooks/useTrailerModal"
 import { formatDate, formatTime } from "@/utils/formatDate"
 import Seat from "@/components/common/Seat"
 import { useAlert } from "@/stores/useAlert"
+import { ComboCard, ProductCard } from "@/components/common/FoodItemCard"
+import type { ICategoryWithProducts, ICombo, IProduct } from "@/types/product"
 
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
@@ -25,12 +27,78 @@ export default function MovieDetailPage() {
   const [seats, setSeats] = useState<ISeatData[]>([])
   const [loadingSeats, setLoadingSeats] = useState(false)
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<"products" | "combos">("products")
+  const [categoriesWithProducts, setCategoriesWithProducts] = useState<ICategoryWithProducts[]>([])
+  const [combos, setCombos] = useState<ICombo[]>([])
+  const [foodQuantities, setFoodQuantities] = useState<{ [key: string]: number }>({})
+
   const seatRef = useRef<HTMLDivElement | null>(null)
   const { slug } = useParams<{ slug: string }>()
   const { showToast } = useAlert()
   
   const { show, trailerId, openModal, closeModal } = useTrailerModal()
   useScrollToTop()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoriesData, combosData] = await Promise.all([
+          getCategoriesWithProducts(),
+          getAllCombos()
+        ])
+        setCombos(combosData)
+        setCategoriesWithProducts(categoriesData)
+      } catch (error) {
+        console.error("Failed to fetch food data:", handleError(error))
+      } 
+    }
+    fetchData()
+  }, [])
+
+  const handleFoodChange = (id: string, quantity: number) => {
+    setFoodQuantities(prev => ({
+      ...prev,
+      [id]: quantity
+    }))
+  }
+
+  const getSelectedFoodItems = () => {
+    const items: {id: string, label: string}[] = []
+
+    categoriesWithProducts.forEach(category => {
+      category.sanPhams.forEach((product: IProduct) => {
+        const qty = foodQuantities[product.maSanPham] || 0
+        if (qty > 0) {
+          items.push({ id: product.maSanPham, label: `${qty}x ${product.tenSanPham}` })
+        }
+      })
+    })
+
+    combos.forEach((combo: ICombo) => {
+      const qty = foodQuantities[combo.maCombo] || 0
+      if (qty > 0) {
+        items.push({ id: combo.maCombo, label: `${qty}x ${combo.tenCombo}` })
+      }
+    })
+    return items
+  }
+
+  const calculateFoodTotal = () => {
+    let total = 0
+
+    categoriesWithProducts.forEach(category => {
+      category.sanPhams.forEach((product: IProduct) => {
+        const qty = foodQuantities[product.maSanPham] || 0
+        total += product.giaTien * qty
+      })
+    })
+
+    combos.forEach((combo: ICombo) => {
+      const qty = foodQuantities[combo.maCombo] || 0
+      total += combo.giaBan * qty
+    })
+    return total
+  }
 
   useEffect(() => {
     if(!slug) return
@@ -86,9 +154,7 @@ export default function MovieDetailPage() {
       const seatsData = await getSeatsByShowTimeId(show.maSuatChieu)
       setSeats(seatsData)
       
-      setTimeout(() => {
-        seatRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
+      seatRef.current?.scrollIntoView({ behavior: 'smooth' })
     } catch (error) {
       console.error("Failed to fetch seats:", handleError(error))
       setSeats([])
@@ -165,19 +231,11 @@ export default function MovieDetailPage() {
     })
   }
 
-  const calculateTotal = () => {
+  const calculateSeatsTotal = () => {
     return selectedSeats.reduce((total, maGhe) => {
       const seat = seats.find(s => s.maGhe === maGhe)
       return total + (seat?.giaTien || 0)
     }, 0)
-  }
-
-  const getSeatInfo = (maGhe: string) => {
-    return seats.find(s => s.maGhe === maGhe)
-  }
-
-  const getSeatsByRow = (row: string) => {
-    return seats.filter(seat => seat.hangGhe === row)
   }
 
   const uniqueRows = Array.from(new Set(seats.map(s => s.hangGhe))).sort()
@@ -364,9 +422,9 @@ export default function MovieDetailPage() {
       </section>
 
       {/* Seat Selection Section */}
-      {selectedShowtime && !loadingSeats && seats.length > 0 && (
+      {selectedShowtime && (
         <section ref={seatRef} className="max-w-7xl mx-auto pt-8 pb-32">
-          <div className="bg-white/5 backdrop-blur-sm border border-yellow-300/30 rounded-lg py-6">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 hover:border-yellow-300/50 rounded-lg py-6">
             {/* Header */}
             <div className="flex justify-center mb-6 pb-4 border-b border-white/10">
               <div>
@@ -395,7 +453,7 @@ export default function MovieDetailPage() {
 
                     <div className="flex flex-col gap-[2px]">
                       {uniqueRows.map((row) => {
-                        const rowSeats = getSeatsByRow(row)
+                        const rowSeats = seats.filter(seat => seat.hangGhe === row)
 
                         return (
                           <div 
@@ -461,44 +519,160 @@ export default function MovieDetailPage() {
         </section>
       )}
 
+      {/* Combo and Products */}
+      {selectedShowtime && selectedSeats.length > 0 && (
+        <section className="max-w-7xl mx-auto pb-32">
+          <h2 className="text-4xl font-anton uppercase text-white text-center mb-10">
+            Chọn Bắp Nước
+          </h2>
+
+            <div className="flex justify-center mb-8">
+              <div className="flex bg-white/10 rounded-lg p-1 border border-yellow-300/30">
+                <button
+                  onClick={() => setActiveTab("products")}
+                  className={`px-8 py-3 rounded-md font-semibold transition-all cursor-pointer ${
+                    activeTab === "products"
+                      ? "bg-gradient-to-r from-yellow-300 to-pink-500 text-black shadow-lg"
+                      : "text-yellow-300 hover:text-white"
+                  }`}
+                >
+                  Sản phẩm lẻ 
+                </button>
+                <button
+                  onClick={() => setActiveTab("combos")}
+                  className={`px-8 py-3 rounded-md font-semibold transition-all cursor-pointer ml-2 ${
+                    activeTab === "combos"
+                      ? "bg-gradient-to-r from-yellow-300 to-pink-500 text-black shadow-lg"
+                      : "text-yellow-300 hover:text-white"
+                  }`}
+                >
+                  Combo siêu hời
+                </button>
+              </div>
+            </div>
+
+              {activeTab === "products" && categoriesWithProducts.length === 0 && (
+                <div className="text-center py-16 text-gray-400 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl">Hết hàng mất rồi huhu</p>
+                </div>
+              )}
+
+              {activeTab === "products" && categoriesWithProducts.length > 0 && (
+                <div className="space-y-12">
+                  {categoriesWithProducts.map((category) => (
+                    <div
+                      key={category.maDanhMucSanPham}
+                      className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:border-yellow-300/50 transition-all"
+                    >
+                      <h3 className="text-2xl font-semibold text-yellow-300 mb-6 text-center uppercase">
+                        {category.tenDanhMucSanPham}
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {category.sanPhams.map((sp: IProduct) => (
+                          <ProductCard
+                            key={sp.maSanPham}
+                            product={sp}
+                            quantity={foodQuantities[sp.maSanPham] || 0}
+                            onIncrease={() => handleFoodChange(sp.maSanPham, (foodQuantities[sp.maSanPham] || 0) + 1)}
+                            onDecrease={() => handleFoodChange(sp.maSanPham, Math.max(0, (foodQuantities[sp.maSanPham] || 0) - 1))}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Combo */}
+              {activeTab === "combos" && combos.length === 0 && (
+                <div className="text-center py-16 text-gray-400 bg-white/5 rounded-lg border border-white/10">
+                  <p className="text-xl">Chưa có combo nào hôm nay</p>
+                </div>
+              )}
+
+              {activeTab === "combos" && combos.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {combos.map((combo: ICombo) => (
+                    <ComboCard
+                      key={combo.maCombo}
+                      combo={combo}
+                      quantity={foodQuantities[combo.maCombo] || 0}
+                      onIncrease={() => handleFoodChange(combo.maCombo, (foodQuantities[combo.maCombo] || 0) + 1)}
+                      onDecrease={() => handleFoodChange(combo.maCombo, Math.max(0, (foodQuantities[combo.maCombo] || 0) - 1))}
+                    />
+                  ))}
+                </div>
+              )}
+        </section>
+      )}
+
+
       {/* Footer - Booking Summary */}
       {selectedShowtime && selectedSeats.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-purple-950 opacity-90 border-t-2 border-yellow-300 z-50">
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex flex-row justify-between items-start md:items-center gap-4">
-              {/* Left - Selected Seats Info */}
-              <div className="flex-1">
-                <h1 className="text-white font-anton text-3xl mb-4">{movieDetail?.tenPhim} ({movieDetail?.tenPhanLoaiDoTuoi})</h1>
-                <div className="flex flex-wrap gap-2">
-                  {selectedSeats.map(maGhe => {
-                    const seat = getSeatInfo(maGhe)
-                    return (
+              <div className="flex-1 space-y-4">
+                <h1 className="text-white font-anton text-2xl md:text-3xl leading-tight">
+                  {movieDetail?.tenPhim} <span className="text-yellow-300">({movieDetail?.tenPhanLoaiDoTuoi})</span>
+                </h1>
+                <p className="text-white ">Phòng chiếu: {selectedShowtime?.tenPhongChieu} | Suất chiếu: {formatTime(selectedShowtime?.gioChieu)}</p>
+
+                {selectedSeats.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSeats.map(maGhe => {
+                      const seat = seats.find(s => s.maGhe === maGhe)
+                      return (
+                        <div
+                          key={maGhe}
+                          className="group relative bg-gradient-to-r from-yellow-300/20 to-pink-500/20 border border-yellow-300/50 px-2 py-1 rounded flex items-center gap-3 hover:border-yellow-300 transition-all"
+                        >
+                          <span className="text-yellow-300 font-anton text-lg">
+                            {seat?.hangGhe}{seat?.soGhe}
+                          </span>
+                          <span className="text-yellow-200 text-sm">
+                            {seat?.giaTien.toLocaleString("vi-VN")}đ
+                          </span>
+
+                          <button
+                            onClick={() => handleSeatClick(maGhe)}
+                            className="transition-opacity cursor-pointer text-white text-sm"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {getSelectedFoodItems().length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {getSelectedFoodItems().map(item => (
                       <div
-                        key={maGhe}
-                        className="bg-white/10 backdrop-blur-sm px-3 py-1 rounded flex items-center gap-2"
+                        key={item.id}
+                        className="group relative bg-gradient-to-r from-yellow-300/20 to-pink-500/20 border border-yellow-300/50 px-2 py-1 rounded flex items-center gap-3 hover:border-yellow-300 transition-all"
                       >
-                        <span className="text-yellow-300 font-anton">
-                          {seat?.hangGhe}{seat?.soGhe}
+                        <span className="text-yellow-200 font-medium text-sm md:text-base">
+                          {item.label}
                         </span>
-                        <span className="text-white text-sm">
-                          {seat?.giaTien.toLocaleString('vi-VN')}đ
-                        </span>
+
                         <button
-                          onClick={() => handleSeatClick(maGhe)}
-                          className="text-yellow-300 transition-colors cursor-pointer"
+                          onClick={() => handleFoodChange(item.id, 0)}
+                          className="transition-opacity cursor-pointer text-white text-xs"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
-                    )
-                  })}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Right - Timer + Total + Button */}
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="bg-yellow-300 p-4 rounded-lg">
-                  <p className="text-black text-base">Thời gian giữ vé</p>
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="bg-yellow-300 p-4 rounded flex flex-col gap-1">
+                  <p className="text-black text-base">Thời gian giữ vé:</p>
                   <p className="text-purple-900 text-2xl font-anton">
                     14:59
                   </p>
@@ -508,19 +682,19 @@ export default function MovieDetailPage() {
                   <div className="mb-4 flex gap-4 justify-between items-center">
                     <p className="text-white text-base">Tổng tiền</p>
                     <p className="text-yellow-300 text-3xl font-anton">
-                      {calculateTotal().toLocaleString('vi-VN')}đ
+                      {(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString('en-US')} VNĐ
                     </p>
                   </div>
                   
                   <Button
                     variant="yellowToPinkPurple"
-                    className="font-anton text-lg w-50 h-12 shadow-lg"
+                    className="font-anton text-lg h-10 shadow-lg w-full"
                     onClick={() => {
                       const seatLabels = selectedSeats.map(maGhe => {
-                        const seat = getSeatInfo(maGhe)
+                        const seat = seats.find(s => s.maGhe === maGhe)
                         return `${seat?.hangGhe}${seat?.soGhe}`
                       }).join(', ')
-                      alert(`Đặt vé thành công!\nGhế: ${seatLabels}\nTổng: ${calculateTotal().toLocaleString('vi-VN')}đ`)
+                      alert(`Đặt vé thành công!\nGhế: ${seatLabels}\nTổng: ${(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString('en-US')}VNĐ`)
                     }}
                   >
                     <span>Đặt vé</span>

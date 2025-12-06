@@ -69,3 +69,13 @@ export const getSeatsByShowTimeId = async (showTimeId: string) => {
   const res = await request.get(`/showtime/${showTimeId}/seats`)
   return res.data
 }
+
+export const getCategoriesWithProducts = async () => {
+  const res = await request.get("/product/categories-with-products")
+  return res.data
+}
+
+export const getAllCombos = async () => {
+  const res = await request.get("/combo")
+  return res.data
+}

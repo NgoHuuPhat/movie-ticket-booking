@@ -1,0 +1,29 @@
+  export interface IProduct {
+    maSanPham: string
+    tenSanPham: string
+    anhSanPham: string
+    giaTien: number
+  }
+
+  export interface ICategoryWithProducts {
+    maDanhMucSanPham: string
+    tenDanhMucSanPham: string
+    sanPhams: IProduct[]
+  }
+
+  export interface IDetailCombo {
+    maSanPham: string
+    tenSanPham: string
+    anhSanPham: string
+    giaTien: number
+    soLuong: number
+  }
+
+  export interface ICombo {
+    maCombo: string
+    tenCombo: string
+    anhCombo: string
+    giaGoc: number
+    giaBan: number
+    chiTietCombos: IDetailCombo[]
+  }

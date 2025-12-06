@@ -16,7 +16,7 @@ class ComboController {
           chiTietCombos: combo.chiTietCombos.map(ct => ({
             maSanPham: ct.sanPham.maSanPham,
             tenSanPham: ct.sanPham.tenSanPham,
-            hinhAnh: ct.sanPham.anhSanPham,
+            anhSanPham: ct.sanPham.anhSanPham,
             giaTien: ct.sanPham.giaTien,
             soLuong: ct.soLuong,
           }))
