@@ -87,7 +87,7 @@ async getPhimSapChieu(req: Request, res: Response) {
   }
 
   // [GET] /movie/:slug
-  async getPhimById(req: Request, res: Response) {
+  async getPhimBySlug(req: Request, res: Response) {
     try {
       const { slug } = req.params
       const phim = await prisma.pHIM.findUnique({

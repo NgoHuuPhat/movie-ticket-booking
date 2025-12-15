@@ -8,6 +8,6 @@ router.get('/showing', movieController.getPhimDangChieu)
 router.get('/upcoming', movieController.getPhimSapChieu)
 router.get('/:id/showtimes', movieController.getSuatChieuByPhimId)
 
-router.get('/:slug', movieController.getPhimById)
+router.get('/:slug', movieController.getPhimBySlug)
 
 export default router

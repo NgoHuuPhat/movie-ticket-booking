@@ -15,21 +15,25 @@
       try {
         await signUp(hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh)
         toast.success("Đăng ký thành công! Bạn được chuyển sang trang đăng nhập.")
+        return true
       } catch (error) {
         console.error("Registration error:", error)
         toast.error("Đăng ký thất bại. Vui lòng thử lại.")
         set({ errorRegister: handleError(error) })
+        return false
       } 
     },
 
     signIn: async (email, matKhau) => {
-      set({ isCheckingAuth: true, errorLogin: "" })
+      set({ errorLogin: "" })
       try {
         await signIn(email, matKhau)
         await get().fetchMe()
+        return true
       } catch (error) {
         console.error("Sign-in error:", error)
         set({ isCheckingAuth: false, errorLogin: handleError(error) })
+        return false
       }
     },
 
@@ -44,6 +48,7 @@
     },
 
     fetchMe: async () => {
+      set({ isCheckingAuth: true })
       try {
         const user = await fetchMe()
         set({ user })
@@ -53,7 +58,7 @@
       } finally {
         setTimeout(() => {
           set({ isCheckingAuth: false })
-        }, 300) 
+        }, 200) 
       }
     }
 

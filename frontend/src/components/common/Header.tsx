@@ -77,15 +77,7 @@ const Header = () => {
                 <button
                   className="flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer group transition-all"
                 >
-                  {user.anhDaiDien ? (
-                    <img
-                      src={user.anhDaiDien}
-                      alt="Avatar"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <CircleUser className="w-6 h-6 group-hover:text-yellow-300 transition-colors" />
-                  )}
+                  <CircleUser className="w-6 h-6 group-hover:text-yellow-300 transition-colors" />
                   <div className="text-left">
                     <p className="font-medium text-sm group-hover:text-yellow-300 transition-colors">
                       {user.hoTen || user.email}

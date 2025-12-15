@@ -6,8 +6,8 @@ export interface AuthState {
   errorLogin: string
   errorRegister: string
 
-  signUp: (hoTen: string, email: string, matKhau: string, soDienThoai: string, ngaySinh: string, gioiTinh: string) => Promise<void>
-  signIn: (email: string, matKhau: string) => Promise<void>
+  signUp: (hoTen: string, email: string, matKhau: string, soDienThoai: string, ngaySinh: string, gioiTinh: string) => Promise<boolean>
+  signIn: (email: string, matKhau: string) => Promise<boolean>
   signOut: () => Promise<void>
   fetchMe: () => Promise<void>
 }

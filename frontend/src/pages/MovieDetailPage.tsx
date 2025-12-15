@@ -120,6 +120,7 @@ export default function MovieDetailPage() {
       try {
         setLoadingShowtimes(true)
         const data = await getMovieShowtimes(movieDetail.maPhim)
+        console.log("Showtimes data:", data)
 
         const grouped = data.reduce((acc: IGroupedShowtime, show: IMovieShowtime) => {
           const dateKey = formatDate(show.ngayChieu,"dd/MM")

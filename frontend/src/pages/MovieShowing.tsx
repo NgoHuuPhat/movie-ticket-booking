@@ -19,7 +19,7 @@ export default function MovieShowingpage() {
           <div className="relative">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {movieShowing.map((movie) => (
-                <Link key={movie.maPhim} to={`/movie/${movie.slug}`}>
+                <Link key={movie.maPhim} to={`/movies/${movie.slug}`}>
                   <MovieCard
                     movie={movie}
                     isComingSoon={false}

@@ -113,7 +113,7 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedNow.map((movie) => (
-                <Link key={movie.maPhim} to={`/movie/${movie.slug}`}>
+                <Link key={movie.maPhim} to={`/movies/${movie.slug}`}>
                   <MovieCard
                     movie={movie}
                     isComingSoon={false}
@@ -144,7 +144,7 @@ export default function Homepage() {
           </div>
 
           <div className="text-center mt-8">
-            <Link to="/movie/showing">
+            <Link to="/movies/showing">
               <Button variant="transparentToYellowOrange" className="h-10 px-20">
               <span className="font-anton uppercase text-base">Xem thêm</span>
             </Button>
@@ -164,7 +164,7 @@ export default function Homepage() {
             </button>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedComing.map((movie) => (
-                <Link key={movie.maPhim} to={`/movie/${movie.slug}`}>
+                <Link key={movie.maPhim} to={`/movies/${movie.slug}`}>
                   <MovieCard
                     movie={movie}
                     isComingSoon={true}
@@ -201,7 +201,7 @@ export default function Homepage() {
             </button>
           </div>
           <div className="text-center mt-8">
-            <Link to="/movie/upcoming">
+            <Link to="/movies/upcoming">
               <Button variant="transparentToYellowOrange" className="h-10 px-20">
               <span className="font-anton uppercase text-base">Xem thêm</span>
             </Button>

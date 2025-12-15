@@ -29,8 +29,10 @@ const LoginForm = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     const { email, matKhau } = data
-    await signIn(email, matKhau)
-    navigate("/") 
+    const success = await signIn(email, matKhau)
+    if (success) {
+      navigate("/") 
+    }
   }
 
   return (
@@ -48,7 +50,7 @@ const LoginForm = () => {
             type="email"
             placeholder="Nhập Email"
             {...register("email")}
-            className="pl-12 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 rounded-xl transition-all"
+            className="pl-12 h-12 border-gray-200"
             required
           />
         </div>

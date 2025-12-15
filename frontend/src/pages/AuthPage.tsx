@@ -21,7 +21,7 @@ const AuthPage = () => {
         <div className="w-full max-w-[500px] flex gap-2 mb-2">
           <button
             onClick={() => handleTabChange("login")}
-            className={`flex-1 py-4 font-anton text-sm transition-all bg-white duration-300 rounded-xl ${
+            className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded-xl ${
               activeTab === "login" ? "text-black" : "text-white/50 bg-white/0 hover:bg-white/20"
             }`}
           >
@@ -29,7 +29,7 @@ const AuthPage = () => {
           </button>
           <button
             onClick={() => handleTabChange("register")}
-            className={`flex-1 py-4 font-anton text-sm transition-all bg-white duration-300 rounded-xl ${
+            className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded-xl ${
               activeTab === "register" ? "text-black" : "text-white/50 bg-white/0 hover:bg-white/20"
             }`}
           >

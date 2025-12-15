@@ -7,26 +7,22 @@ import MovieUpcoming from "@/pages/MovieUpcoming"
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
 import VerifyOTPPage from "@/pages/VerifyOTPPage"
 import ResetPasswordPage from "@/pages/ResetPasswordPage"
-import ProtectedRoute from "@/components/auth/ProtectedRoute"
-import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
-import { Toaster } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 import MovieDetailPage from "./pages/MovieDetailPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
   
   useEffect(() => {
-    if(!user){
-      fetchMe()
-    }
-  }, [user, fetchMe])
+    fetchMe()
+  }, [fetchMe])
   
   if (isCheckingAuth) return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-gray-900 via-purple-500 to-gray-900">
       <BeatLoader />
-      <p className="mt-4 text-white text-lg animate-pulse">Đang tải dữ liệu...</p>
+      <p className="mt-4 text-white text-lg">Chờ xíu nhe...</p>
     </div>
   )
 
@@ -34,20 +30,17 @@ function App(){
     <>
       <Toaster position="top-center" richColors/>
       <Routes>
-        <Route element={<PublicOnlyRoute />}>
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/register" element={<AuthPage />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/movie/showing" element={<MovieShowing />} />
-          <Route path="/movie/upcoming" element={<MovieUpcoming />} />
-          <Route path="/movie/:slug" element={<MovieDetailPage />} />
-        </Route>
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-otp" element={<VerifyOTPPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-      </Routes>
+          <Route path="/login" element={ user ? <HomePage /> : <AuthPage />} />
+          <Route path="/register" element={ user ? <HomePage /> : <AuthPage />} />
+          <Route path="/" element={ !user ? <AuthPage /> : <HomePage />} />
+          <Route path="/movies/showing" element={ user ? <MovieShowing /> : <AuthPage />} />
+          <Route path="/movies/upcoming" element={ user ? <MovieUpcoming /> : <AuthPage />} />
+          <Route path="/movies/:slug" element={ user ? <MovieDetailPage /> : <AuthPage />} />
+
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/verify-otp" element={<VerifyOTPPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+    </Routes>
     </>
   )
 }

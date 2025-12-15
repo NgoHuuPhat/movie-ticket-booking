@@ -46,10 +46,10 @@ const RegisterForm = () => {
 
   const onSubmit = async (data: SignUpFormData) => {
     const { hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh } = data
-    await signUp(hoTen, email, matKhau, soDienThoai, format(ngaySinh, "yyyy-MM-dd"), gioiTinh)
-    if (!errorRegister) {
+    const success = await signUp(hoTen, email, matKhau, soDienThoai, format(ngaySinh, "yyyy-MM-dd"), gioiTinh)
+    if (success) {
       navigate("/login")
-    }
+    }    
   }
 
   return (
