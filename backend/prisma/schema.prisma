@@ -12,7 +12,9 @@ model LOAINGUOIDUNG {
   maLoaiNguoiDung  String @id
   tenLoaiNguoiDung String   
   moTa             String?  
+  
   nguoiDungs       NGUOIDUNG[]
+  dieuKienKhuyenMais DIEUKIENKHUYENMAI[]
 }
 
 enum TRANGTHAINGUOIDUNG {
@@ -235,4 +237,43 @@ model COMBO {
   hienThi       Boolean   @default(true)
 
   chiTietCombos CHITIETCOMBO[]
+}
+
+model DIEUKIENKHUYENMAI {
+  maDieuKien      String  @id
+  tenLoaiDieuKien String 
+  maLoaiNguoiDung String?
+  moTa            String?
+
+  loaiNguoiDung   LOAINGUOIDUNG? @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung], onDelete: Cascade, onUpdate: Cascade)
+  khuyenMais      KHUYENMAI[]
+}
+
+enum LOAIKHUYENMAI {
+  GiamGiaTien
+  GiamPhanTram
+}
+
+model KHUYENMAI {
+  maKhuyenMai              String   @id
+  tenKhuyenMai             String
+  maCode                   String   @unique
+
+  maDieuKien               String
+  loaiKhuyenMai            LOAIKHUYENMAI
+  giaTriGiam               Int
+  
+  soLuong                  Int?
+  soLuongDaDung            Int      @default(0)
+
+  thangApDung              Int?
+  ngayApDung               Int?
+
+  ngayBatDau               DateTime
+  ngayKetThuc              DateTime
+
+  hoatDong                 Boolean   @default(true)
+  moTa                     String?
+
+  dieuKienKhuyenMai        DIEUKIENKHUYENMAI @relation(fields: [maDieuKien], references: [maDieuKien], onDelete: Cascade, onUpdate: Cascade)
 }

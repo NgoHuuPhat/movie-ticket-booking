@@ -79,3 +79,8 @@ export const getAllCombos = async () => {
   const res = await request.get("/combos")
   return res.data
 }
+
+export const getDiscountsForUser = async () => {
+  const res = await request.get("/discounts")
+  return res.data
+}

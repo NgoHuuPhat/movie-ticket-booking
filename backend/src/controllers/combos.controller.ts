@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 class CombosController {
 
-  // [GET] /combo
+  // [GET] /combos
   async getAllCombo(req: Request, res: Response) {
     try {
         const result = (await prisma.cOMBO.findMany({

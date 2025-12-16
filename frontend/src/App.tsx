@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { Routes, Route } from "react-router-dom"
+
 import AuthPage from "@/pages/AuthPage"
 import HomePage from "@/pages/HomePage"
 import MovieShowing from "@/pages/MovieShowing"
@@ -7,10 +8,12 @@ import MovieUpcoming from "@/pages/MovieUpcoming"
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
 import VerifyOTPPage from "@/pages/VerifyOTPPage"
 import ResetPasswordPage from "@/pages/ResetPasswordPage"
+import CheckoutPage from "@/pages/CheckoutPage"
+import MovieDetailPage from "@/pages/MovieDetailPage"
+
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
 import { Toaster } from "@/components/ui/sonner"
-import MovieDetailPage from "./pages/MovieDetailPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -33,9 +36,12 @@ function App(){
           <Route path="/login" element={ user ? <HomePage /> : <AuthPage />} />
           <Route path="/register" element={ user ? <HomePage /> : <AuthPage />} />
           <Route path="/" element={ !user ? <AuthPage /> : <HomePage />} />
+
           <Route path="/movies/showing" element={ user ? <MovieShowing /> : <AuthPage />} />
           <Route path="/movies/upcoming" element={ user ? <MovieUpcoming /> : <AuthPage />} />
           <Route path="/movies/:slug" element={ user ? <MovieDetailPage /> : <AuthPage />} />
+          
+          <Route path="/checkout" element={ user ? <CheckoutPage /> : <AuthPage />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-otp" element={<VerifyOTPPage />} />

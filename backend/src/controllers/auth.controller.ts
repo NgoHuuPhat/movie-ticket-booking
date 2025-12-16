@@ -14,7 +14,7 @@ class AuthController {
   // [POST] /auth/register
   async register(req: Request, res: Response) {
     try {
-      const { hoTen, email, matKhau, soDienThoai, maLoaiNguoiDung, ngaySinh, gioiTinh } = req.body
+      const { hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh } = req.body
 
       const existingUser = await prisma.nGUOIDUNG.findUnique({ where: { email } })
       if (existingUser) {
