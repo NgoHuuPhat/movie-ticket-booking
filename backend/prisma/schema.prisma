@@ -40,6 +40,10 @@ model NGUOIDUNG {
   ngayTao       DateTime  @default(now())
   diemTichLuy   Int @default(0)
 
+  veNguoiMuas   VE[]      @relation("VeNguoiMua")
+  veNhanVienDats VE[]     @relation("VeNhanVienDat")
+  veNhanVienSoats VE[]    @relation("VeNhanVienSoat")
+
   loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -98,6 +102,7 @@ model PHIM {
 
   suatChieus    SUATCHIEU[]
   phimTheLoais  PHIM_THELOAI[]
+  ves           VE[]
 }   
 
 model RAP {
@@ -141,6 +146,7 @@ model SUATCHIEU {
   gioKetThuc    DateTime  @db.Time
 
   gheSuatChieus GHE_SUATCHIEU[]
+  veSuatChieus  VE[]
 
   phim          PHIM        @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
   phongChieu    PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
@@ -174,6 +180,7 @@ model GHE {
   maLoaiGhe   String
 
   gheSuatChieus GHE_SUATCHIEU[]
+  chiTietVes    CHITIETVE[]
 
   loaiGhe     LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe], onDelete: Cascade, onUpdate: Cascade)
   phongChieu  PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
@@ -213,8 +220,10 @@ model SANPHAM {
   hienThi     Boolean   @default(true)
   maDanhMucSanPham  String
 
-  danhMucSanPham   DANHMUCSANPHAM  @relation(fields: [maDanhMucSanPham], references: [maDanhMucSanPham], onDelete: Cascade, onUpdate: Cascade)
   chiTietCombos    CHITIETCOMBO[]
+  veSanPhams       VE_SANPHAM[]
+
+  danhMucSanPham   DANHMUCSANPHAM  @relation(fields: [maDanhMucSanPham], references: [maDanhMucSanPham], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model CHITIETCOMBO {
@@ -237,6 +246,7 @@ model COMBO {
   hienThi       Boolean   @default(true)
 
   chiTietCombos CHITIETCOMBO[]
+  veCombos      VE_COMBO[]
 }
 
 model DIEUKIENKHUYENMAI {
@@ -258,22 +268,110 @@ model KHUYENMAI {
   maKhuyenMai              String   @id
   tenKhuyenMai             String
   maCode                   String   @unique
-
   maDieuKien               String
   loaiKhuyenMai            LOAIKHUYENMAI
   giaTriGiam               Int
-  
   soLuong                  Int?
   soLuongDaDung            Int      @default(0)
-
   thangApDung              Int?
   ngayApDung               Int?
-
   ngayBatDau               DateTime
   ngayKetThuc              DateTime
-
   hoatDong                 Boolean   @default(true)
   moTa                     String?
 
+  ves                      VE[]
+
   dieuKienKhuyenMai        DIEUKIENKHUYENMAI @relation(fields: [maDieuKien], references: [maDieuKien], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum HINHTHUCVE {
+  Offline
+  Online
+}
+
+enum PHUONGTHUCTHANHTOAN {
+  VNPAY
+  MOMO
+  TIENMAT
+}
+
+enum TRANGTHAITHANHTOAN {
+  DaThanhToan
+  ChuaThanhToan
+  LoiThanhToan
+}
+
+model VE {
+  maVe                String   @id
+  maPhim              String
+  maSuatChieu         String
+  maNguoiDung         String
+  maNhanVienDat       String?
+  maQR                String   @unique
+  hinhThuc            HINHTHUCVE
+  phuongThucThanhToan PHUONGTHUCTHANHTOAN
+  maGiaoDich          String?  @unique
+  trangThaiThanhToan  TRANGTHAITHANHTOAN        
+  ngayMua             DateTime @default(now())
+  tongTien            Float
+  daCheckIn           Boolean  @default(false)
+  thoiGianCheckIn     DateTime?
+  maNhanVienSoat      String?
+  maKhuyenMai         String?
+  ngayHoanTien        DateTime?
+  noiDungHoan         String?
+
+  chiTietVes          CHITIETVE[]
+  veCombos            VE_COMBO[]
+  veSanPhams          VE_SANPHAM[]
+
+  nguoiDung           NGUOIDUNG   @relation("VeNguoiMua", fields: [maNguoiDung], references: [maNguoiDung])
+  nhanVienDat         NGUOIDUNG?  @relation("VeNhanVienDat", fields: [maNhanVienDat], references: [maNguoiDung])
+  nhanVienSoat        NGUOIDUNG?  @relation("VeNhanVienSoat", fields: [maNhanVienSoat], references: [maNguoiDung])
+  
+  phim                PHIM        @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
+  khuyenMai           KHUYENMAI?  @relation(fields: [maKhuyenMai], references: [maKhuyenMai], onDelete: SetNull, onUpdate: Cascade)
+  suatChieu           SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model CHITIETVE {
+  maVe          String
+  maGhe         String
+  donGia       Float
+  
+  @@id([maVe, maGhe])
+
+  ve            VE    @relation(fields: [maVe], references: [maVe], onDelete: Cascade, onUpdate: Cascade)
+  ghe           GHE   @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model VE_COMBO {
+  maVe        String
+  maCombo     String
+  soLuong     Int
+  donGia      Float
+  tongTien    Float
+  daLay       Boolean  @default(false)
+  thoiGianLay DateTime?
+
+  @@id([maVe, maCombo])
+
+  ve          VE     @relation(fields: [maVe], references: [maVe], onDelete: Cascade, onUpdate: Cascade)
+  combo       COMBO  @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model VE_SANPHAM {
+  maVe        String
+  maSanPham   String
+  soLuong     Int
+  donGia      Float
+  tongTien    Float
+  daLay       Boolean  @default(false)
+  thoiGianLay DateTime?
+
+  @@id([maVe, maSanPham])
+
+  ve          VE      @relation(fields: [maVe], references: [maVe], onDelete: Cascade, onUpdate: Cascade)
+  sanPham     SANPHAM @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade, onUpdate: Cascade)
 }

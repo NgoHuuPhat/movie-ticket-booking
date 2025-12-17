@@ -4,6 +4,7 @@ import moviesRouter from '@/routes/movies.routes'
 import showtimesRouter from '@/routes/showtimes.routes'
 import productsRouter from '@/routes/products.routes'
 import combosRouter from '@/routes/combos.routes'
+import paymentsRouter from '@/routes/payments.routes'
 import discountsRouter from '@/routes/discounts.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 
@@ -15,5 +16,6 @@ router.use('/showtimes', authenticateToken, showtimesRouter)
 router.use('/products', authenticateToken, productsRouter)
 router.use('/combos', authenticateToken, combosRouter)
 router.use('/discounts', authenticateToken, discountsRouter)
+router.use('/payments', paymentsRouter)
 
 export default router

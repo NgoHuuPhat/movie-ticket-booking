@@ -2,8 +2,11 @@ import React from "react"
 import Header from "@/components/common/Header"
 import Footer from "@/components/common/Footer"
 import AlertModal from "@/components/common/AlertModal"
+import useScrollToTop from "@/hooks/useScrollToTop"
 
 const UserLayout = ({children}: {children: React.ReactNode}) => {
+  useScrollToTop()
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

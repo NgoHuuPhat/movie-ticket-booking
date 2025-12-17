@@ -10,6 +10,7 @@ import VerifyOTPPage from "@/pages/VerifyOTPPage"
 import ResetPasswordPage from "@/pages/ResetPasswordPage"
 import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
+import CheckoutResultPage from "./pages/CheckoutResultPage"
 
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
@@ -42,6 +43,7 @@ function App(){
           <Route path="/movies/:slug" element={ user ? <MovieDetailPage /> : <AuthPage />} />
           
           <Route path="/checkout" element={ user ? <CheckoutPage /> : <AuthPage />} />
+          <Route path="/checkout-result" element={ user ? <CheckoutResultPage /> : <AuthPage />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-otp" element={<VerifyOTPPage />} />

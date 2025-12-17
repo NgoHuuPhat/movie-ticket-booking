@@ -84,3 +84,24 @@ export const getDiscountsForUser = async () => {
   const res = await request.get("/discounts")
   return res.data
 }
+
+interface IProduct {
+  maSanPham: string
+  soLuong: number
+  donGia: number
+  loai: 'combo' | 'sanpham'
+}
+
+interface IVNPayRequestBody {
+  maPhim: string
+  maSuatChieu: string
+  selectedSeats: { maGhe: string; giaTien: number }[]
+  selectedFoods: IProduct[]
+  maKhuyenMai?: string
+  tongTien: number
+}
+
+export const createVNPayPayment = async (paymentData: IVNPayRequestBody) => {
+  const res = await request.post("/payments/vnpay-create", paymentData)
+  return res.data
+}

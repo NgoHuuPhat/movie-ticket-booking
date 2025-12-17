@@ -27,3 +27,11 @@
     giaBan: number
     chiTietCombos: IDetailCombo[]
   }
+
+  export interface ISelectedFood {
+    maSanPham: string
+    tenSanPham: string
+    donGia: number
+    soLuong: number
+    loai: "sanpham" | "combo"
+  }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Clock, Play, Tags, UserRoundCheck, X } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
 import { getAllCombos, getCategoriesWithProducts, getMovieDetails, getMovieShowtimes, getSeatsByShowTimeId } from "@/services/api"
@@ -8,14 +8,14 @@ import type { IGroupedShowtime, IMovie, IMovieShowtime } from "@/types/movie"
 import type { ISeatData } from "@/types/seat"
 import { phienBan } from "@/constants/version"
 import { Button } from "@/components/ui/button"
-import useScrollToTop from "@/hooks/useScrollToTop"
 import TrailerModal from "@/components/common/TrailerModal"
 import useTrailerModal from "@/hooks/useTrailerModal"
 import { formatDate, formatTime } from "@/utils/formatDate"
 import Seat from "@/components/common/Seat"
 import { useAlert } from "@/stores/useAlert"
 import { ComboCard, ProductCard } from "@/components/common/FoodItemCard"
-import type { ICategoryWithProducts, ICombo, IProduct } from "@/types/product"
+import type { ICategoryWithProducts, ICombo, IProduct, ISelectedFood } from "@/types/product"
+import useBookingStore from "@/stores/useBookingStore"
 
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
@@ -35,9 +35,10 @@ export default function MovieDetailPage() {
   const seatRef = useRef<HTMLDivElement | null>(null)
   const { slug } = useParams<{ slug: string }>()
   const { showToast } = useAlert()
-  
+  const navigate = useNavigate()
+
+  const { setMovie, setShowtime, setSeats: setSeatStore, setFoods } = useBookingStore()
   const { show, trailerId, openModal, closeModal } = useTrailerModal()
-  useScrollToTop()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,7 +121,6 @@ export default function MovieDetailPage() {
       try {
         setLoadingShowtimes(true)
         const data = await getMovieShowtimes(movieDetail.maPhim)
-        console.log("Showtimes data:", data)
 
         const grouped = data.reduce((acc: IGroupedShowtime, show: IMovieShowtime) => {
           const dateKey = formatDate(show.ngayChieu,"dd/MM")
@@ -239,15 +239,64 @@ export default function MovieDetailPage() {
     }, 0)
   }
 
+  const handleCheckout = () => {
+    if (!movieDetail || !selectedShowtime || selectedSeats.length === 0) {
+      showToast("Vui lòng chọn suất chiếu và ghế ngồi!")
+      return
+    }
+
+    const seatsData = selectedSeats.map(maGhe => {
+      const seat = seats.find(s => s.maGhe === maGhe)
+      return seat!
+    }).filter(Boolean)
+
+    const foodsData: ISelectedFood[] = []
+    
+    categoriesWithProducts.forEach(category => {
+      category.sanPhams.forEach(product => {
+        const qty = foodQuantities[product.maSanPham] || 0
+        if (qty > 0) {
+          foodsData.push({
+            maSanPham: product.maSanPham,
+            tenSanPham: product.tenSanPham,
+            donGia: product.giaTien,
+            soLuong: qty,
+            loai: "sanpham"
+          })
+        }
+      })
+    })
+    
+    combos.forEach(combo => {
+      const qty = foodQuantities[combo.maCombo] || 0
+      if (qty > 0) {
+        foodsData.push({
+          maSanPham: combo.maCombo,
+          tenSanPham: combo.tenCombo,
+          donGia: combo.giaBan,
+          soLuong: qty,
+          loai: "combo"
+        })
+      }
+    })
+
+    setMovie(movieDetail)
+    setShowtime(selectedShowtime)
+    setSeatStore(seatsData)
+    setFoods(foodsData)
+
+    navigate("/checkout")
+  }
+
   const uniqueRows = Array.from(new Set(seats.map(s => s.hangGhe))).sort()
 
   return (
     <UserLayout>
       <section className="relative max-w-7xl mx-auto mt-10">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-10 py-8">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-10">
           {/* Poster Column */}
           <div className="w-full md:w-64 lg:w-120 flex-shrink-0">
-            <div className="aspect-[2/3] rounded overflow-hidden border-2 border-yellow-300/30 shadow-2xl bg-gray-800">
+            <div className="aspect-[2/3] rounded overflow-hidden border-2 object-cover border-yellow-300/30 shadow-2xl bg-gray-800">
               {movieDetail?.anhBia ? (
                 <img 
                   src={movieDetail.anhBia}
@@ -454,8 +503,8 @@ export default function MovieDetailPage() {
 
                     <div className="flex flex-col gap-[2px]">
                       {uniqueRows.map((row) => {
-                        const rowSeats = seats.filter(seat => seat.hangGhe === row)
-
+                        const rowSeats = seats.filter(seat => seat.hangGhe === row).sort((a, b) => a.soGhe - b.soGhe)
+                        
                         return (
                           <div 
                             key={row} 
@@ -690,13 +739,7 @@ export default function MovieDetailPage() {
                   <Button
                     variant="yellowToPinkPurple"
                     className="font-anton text-lg h-10 shadow-lg w-full"
-                    onClick={() => {
-                      const seatLabels = selectedSeats.map(maGhe => {
-                        const seat = seats.find(s => s.maGhe === maGhe)
-                        return `${seat?.hangGhe}${seat?.soGhe}`
-                      }).join(', ')
-                      alert(`Đặt vé thành công!\nGhế: ${seatLabels}\nTổng: ${(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString('en-US')}VNĐ`)
-                    }}
+                    onClick={handleCheckout}
                   >
                     <span>Đặt vé</span>
                   </Button>
