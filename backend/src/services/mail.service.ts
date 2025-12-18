@@ -1,3 +1,4 @@
+import { ITicketData } from '@/types/payment'
 import nodemailer from 'nodemailer'
 
 const sendEmail = async (email: string, subject: string, html: string) => {
@@ -14,6 +15,28 @@ const sendEmail = async (email: string, subject: string, html: string) => {
     to: email,
     subject: subject,
     html: html,
+  })
+}
+
+const sendTicketEmail = async (email: string, subject: string, ticketData: ITicketData, qrBuffer: Buffer) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  })
+
+  await transporter.sendMail({
+    from: `"Lê Độ Cinema" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: subject,
+    html: ticketTemplate(ticketData),
+    attachments: [{
+      filename: 'qrcode.png',
+      content: qrBuffer,
+      cid: 'qrcode@ledocinema' 
+    }]
   })
 }
 
@@ -76,4 +99,107 @@ const mailTemplate = (otp: number) => {
   `
 }
 
-export { sendEmail, mailTemplate }
+const ticketTemplate = (data: ITicketData) => {
+  return `
+  <body style="margin:0; padding:20px; background:#f8f8f8; font-family:Arial,sans-serif; font-size:14px; line-height:1.5; color:#000;">
+    <div style="max-width:500px; margin:0 auto; background:#fff; padding:20px; border-radius:8px;">
+      
+      <h1 style="margin:0 0 10px 0; text-align:center; font-weight:bold;">
+        ${data.tenPhim}
+      </h1>
+      
+      <p style="margin:0 0 5px 0; font-size:16px; font-weight:bold; color:#5492d9; text-align:center;">
+        Lê Độ Cinema
+      </p>
+      
+      <p style="margin:0 0 20px 0; text-align:center; color:#555;">
+        46 Trần Phú, Hải Châu, Đà Nẵng, Việt Nam
+      </p>
+      
+      <hr style="border:none; border-top:2px dotted #ccc; margin:20px 0;">
+
+      <p style="margin:5px 0; text-align:center; font-size:14px; color:#555;">
+        MÃ VÉ (RESERVATION CODE)
+      </p>
+      <p style="margin:0; text-align:center; font-size:28px; font-weight:bold;">
+        ${data.maQR}
+      </p>
+      
+      <div style="text-align:center; margin:20px 0;">
+        <img src="cid:qrcode@ledocinema" alt="QR Code" style="width:180px; height:180px; display:inline-block;">
+      </div>
+      
+      <p style="margin:5px 0; text-align:center; font-size:14px; color:#555;">
+        SUẤT CHIẾU (SESSION)
+      </p>
+      <p style="margin:10px 0 20px 0; text-align:center; font-size:22px; font-weight:bold;">
+        ${data.ngayChieu} ${data.gioChieu}
+      </p>
+      
+      <hr style="border:none; border-top:2px dotted #ccc; margin:20px 0;">
+      
+      <p style="background:#f5f7f9; padding:20px; font-size:13px; border-radius:4px; margin:20px 0;">
+        Quý khách vui lòng xuất trình mã vé điện tử này tại cổng để được quét vào rạp.
+      </p>
+      
+      <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Phòng chiếu</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${data.phongChieu}</td>
+        </tr>
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Ghế</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${data.ghe.join(', ')}</td>
+        </tr>
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Thời gian thanh toán</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${data.thoiGianThanhToan}</td>
+        </tr>
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Tiền combo bắp nước</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${(data.tienComboBapNuoc || 0).toLocaleString()} VNĐ</td>
+        </tr>
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Tổng tiền</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${data.tongTien.toLocaleString()} VNĐ</td>
+        </tr>
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Số tiền giảm giá</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${(data.soTienGiamGia || 0).toLocaleString()} VNĐ</td>
+        </tr>
+        <tr style="border-bottom:1px dotted #ccc;">
+          <td style="padding:8px 0; color:#555;">Số tiền thanh toán</td>
+          <td style="padding:8px 0; font-weight:bold; text-align:right;">${data.soTienThanhToan.toLocaleString()} VNĐ</td>
+        </tr>
+      </table>
+      
+      <hr style="border:none; border-top:2px dotted #ccc; margin:20px 0;">
+      
+      <p style="font-size:12px; text-align:center; color:#555; margin:20px 0;">
+        <strong>Lưu ý / Note:</strong><br>
+        Lưu ý / Note:
+        Vé đã mua không thể hủy, đổi hoặc trả lại. Vui lòng liên hệ Ban Quản Lý rạp hoặc tra cứu thông tin 
+        tại mục Điều khoản mua và sử dụng vé xem phim để biết thêm chi tiết. Cảm ơn bạn đã lựa chọn mua vé qua Ứng dụng VNPAY. Chúc bạn xem phim vui vẻ!
+      </p>
+      
+      <div style="text-align:center; margin:20px 0;">
+        <a href="tel:02363822574" style="text-decoration:none; font-size:14px; font-weight:bold; color:#000; margin:0 10px;">
+          ☎️ 02363822574
+        </a>
+        <a href="mailto:ttphpcbdn@gmail.com" style="text-decoration:none; font-size:14px; font-weight:bold; color:#000; margin:0 10px;">
+          📧 ttphpcbdn@gmail.com
+        </a>
+      </div>
+      
+      <hr style="border:none; border-top:2px dotted #ccc; margin:20px 0;">
+      
+      <p style="text-align:center; font-size:12px; color:#777; margin:20px 0;">
+        Trân trọng cảm ơn Quý khách đã tin tưởng sử dụng dịch vụ!
+      </p>
+      
+    </div>
+  </body>
+  `
+}
+
+export { sendEmail, sendTicketEmail, mailTemplate, ticketTemplate }

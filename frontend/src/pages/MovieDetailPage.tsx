@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Clock, Play, Tags, UserRoundCheck, X } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
-import { getAllCombos, getCategoriesWithProducts, getMovieDetails, getMovieShowtimes, getSeatsByShowTimeId } from "@/services/api"
+import { getAllCombos, getCategoriesWithProducts, getMovieDetails, getMovieShowtimes, getSeatsByShowTimeId, holdSeats } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
 import type { IGroupedShowtime, IMovie, IMovieShowtime } from "@/types/movie"
 import type { ISeatData } from "@/types/seat"
@@ -16,7 +16,7 @@ import { useAlert } from "@/stores/useAlert"
 import { ComboCard, ProductCard } from "@/components/common/FoodItemCard"
 import type { ICategoryWithProducts, ICombo, IProduct, ISelectedFood } from "@/types/product"
 import useBookingStore from "@/stores/useBookingStore"
-
+  
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
   const [selectedDate, setSelectedDate] = useState<string>("")
@@ -165,40 +165,40 @@ export default function MovieDetailPage() {
   }
 
   const isSeatFilled = (seat: ISeatData | null, selected: string[]) => {
-    if (!seat) return false
+    if (!seat) return true
     if (seat.trangThai === "DaDat") return true
     if (selected.includes(seat.maGhe)) return true
     return false
   }
-  const checkSeatGap = (
-    seatId: string,
-    currentSelectedSeats: string[],
-    isSelecting: boolean
-  ): { hasGap: boolean; message: string } => {
+  const checkForSeatGaps = (selected: string[]): { hasGap: boolean; message: string } => {
+    const selectedSeatsData = selected.map(id => seats.find(s => s.maGhe === id)) as ISeatData[]
+    const rows = [...new Set(selectedSeatsData.map(s => s.hangGhe))]
 
-    const currentSeat = seats.find(s => s.maGhe === seatId)
-    if (!currentSeat) return { hasGap: false, message: "" }
+    for (const row of rows) {
+      const rowSeats = seats
+        .filter(s => s.hangGhe === row)
+        .sort((a, b) => a.soGhe - b.soGhe)
 
-    const rowSeats = seats.filter(s => s.hangGhe === currentSeat.hangGhe).sort((a, b) => a.soGhe - b.soGhe)
-    const newSelectedSeats = isSelecting ? [...currentSelectedSeats, seatId] : currentSelectedSeats.filter(id => id !== seatId)
+      for (let i = 0; i < rowSeats.length; i++) {
+        const seat = rowSeats[i]
 
-    for (let i = 0; i < rowSeats.length; i++) {
-      const seat = rowSeats[i]
+        if (seat.tenLoaiGhe === "Couple") continue
+        if (seat.trangThai === "DaDat") continue
 
-      const isSelectable = (seat.trangThai === "DangTrong") && !newSelectedSeats.includes(seat.maGhe)
-      if (!isSelectable) continue  
-      if(seat.tenLoaiGhe === "Couple") continue
+        const isSelected = selected.includes(seat.maGhe)
+        if (isSelected) continue
 
-      const leftSeat = rowSeats[i - 1] || null
-      const rightSeat = rowSeats[i + 1] || null
+        const leftSeat = rowSeats[i - 1] || null
+        const rightSeat = rowSeats[i + 1] || null
 
-      const leftFilled = isSeatFilled(leftSeat, newSelectedSeats)
-      const rightFilled = isSeatFilled(rightSeat, newSelectedSeats)
+        const leftFilled = isSeatFilled(leftSeat, selected)
+        const rightFilled = isSeatFilled(rightSeat, selected)
 
-      if (leftFilled && rightFilled) {
-        return {
-          hasGap: true,
-          message: `Không được để ghế ${seat.hangGhe}${seat.soGhe} trống ở giữa!`
+        if (leftFilled && rightFilled) {
+          return {
+            hasGap: true,
+            message: `Không được để ghế ${seat.hangGhe}${seat.soGhe} trống! Vui lòng chọn ghế liền kề hoặc bỏ chọn ghế hai bên.`
+          }
         }
       }
     }
@@ -209,14 +209,6 @@ export default function MovieDetailPage() {
   const handleSeatClick = (maGhe: string) => {
     const seat = seats.find(s => s.maGhe === maGhe)
     if (!seat) return
-
-    const isCurrentlySelected = selectedSeats.includes(maGhe)
-
-    const gapCheck = checkSeatGap(maGhe, selectedSeats, !isCurrentlySelected)
-    if (gapCheck.hasGap) {
-      showToast(gapCheck.message)
-      return
-    }
 
     setSelectedSeats(prev => {
       if (prev.includes(maGhe)) {
@@ -239,53 +231,65 @@ export default function MovieDetailPage() {
     }, 0)
   }
 
-  const handleCheckout = () => {
-    if (!movieDetail || !selectedShowtime || selectedSeats.length === 0) {
-      showToast("Vui lòng chọn suất chiếu và ghế ngồi!")
-      return
-    }
+  const handleCheckout = async() => {
+    try {
+      if (!movieDetail || !selectedShowtime || selectedSeats.length === 0) {
+        showToast("Vui lòng chọn suất chiếu và ghế ngồi!")
+        return
+      }
 
-    const seatsData = selectedSeats.map(maGhe => {
-      const seat = seats.find(s => s.maGhe === maGhe)
-      return seat!
-    }).filter(Boolean)
+      const gapCheck = checkForSeatGaps(selectedSeats)
+      if (gapCheck.hasGap) {
+        showToast(gapCheck.message)
+        return
+      }
 
-    const foodsData: ISelectedFood[] = []
-    
-    categoriesWithProducts.forEach(category => {
-      category.sanPhams.forEach(product => {
-        const qty = foodQuantities[product.maSanPham] || 0
+      const seatsData = selectedSeats.map(maGhe => {
+        const seat = seats.find(s => s.maGhe === maGhe)
+        return seat!
+      }).filter(Boolean)
+
+      const foodsData: ISelectedFood[] = []
+      
+      categoriesWithProducts.forEach(category => {
+        category.sanPhams.forEach(product => {
+          const qty = foodQuantities[product.maSanPham] || 0
+          if (qty > 0) {
+            foodsData.push({
+              maSanPham: product.maSanPham,
+              tenSanPham: product.tenSanPham,
+              donGia: product.giaTien,
+              soLuong: qty,
+              loai: "sanpham"
+            })
+          }
+        })
+      })
+      
+      combos.forEach(combo => {
+        const qty = foodQuantities[combo.maCombo] || 0
         if (qty > 0) {
           foodsData.push({
-            maSanPham: product.maSanPham,
-            tenSanPham: product.tenSanPham,
-            donGia: product.giaTien,
+            maSanPham: combo.maCombo,
+            tenSanPham: combo.tenCombo,
+            donGia: combo.giaBan,
             soLuong: qty,
-            loai: "sanpham"
+            loai: "combo"
           })
         }
       })
-    })
-    
-    combos.forEach(combo => {
-      const qty = foodQuantities[combo.maCombo] || 0
-      if (qty > 0) {
-        foodsData.push({
-          maSanPham: combo.maCombo,
-          tenSanPham: combo.tenCombo,
-          donGia: combo.giaBan,
-          soLuong: qty,
-          loai: "combo"
-        })
-      }
-    })
 
-    setMovie(movieDetail)
-    setShowtime(selectedShowtime)
-    setSeatStore(seatsData)
-    setFoods(foodsData)
+      setMovie(movieDetail)
+      setShowtime(selectedShowtime)
+      setSeatStore(seatsData)
+      setFoods(foodsData)
 
-    navigate("/checkout")
+      await holdSeats(selectedShowtime.maSuatChieu, selectedSeats)
+      navigate("/checkout")
+    } catch (error) {
+      console.error("Checkout error:", handleError(error))
+      showToast(handleError(error))
+    }
   }
 
   const uniqueRows = Array.from(new Set(seats.map(s => s.hangGhe))).sort()
@@ -504,7 +508,7 @@ export default function MovieDetailPage() {
                     <div className="flex flex-col gap-[2px]">
                       {uniqueRows.map((row) => {
                         const rowSeats = seats.filter(seat => seat.hangGhe === row).sort((a, b) => a.soGhe - b.soGhe)
-                        
+
                         return (
                           <div 
                             key={row} 
@@ -556,11 +560,11 @@ export default function MovieDetailPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Seat type="Standard" status="DangDuocChon" className="w-8 h-4" />
-                    <span className="text-gray-300">Đã chọn</span>
+                    <span className="text-gray-300">Ghế chọn</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Seat type="Standard" status="DaDat" className="w-8 h-4" />
-                    <span className="text-gray-300">Đã đặt</span>
+                    <span className="text-gray-300">Ghế đã đặt</span>
                   </div>
                 </div>
               </>
@@ -660,7 +664,7 @@ export default function MovieDetailPage() {
       {/* Footer - Booking Summary */}
       {selectedShowtime && selectedSeats.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-purple-950 opacity-90 border-t-2 border-yellow-300 z-50">
-          <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="max-w-7xl mx-auto px-4 xl:px-0 py-4">
             <div className="flex flex-row justify-between items-start md:items-center gap-4">
               <div className="flex-1 space-y-4">
                 <h1 className="text-white font-anton text-2xl md:text-3xl leading-tight">
@@ -719,15 +723,8 @@ export default function MovieDetailPage() {
                 )}
               </div>
 
-              {/* Right - Timer + Total + Button */}
+              {/* Right + Total + Button */}
               <div className="flex flex-col md:flex-row gap-3">
-                <div className="bg-yellow-300 p-4 rounded flex flex-col gap-1">
-                  <p className="text-black text-base">Thời gian giữ vé:</p>
-                  <p className="text-purple-900 text-2xl font-anton">
-                    14:59
-                  </p>
-                </div>
-
                 <div>
                   <div className="mb-4 flex gap-4 justify-between items-center">
                     <p className="text-white text-base">Tổng tiền</p>

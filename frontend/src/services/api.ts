@@ -1,3 +1,4 @@
+import type { IVNPayRequestBody } from "@/types/payment"
 import axios from "axios"
 
 const request = axios.create({
@@ -85,23 +86,17 @@ export const getDiscountsForUser = async () => {
   return res.data
 }
 
-interface IProduct {
-  maSanPham: string
-  soLuong: number
-  donGia: number
-  loai: 'combo' | 'sanpham'
-}
-
-interface IVNPayRequestBody {
-  maPhim: string
-  maSuatChieu: string
-  selectedSeats: { maGhe: string; giaTien: number }[]
-  selectedFoods: IProduct[]
-  maKhuyenMai?: string
-  tongTien: number
-}
-
 export const createVNPayPayment = async (paymentData: IVNPayRequestBody) => {
   const res = await request.post("/payments/vnpay-create", paymentData)
+  return res.data
+}
+
+export const holdSeats = async (showtimeId: string, seatIds: string[]) => {
+  const res = await request.post("/seats/hold", { showtimeId, seatIds })
+  return res.data
+}
+
+export const getHoldSeatTTL = async (showtimeId: string, seatId: string) => {
+  const res = await request.get("/seats/hold/ttl", { params: { showtimeId, seatId }})
   return res.data
 }

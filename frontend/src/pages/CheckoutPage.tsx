@@ -3,17 +3,21 @@ import { useNavigate } from "react-router-dom"
 import { CreditCard, QrCode, AlertCircle, X, Tag } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
 import { Button } from "@/components/ui/button"
-import { createVNPayPayment, getDiscountsForUser } from "@/services/api"
+import { createVNPayPayment, getDiscountsForUser, getHoldSeatTTL } from "@/services/api"
 import type { IDiscount } from "@/types/discount"
 import useBookingStore from "@/stores/useBookingStore"
 import { formatDate, formatTime } from "@/utils/formatDate"
+import { BeatLoader } from "react-spinners"
+import { handleError } from "@/utils/handleError.utils"
+import { useAlert } from "@/stores/useAlert"
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
+  const { showToast } = useAlert()
   const { movie, showtime, selectedSeats, selectedFoods, getGrandTotal } = useBookingStore()
   
   const [paymentMethod, setPaymentMethod] = useState("VNPAY")
-  const [countdown, setCountdown] = useState(900)
+  const [countdown, setCountdown] = useState(0)
   const [processing, setProcessing] = useState(false)
   const [selectedDiscount, setSelectedDiscount] = useState("")
   const [customCode, setCustomCode] = useState("")
@@ -27,35 +31,59 @@ export default function CheckoutPage() {
   }, [movie, showtime, selectedSeats, navigate])
 
   useEffect(() => {
+    const fetchHoldTTLs = async () => {
+      try {
+        if(!showtime || selectedSeats.length === 0) return
+
+        const seadId = selectedSeats[0].maGhe
+        const res = await getHoldSeatTTL(showtime.maSuatChieu, seadId)
+        setCountdown(res.ttl)
+      } catch (error) {
+        console.error("Lỗi khi lấy thời gian giữ ghế:", handleError(error))
+        showToast(handleError(error))
+      }
+    }
+    fetchHoldTTLs()
+  }, [])
+
+  useEffect(() => {
     const fetchDiscounts = async () => {
       try {
         const discounts = await getDiscountsForUser()
         setAvailableDiscounts(discounts)
       } catch (error) {
-        console.error("Lỗi khi lấy mã giảm giá:", error)
+        console.error("Lỗi khi lấy mã giảm giá:", handleError(error))
       }
     }
     fetchDiscounts()
   }, [])
+
+  console.log("Available Discounts:", countdown)
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 0) {
           clearInterval(timer)
+          showToast("Hết thời gian giữ ghế. Vui lòng đặt lại vé.", () => {
+            navigate(-1)
+          })
           return 0
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [navigate, showToast])
 
-  if (!movie || !showtime) {
+  if (!movie || !showtime || selectedSeats.length === 0) {
     return (
       <UserLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-white text-xl">Đang tải thông tin...</div>
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <BeatLoader/>
+            <p className="mt-4 text-white">Đang chuyển hướng...</p>
+          </div>
         </div>
       </UserLayout>
     )
@@ -113,14 +141,12 @@ export default function CheckoutPage() {
           donGia: f.donGia,
           loai: f.loai
         })),
-        maKhuyenMai: appliedDiscount?.maCode,
+        maCodeKhuyenMai: appliedDiscount?.maCode,
         tongTien: calculateFinalTotal()
       }
 
       const paymentUrl = await createVNPayPayment(payload)
       window.location.href = paymentUrl
-
-      // handlePaymentSuccess()
     } catch (error) {
       console.error("Lỗi khi tạo thanh toán:", error)
     } finally {

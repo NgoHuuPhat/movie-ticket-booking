@@ -1,10 +1,27 @@
 import { Worker } from 'bullmq'
 import { workerClient } from '@/services/redis.service'
-import { sendEmail } from '@/services/mail.service'
+import { sendEmail, sendTicketEmail } from '@/services/mail.service'
 
 const emailWorker = new Worker('email', async job => {
-  const { to, subject, body } = job.data
-  await sendEmail(to, subject, body)
+  const { name, data } = job
+  switch (name) {
+    case 'sendEmail': {
+      const { to, subject, body } = data
+      await sendEmail(to, subject, body)
+      break
+    }
+      
+    case 'sendMovieTicket': {
+      const { to, subject, ticketData, qrBase64 } = data
+
+      const qrBase64Data = qrBase64.split(',')[1]
+      const qrBuffer = Buffer.from(qrBase64Data, 'base64')
+      await sendTicketEmail(to, subject, ticketData, qrBuffer)
+      break
+    }
+    default:
+      throw new Error(`No handler for job name: ${name}`)
+  }
 }, 
 {
   connection: workerClient
