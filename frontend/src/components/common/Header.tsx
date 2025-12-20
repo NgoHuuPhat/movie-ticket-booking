@@ -4,22 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import logo from "@/assets/logo.png"
 import useAuthStore from "@/stores/useAuthStore"
-import { useNavigate } from "react-router-dom"
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const { user, signOut } = useAuthStore()
-  const navigate = useNavigate()
-
-  const handleLogout = async () => {
-    try {
-      await signOut()
-      navigate("/login")
-    } catch (error) {
-      console.error("Logout error:", error)
-    }
-  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 text-white backdrop-blur-lg border-b border-white/40">
@@ -106,7 +95,7 @@ const Header = () => {
 
                   <div className="border-t border-gray-100">
                     <button
-                      onClick={handleLogout}
+                      onClick={signOut}
                       className="flex items-center gap-3 w-full px-4 py-2 text-sm hover:text-yellow-300 cursor-pointer transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
@@ -144,15 +133,7 @@ const Header = () => {
             {user && (
               <div className="mb-4 p-3 bg-white/10 rounded-lg flex gap-3 items-center">
                 <a href="/profile">
-                  {user.anhDaiDien ? (
-                    <img
-                      src={user.anhDaiDien}
-                      alt="Avatar"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <CircleUser className="w-6 h-6 group-hover:text-yellow-300 transition-colors" />
-                  )}
+                  <CircleUser className="w-6 h-6 group-hover:text-yellow-300 transition-colors" />
                 </a>
                 <span>{user.hoTen}</span>
               </div>
@@ -166,7 +147,7 @@ const Header = () => {
             
             {user ? (
               <Button 
-                onClick={handleLogout}
+                onClick={signOut}
                 variant="yellowToPinkPurple" 
                 className="w-full"
               >

@@ -26,12 +26,16 @@ const LoginForm = () => {
     resolver: zodResolver(loginSchema),
   })
 
-
   const onSubmit = async (data: LoginFormData) => {
     const { email, matKhau } = data
     const success = await signIn(email, matKhau)
     if (success) {
-      navigate("/") 
+      const { user } = useAuthStore.getState()
+      if (user?.maLoaiNguoiDung === "ADMIN") {
+        navigate("/admin")
+      } else {
+        navigate("/")
+      }
     }
   }
 

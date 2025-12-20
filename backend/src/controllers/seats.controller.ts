@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { redisClient } from '@/services/redis.service'
 import { IUserRequest } from '@/types/user'
+import { prisma } from '@/lib/prisma'
 
 class GhesController {
 
@@ -9,6 +10,7 @@ class GhesController {
     try {
       const { showtimeId, seatIds } = req.body
       const maNguoiDung = req.user?.maNguoiDung
+      const conflictSeats: string[] = []
       
       if(!maNguoiDung) {
         return res.status(401).json({ message: 'Chưa đăng nhập' })
@@ -17,8 +19,23 @@ class GhesController {
       for(const seatId of seatIds) {
         const result = await redisClient.set(`seathold:${showtimeId}:${seatId}`, maNguoiDung, 'EX', 300, 'NX')
         if(!result) {
-          return res.status(409).json({ message: "Ghế này đang được giữ bởi người khác, vui lòng chọn ghế khác." })
+          conflictSeats.push(seatId)
         }
+      }
+
+      if(conflictSeats.length > 0) {
+        const conflictSeatDetails: string[] = []
+        for(const seatId of seatIds) {
+          const seat = await prisma.gHE.findUnique({
+            where: {maGhe: seatId},
+            select: { hangGhe: true, soGhe: true }
+          })
+          if (seat) {
+            conflictSeatDetails.push(`${seat.hangGhe}${seat.soGhe}`)
+          }
+        }
+
+        return res.status(409).json({ message: `Ghế ${conflictSeatDetails.join(', ')} đã được giữ bởi người dùng khác. Vui lòng chọn lại ghế.` })
       }
 
       return res.status(200).json({ message: 'Giữ ghế thành công' })

@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 
 import AuthPage from "@/pages/AuthPage"
 import HomePage from "@/pages/HomePage"
@@ -12,16 +12,24 @@ import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
 import CheckoutResultPage from "./pages/CheckoutResultPage"
 
+import ProtectedRoute from "@/components/auth/ProtectedRoute"
+import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
+
 import useAuthStore from "@/stores/useAuthStore"
 import { BeatLoader } from "react-spinners"
 import { Toaster } from "@/components/ui/sonner"
+import DashboardPage from "@/pages/Admin/DashboardPage"
+import ManageMoviePage from "./pages/Admin/ManageMoviePage"
+import ManageGenresMoviePage from "./pages/Admin/ManageGenresMoviePage"
+import ManageAgeRatingsPage from "./pages/Admin/ManageAgeRatingsPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
-  
   useEffect(() => {
-    fetchMe()
-  }, [fetchMe])
+    if (!user) {
+      fetchMe()
+    }
+  }, [user, fetchMe])
   
   if (isCheckingAuth) return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-gray-900 via-purple-500 to-gray-900">
@@ -34,23 +42,36 @@ function App(){
     <>
       <Toaster position="top-center" richColors/>
       <Routes>
-          <Route path="/login" element={ user ? <HomePage /> : <AuthPage />} />
-          <Route path="/register" element={ user ? <HomePage /> : <AuthPage />} />
-          <Route path="/" element={ !user ? <AuthPage /> : <HomePage />} />
 
-          <Route path="/movies/showing" element={ user ? <MovieShowing /> : <AuthPage />} />
-          <Route path="/movies/upcoming" element={ user ? <MovieUpcoming /> : <AuthPage />} />
-          <Route path="/movies/:slug" element={ user ? <MovieDetailPage /> : <AuthPage />} />
-          
-          <Route path="/checkout" element={ user ? <CheckoutPage /> : <AuthPage />} />
-          <Route path="/checkout-result" element={ user ? <CheckoutResultPage /> : <AuthPage />} />
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/register" element={<AuthPage />} />
+        </Route>
 
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/verify-otp" element={<VerifyOTPPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-    </Routes>
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-otp" element={<VerifyOTPPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/movies/showing" element={<MovieShowing />} />
+          <Route path="/movies/upcoming" element={<MovieUpcoming />} />
+          <Route path="/movies/:slug" element={<MovieDetailPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/checkout-result" element={<CheckoutResultPage />} />
+
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/movies" element={<ManageMoviePage />} />
+          <Route path="/admin/movies/genres" element={<ManageGenresMoviePage />} />
+          <Route path="/admin/movies/age-ratings" element={<ManageAgeRatingsPage />} />
+            
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+        </Route>
+      </Routes>
     </>
   )
 }
 
 export default App
+
+

@@ -58,7 +58,7 @@
       } finally {
         setTimeout(() => {
           set({ isCheckingAuth: false })
-        }, 200) 
+        }, 150) 
       }
     }
 

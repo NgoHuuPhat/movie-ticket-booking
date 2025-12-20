@@ -1,10 +1,10 @@
-import type { User } from "@/types/user"
+import type { IUser } from "@/types/user"
 import type { IMovie, IMovieShowtime } from "@/types/movie"
 import type { ISeatData } from "@/types/seat"
 import type { ISelectedFood } from "@/types/product"
 
 export interface AuthState {
-  user: User | null
+  user: IUser | null
   isCheckingAuth: boolean
   errorLogin: string
   errorRegister: string
