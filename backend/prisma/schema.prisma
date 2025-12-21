@@ -43,7 +43,7 @@ model NGUOIDUNG {
   veNhanVienDats VE[]     @relation("VeNhanVienDat")
   veNhanVienSoats VE[]    @relation("VeNhanVienSoat")
 
-  loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung], onDelete: Cascade, onUpdate: Cascade)
+  loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
 }
 
 model THELOAI {
@@ -57,8 +57,8 @@ model PHIM_THELOAI {
   maPhim     String
   maTheLoai  String
 
-  phim       PHIM      @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
-  theLoai    THELOAI   @relation(fields: [maTheLoai], references: [maTheLoai], onDelete: Cascade, onUpdate: Cascade)
+  phim       PHIM      @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade)
+  theLoai    THELOAI   @relation(fields: [maTheLoai], references: [maTheLoai], onDelete: Cascade)
 
   @@id([maPhim, maTheLoai])
 }
@@ -67,7 +67,7 @@ model PHANLOAIDOTUOI {
   maPhanLoaiDoTuoi String @id
   tenPhanLoaiDoTuoi String
   moTa              String
-  phims             PHIM[]
+  phims             PHIM[] 
 }
 
 enum PHIENBAN {
@@ -96,7 +96,7 @@ model PHIM {
   hienThi       Boolean     @default(true)
   slug          String      @unique
 
-  phanLoaiDoTuoi  PHANLOAIDOTUOI @relation(fields: [maPhanLoaiDoTuoi], references: [maPhanLoaiDoTuoi], onDelete: Cascade, onUpdate: Cascade)
+  phanLoaiDoTuoi  PHANLOAIDOTUOI @relation(fields: [maPhanLoaiDoTuoi], references: [maPhanLoaiDoTuoi])
 
   suatChieus    SUATCHIEU[]
   phimTheLoais  PHIM_THELOAI[]
@@ -109,7 +109,6 @@ model RAP {
   diaChi      String
   soDienThoai String
   email       String    @unique
-  trangThai   Boolean   @default(true)
   phongChieus PHONGCHIEU[]
 }
 
@@ -118,9 +117,10 @@ model PHONGCHIEU {
   tenPhong        String
   maLoaiPhong     String
   maRap           String
+  hoatDong         Boolean  @default(true)
 
-  loaiPhongChieu  LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong], onDelete: Cascade, onUpdate: Cascade)
-  rap             RAP            @relation(fields: [maRap], references: [maRap], onDelete: Cascade, onUpdate: Cascade)
+  loaiPhongChieu  LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong])
+  rap             RAP            @relation(fields: [maRap], references: [maRap])
 
   suatChieus      SUATCHIEU[]
   ghes            GHE[]
@@ -146,8 +146,8 @@ model SUATCHIEU {
   gheSuatChieus GHE_SUATCHIEU[]
   veSuatChieus  VE[]
 
-  phim          PHIM        @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
-  phongChieu    PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
+  phim          PHIM        @relation(fields: [maPhim], references: [maPhim])
+  phongChieu    PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong])
 }
 
 model GIAGHEPHONG {
@@ -155,8 +155,8 @@ model GIAGHEPHONG {
   maLoaiGhe     String
   giaTien       Float   
 
-  loaiGhe       LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe], onDelete: Cascade, onUpdate: Cascade)
-  loaiPhongChieu LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong], onDelete: Cascade, onUpdate: Cascade)
+  loaiGhe       LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe])
+  loaiPhongChieu LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong])
 
   @@id([maLoaiPhong, maLoaiGhe])
 }
@@ -180,8 +180,8 @@ model GHE {
   gheSuatChieus GHE_SUATCHIEU[]
   chiTietVes    CHITIETVE[]
 
-  loaiGhe     LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe], onDelete: Cascade, onUpdate: Cascade)
-  phongChieu  PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong], onDelete: Cascade, onUpdate: Cascade)
+  loaiGhe     LOAIGHE      @relation(fields: [maLoaiGhe], references: [maLoaiGhe])
+  phongChieu  PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong])
 }
 
 
@@ -197,8 +197,8 @@ model GHE_SUATCHIEU {
   maSuatChieu    String
   trangThaiGhe   TRANGTHAIGHE @default(DangTrong)
 
-  ghe            GHE         @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade, onUpdate: Cascade)
-  suatChieu      SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu], onDelete: Cascade, onUpdate: Cascade)
+  ghe            GHE         @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade)
+  suatChieu      SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu], onDelete: Cascade)
 
   @@id([maGhe, maSuatChieu])
 }
@@ -221,7 +221,7 @@ model SANPHAM {
   chiTietCombos    CHITIETCOMBO[]
   veSanPhams       VE_SANPHAM[]
 
-  danhMucSanPham   DANHMUCSANPHAM  @relation(fields: [maDanhMucSanPham], references: [maDanhMucSanPham], onDelete: Cascade, onUpdate: Cascade)
+  danhMucSanPham   DANHMUCSANPHAM  @relation(fields: [maDanhMucSanPham], references: [maDanhMucSanPham])
 }
 
 model CHITIETCOMBO {
@@ -229,8 +229,8 @@ model CHITIETCOMBO {
   maSanPham      String
   soLuong        Int      
 
-  combo          COMBO     @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade, onUpdate: Cascade)
-  sanPham        SANPHAM   @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade, onUpdate: Cascade)
+  combo          COMBO     @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade)
+  sanPham        SANPHAM   @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade)
 
   @@id([maCombo, maSanPham])
 }
@@ -253,7 +253,7 @@ model DIEUKIENKHUYENMAI {
   maLoaiNguoiDung String?
   moTa            String?
 
-  loaiNguoiDung   LOAINGUOIDUNG? @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung], onDelete: Cascade, onUpdate: Cascade)
+  loaiNguoiDung   LOAINGUOIDUNG? @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
   khuyenMais      KHUYENMAI[]
 }
 
@@ -280,7 +280,7 @@ model KHUYENMAI {
 
   ves                      VE[]
 
-  dieuKienKhuyenMai        DIEUKIENKHUYENMAI @relation(fields: [maDieuKien], references: [maDieuKien], onDelete: Cascade, onUpdate: Cascade)
+  dieuKienKhuyenMai        DIEUKIENKHUYENMAI @relation(fields: [maDieuKien], references: [maDieuKien])
 }
 
 enum HINHTHUCVE {
@@ -328,9 +328,9 @@ model VE {
   nhanVienDat         NGUOIDUNG?  @relation("VeNhanVienDat", fields: [maNhanVienDat], references: [maNguoiDung])
   nhanVienSoat        NGUOIDUNG?  @relation("VeNhanVienSoat", fields: [maNhanVienSoat], references: [maNguoiDung])
   
-  phim                PHIM        @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: Cascade)
-  khuyenMai           KHUYENMAI?  @relation(fields: [maKhuyenMai], references: [maKhuyenMai], onDelete: SetNull, onUpdate: Cascade)
-  suatChieu           SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu], onDelete: Cascade, onUpdate: Cascade)
+  phim                PHIM        @relation(fields: [maPhim], references: [maPhim])
+  khuyenMai           KHUYENMAI?  @relation(fields: [maKhuyenMai], references: [maKhuyenMai])
+  suatChieu           SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu])
 }
 
 model CHITIETVE {
@@ -340,8 +340,8 @@ model CHITIETVE {
   
   @@id([maVe, maGhe])
 
-  ve            VE    @relation(fields: [maVe], references: [maVe], onDelete: Cascade, onUpdate: Cascade)
-  ghe           GHE   @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade, onUpdate: Cascade)
+  ve            VE    @relation(fields: [maVe], references: [maVe], onDelete: Cascade)
+  ghe           GHE   @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade)
 }
 
 model VE_COMBO {
@@ -355,8 +355,8 @@ model VE_COMBO {
 
   @@id([maVe, maCombo])
 
-  ve          VE     @relation(fields: [maVe], references: [maVe], onDelete: Cascade, onUpdate: Cascade)
-  combo       COMBO  @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade, onUpdate: Cascade)
+  ve          VE     @relation(fields: [maVe], references: [maVe], onDelete: Cascade)
+  combo       COMBO  @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade)
 }
 
 model VE_SANPHAM {
@@ -370,6 +370,6 @@ model VE_SANPHAM {
 
   @@id([maVe, maSanPham])
 
-  ve          VE      @relation(fields: [maVe], references: [maVe], onDelete: Cascade, onUpdate: Cascade)
-  sanPham     SANPHAM @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade, onUpdate: Cascade)
+  ve          VE      @relation(fields: [maVe], references: [maVe], onDelete: Cascade)
+  sanPham     SANPHAM @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade)
 }

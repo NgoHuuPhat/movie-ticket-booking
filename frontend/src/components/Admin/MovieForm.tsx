@@ -41,7 +41,6 @@ interface MovieFormProps {
   ageRatings: Array<{ maPhanLoaiDoTuoi: string; tenPhanLoaiDoTuoi: string; moTa: string }>
   onSubmit: (data: MovieFormData) => Promise<void>
   onCancel: () => void
-  isSubmitting: boolean
 }
 
 export const MovieForm = ({

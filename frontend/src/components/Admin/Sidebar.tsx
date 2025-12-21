@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown } from 'lucide-react'
+import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown, MapPin } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -11,6 +11,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
   const sidebarItems = [
     { icon: Home, label: 'Tổng quan', path: '/admin/dashboard' },
+    
     { 
       icon: Film, label: 'Quản lý phim', 
       children: [
@@ -19,6 +20,16 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Danh sách phim', path: '/admin/movies' },
       ]
     },
+    
+    { 
+      icon: MapPin, label: 'Hệ thống rạp', 
+      children: [
+        { label: 'Thông tin rạp chiếu', path: '/admin/cinema' },
+        { label: 'Loại phòng chiếu', path: '/admin/cinema/room-types' },
+        { label: 'Danh sách phòng chiếu', path: '/admin/cinema/rooms' },
+      ]
+    },
+    
     { 
       icon: Film, label: 'Quản lý lịch chiếu', 
       children: [
@@ -27,6 +38,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Danh sách lịch chiếu', path: '/admin/showtimes' },
       ]
     },
+    
     { icon: Ticket, label: 'Đơn đặt vé', path: '/admin/orders' },
     { icon: Users, label: 'Khách hàng', path: '/admin/customers' },
     { icon: Popcorn, label: 'Combo đồ ăn', path: '/admin/foods-combos' },
@@ -78,7 +90,17 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                   {isOpenDropdown && (
                     <div className="ml-6 space-y-1 mt-1">
                       {item.children.map((child, childIndex) => (
-                        <NavLink key={childIndex} to={child.path} end className={({ isActive }) => `flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group ${isActive ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 text-purple-400 shadow-sm border border-purple-100/80' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'}`}>
+                        <NavLink 
+                          key={childIndex} 
+                          to={child.path} 
+                          end
+                          className={({ isActive }) => `flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group ${
+                            isActive 
+                              ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 text-purple-600 shadow-sm border border-purple-200/80' 
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
+                          }`}
+                          onClick={onClose}
+                        >
                           <span className="flex-1">{child.label}</span>
                         </NavLink>
                       ))}
@@ -89,10 +111,21 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             }
 
             return (
-              <NavLink key={index} to={item.path} className={({ isActive }) => `flex items-center w-full px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group ${isActive ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 text-purple-400 shadow-sm border border-purple-100/80' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'}`}>
+              <NavLink 
+                key={index} 
+                to={item.path}
+                className={({ isActive }) => `flex items-center w-full px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 text-purple-400 shadow-sm border border-purple-100/80' 
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
+                }`}
+                onClick={onClose}
+              >
                 {({ isActive }) => (
                   <>
-                    <item.icon className={`mr-3 h-5 w-5 transition-colors duration-200 ${isActive ? 'text-purple-400' : 'text-gray-500 group-hover:text-gray-700'}`} />
+                    <item.icon className={`mr-3 h-5 w-5 transition-colors duration-200 ${
+                      isActive ? 'text-purple-400' : 'text-gray-500 group-hover:text-gray-700'
+                    }`} />
                     <span className="flex-1 font-medium">{item.label}</span>
                   </>
                 )}

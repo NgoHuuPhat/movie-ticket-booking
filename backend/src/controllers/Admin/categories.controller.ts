@@ -36,7 +36,7 @@ class TheLoaiPhimsController {
                 tenTheLoai
             }
         })
-        res.status(201).json(newCategory)
+        res.status(201).json({ message: 'Thể loại đã được tạo thành công', category: newCategory })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -52,7 +52,7 @@ class TheLoaiPhimsController {
             where: { maTheLoai: id },
             data: { tenTheLoai }
         })
-        res.status(200).json(updatedCategory)
+        res.status(200).json({message: 'Thể loại đã được cập nhật thành công', category: updatedCategory})
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })

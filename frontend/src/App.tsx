@@ -1,6 +1,10 @@
 import { useEffect } from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
-
+import useAuthStore from "@/stores/useAuthStore"
+import { BeatLoader } from "react-spinners"
+import { Toaster } from "@/components/ui/sonner"
+import ProtectedRoute from "@/components/auth/ProtectedRoute"
+import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
 import AuthPage from "@/pages/AuthPage"
 import HomePage from "@/pages/HomePage"
 import MovieShowing from "@/pages/MovieShowing"
@@ -11,17 +15,13 @@ import ResetPasswordPage from "@/pages/ResetPasswordPage"
 import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
 import CheckoutResultPage from "./pages/CheckoutResultPage"
-
-import ProtectedRoute from "@/components/auth/ProtectedRoute"
-import PublicOnlyRoute from "@/components/auth/PublicOnlyRoute"
-
-import useAuthStore from "@/stores/useAuthStore"
-import { BeatLoader } from "react-spinners"
-import { Toaster } from "@/components/ui/sonner"
 import DashboardPage from "@/pages/Admin/DashboardPage"
-import ManageMoviePage from "./pages/Admin/ManageMoviePage"
-import ManageGenresMoviePage from "./pages/Admin/ManageGenresMoviePage"
-import ManageAgeRatingsPage from "./pages/Admin/ManageAgeRatingsPage"
+import ManageMoviePage from "@/pages/Admin/ManageMoviePage"
+import ManageGenresMoviePage from "@/pages/Admin/ManageGenresMoviePage"
+import ManageAgeRatingsPage from "@/pages/Admin/ManageAgeRatingsPage"
+import CinemaInfoPage from "@/pages/Admin/CinemaInfoPage"
+import ManageRoomsPage from "@/pages/Admin/ManageRoomsPage" 
+import ManageRoomTypePage from "./pages/Admin/ManageRoomTypePage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -65,6 +65,10 @@ function App(){
           <Route path="/admin/movies/genres" element={<ManageGenresMoviePage />} />
           <Route path="/admin/movies/age-ratings" element={<ManageAgeRatingsPage />} />
             
+          <Route path="/admin/cinema" element={<CinemaInfoPage />} />
+          <Route path="/admin/cinema/rooms" element={<ManageRoomsPage />} />
+          <Route path="/admin/cinema/room-types" element={<ManageRoomTypePage />} />
+
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
       </Routes>

@@ -157,8 +157,8 @@ export const updateCategoryAdmin = async (id: string, tenTheLoai: string) => {
   return res.data
 }
 
-export const getAllAgeRatingsAdmin = async (psearch?: string) => {
-  const res = await request.get("/admin/age-ratings", { params: { search: psearch } })
+export const getAllAgeRatingsAdmin = async (search?: string) => {
+  const res = await request.get("/admin/age-ratings", { params: { search } })
   return res.data
 }
 
@@ -176,3 +176,69 @@ export const updateAgeRatingAdmin = async (id: string, tenPhanLoaiDoTuoi: string
   const res = await request.patch(`/admin/age-ratings/${id}`, { tenPhanLoaiDoTuoi, moTa })
   return res.data
 }
+
+export const getCinemaInfoAdmin = async () => {
+  const res = await request.get("/admin/cinema")
+  return res.data
+}
+
+export const updateCinemaInfoAdmin = async (tenRap: string, diaChi: string, soDienThoai: string, email: string) => {
+  const res = await request.patch(`/admin/cinema`, { tenRap, diaChi, soDienThoai, email })
+  return res.data
+}
+
+export const getRoomsForSelectAdmin = async () => {
+  const res = await request.get("/admin/cinema/rooms/select")
+  return res.data
+}
+
+export const getAllRoomsAdmin = async (params: { page?: number; search?: string; hienThi?: boolean; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/cinema/rooms", { params })
+  return res.data
+}
+
+export const createRoomAdmin = async (tenPhong: string, maLoaiPhong: string) => {
+  const res = await request.post("/admin/cinema/rooms", { tenPhong, maLoaiPhong })
+  return res.data
+}
+
+export const updateRoomAdmin = async (id: string, maLoaiPhong: string) => {
+  const res = await request.patch(`/admin/cinema/rooms/${id}`, { maLoaiPhong })
+  return res.data
+}
+
+export const deleteRoomAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/cinema/rooms/${id}`)
+  return res.data
+}
+
+export const bulkActionRoomsAdmin = async (roomIds: string[], action: string) => {
+  const res = await request.post("/admin/cinema/bulk-action", { roomIds, action })
+  return res.data
+}
+
+export const toggleCinemaActivationAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/cinema/${id}/activate`)
+  return res.data
+}
+
+export const getAllRoomTypesAdmin = async (search?: string) => {
+  const res = await request.get("/admin/room-types", { params: { search } })
+  return res.data
+}
+
+export const createRoomTypeAdmin = async (tenLoaiPhong: string) => {
+  const res = await request.post("/admin/room-types", { tenLoaiPhong })
+  return res.data
+}
+
+export const deleteRoomTypeAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/room-types/${id}`)
+  return res.data
+}
+
+export const updateRoomTypeAdmin = async (id: string, tenLoaiPhong: string) => {
+  const res = await request.patch(`/admin/room-types/${id}`, { tenLoaiPhong })
+  return res.data
+}
+

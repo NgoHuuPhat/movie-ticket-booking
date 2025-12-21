@@ -36,7 +36,7 @@ class PhanLoaiDoTuoisController {
           moTa
         }
       })
-      res.status(201).json(newAgeRating)
+      res.status(201).json({ message: 'Phân loại độ tuổi đã được tạo thành công', ageRating: newAgeRating })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -52,7 +52,7 @@ class PhanLoaiDoTuoisController {
         where: { maPhanLoaiDoTuoi: id },
         data: { tenPhanLoaiDoTuoi, moTa }
       })
-      res.status(200).json(updatedAgeRating)
+      res.status(200).json({message: 'Phân loại độ tuổi đã được cập nhật thành công', ageRating: updatedAgeRating})
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -66,7 +66,7 @@ class PhanLoaiDoTuoisController {
       await prisma.pHANLOAIDOTUOI.delete({
         where: { maPhanLoaiDoTuoi: id }
       })
-      res.status(204).send()
+      res.status(200).json({ message: 'Phân loại độ tuổi đã được xóa thành công' })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })

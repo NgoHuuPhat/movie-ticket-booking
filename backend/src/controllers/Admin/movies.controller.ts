@@ -69,7 +69,6 @@ class PhimsController {
         const limit = 10
         const filter: any = {}
         const skip = (Number(page) - 1) * limit
-        const take = limit
         const sortFields = sortField as string
 
         if(hienThi !== undefined) {
@@ -90,12 +89,12 @@ class PhimsController {
           filter.tenPhim = { contains: search }
         }
 
-        const [movies, total] = await prisma.$transaction([
+        const [movies, total] = await Promise.all([
           prisma.pHIM.findMany({
             where: filter,
             orderBy: { [sortFields]: sortOrder },
             skip,
-            take,
+            take: limit,
             include: {
               phanLoaiDoTuoi: true, 
               phimTheLoais: {
@@ -131,7 +130,7 @@ class PhimsController {
   // [GET] /admin/movies/stats
   async getMovieStats(req: Request, res: Response) {
     try {
-      const [ totalMovies, totalShowing, totalUpcoming, totalEnded ] = await prisma.$transaction([
+      const [ totalMovies, totalShowing, totalUpcoming, totalEnded ] = await Promise.all([
         prisma.pHIM.count(),
         prisma.pHIM.count({
           where: {

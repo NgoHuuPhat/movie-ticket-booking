@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
-import {  getAllMoviesAdmin,  getStatsMoviesAdmin,  createMovieAdmin,  updateMovieAdmin,  deleteMovieAdmin, getAllCategoriesAdmin, bulkAction, toggleShowMovieAdmin, getAllAgeRatingsAdmin } from "@/services/api"
+import { getAllMoviesAdmin,  getStatsMoviesAdmin,  createMovieAdmin,  updateMovieAdmin,  deleteMovieAdmin, getAllCategoriesAdmin, bulkAction, toggleShowMovieAdmin, getAllAgeRatingsAdmin } from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { Switch } from "@/components/ui/switch"
@@ -73,7 +73,6 @@ const ManageMoviePage = () => {
   const [totalMovies, setTotalMovies] = useState(0)
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
-  const [limit, setLimit] = useState(10)
 
   const [stats, setStats] = useState({
     total: 0,
@@ -148,11 +147,10 @@ const ManageMoviePage = () => {
         })
 
         setMovies(res.movies)
-        setLimit(res.limit || 10)
         setTotalMovies(res.total)
-        setTotalPages(Math.ceil(res.total / limit))
-        setStartIndex(res.startIndex || (currentPage - 1) * limit + 1)
-        setEndIndex(res.endIndex || Math.min(currentPage * limit, res.total))
+        setTotalPages(Math.ceil(res.total / res.limit))
+        setStartIndex(res.startIndex || (currentPage - 1) * res.limit + 1)
+        setEndIndex(res.endIndex || Math.min(currentPage * res.limit, res.total))
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error)
         toast.error("Không thể tải dữ liệu từ server")
@@ -572,7 +570,6 @@ const ManageMoviePage = () => {
                 ageRatings={ageRatings}
                 onSubmit={handleSubmitAdd}
                 onCancel={() => setIsAddDialogOpen(false)}
-                isSubmitting={submitting}
               />
             </div>
             <DialogFooter className="border-t pt-4">
@@ -608,7 +605,6 @@ const ManageMoviePage = () => {
                 ageRatings={ageRatings}
                 onSubmit={handleSubmitEdit}
                 onCancel={() => setIsEditDialogOpen(false)}
-                isSubmitting={submitting}
               />
             </div>
             <DialogFooter className="border-t pt-4">
@@ -698,7 +694,7 @@ const ManageMoviePage = () => {
                 {selectedMovie.trailerPhim && (
                   <div>
                     <Label className="text-base font-semibold">Trailer</Label>
-                    <a href={selectedMovie.trailerPhim} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center mt-1">
+                    <a href={`https://www.youtube.com/watch?v=${selectedMovie.trailerPhim}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center mt-1">
                       <Video className="mr-2 h-4 w-4" /> Xem trailer trên YouTube
                     </a>
                   </div>
