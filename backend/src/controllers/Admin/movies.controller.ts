@@ -24,7 +24,7 @@ class PhimsController {
         return res.status(400).json({ message: 'Ngày kết thúc phải sau ngày khởi chiếu' })
       }
       const endDate = new Date(ngayKetThuc)
-      endDate.setUTCHours(23, 59, 59, 999)
+      endDate.setHours(23, 59, 59, 999)
 
       const newMovie = await prisma.pHIM.create({
         data: {
@@ -283,7 +283,7 @@ class PhimsController {
       } 
 
       const endDate = new Date(ngayKetThuc)
-      endDate.setUTCHours(23, 59, 59, 999)
+      endDate.setHours(23, 59, 59, 999)
       const slug = slugify(tenPhim, { lower: true, strict: true, locale: 'vi' })
       
       const updatedMovie = await prisma.pHIM.update({
@@ -296,7 +296,7 @@ class PhimsController {
           moTa,
           anhBia,
           ngayKhoiChieu: new Date(ngayKhoiChieu),
-          ngayKetThuc: new Date(ngayKetThuc),
+          ngayKetThuc: endDate,
           maPhanLoaiDoTuoi,
           trailerPhim,
           quocGia,
