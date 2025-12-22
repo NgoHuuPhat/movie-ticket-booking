@@ -86,7 +86,7 @@ class PhimsController {
         }
 
         if(search) {
-          filter.tenPhim = { contains: search }
+          filter.tenPhim = { contains: search as string, mode: 'insensitive'}
         }
 
         const [movies, total] = await Promise.all([

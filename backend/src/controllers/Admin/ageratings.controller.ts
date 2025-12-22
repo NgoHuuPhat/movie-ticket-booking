@@ -13,7 +13,8 @@ class PhanLoaiDoTuoisController {
         orderBy: { maPhanLoaiDoTuoi: 'asc' },
         where: search ? {
           tenPhanLoaiDoTuoi: {
-            contains: String(search),
+            contains: search as string,
+            mode: 'insensitive'
           }
         } : undefined
       })

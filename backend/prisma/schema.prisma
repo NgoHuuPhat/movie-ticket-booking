@@ -176,6 +176,7 @@ model GHE {
   hangGhe     String
   soGhe       Int
   maLoaiGhe   String
+  hoatDong    Boolean  @default(true)
 
   gheSuatChieus GHE_SUATCHIEU[]
   chiTietVes    CHITIETVE[]
@@ -184,11 +185,8 @@ model GHE {
   phongChieu  PHONGCHIEU  @relation(fields: [maPhong], references: [maPhong])
 }
 
-
 enum TRANGTHAIGHE {
   DangTrong
-  KhongSuDung
-  TamGiu
   DaDat
 }
 

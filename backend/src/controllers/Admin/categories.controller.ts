@@ -14,7 +14,8 @@ class TheLoaiPhimsController {
         orderBy: { maTheLoai: 'asc' },
         where: search ? {
           tenTheLoai: {
-            contains: String(search),
+            contains: search as string,
+            mode: 'insensitive'
           }
         } : undefined
       })

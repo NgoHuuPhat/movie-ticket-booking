@@ -1,49 +1,21 @@
 import { useState, useEffect } from "react"
-import {
-  Plus,
-  Search,
-  Filter,
-  Edit3,
-  Trash2,
-  Loader2,
-  Building2,
-  Projector,
-  CheckSquare,
-} from "lucide-react"
+import { Plus, Search, Filter, Edit3, Trash2, Loader2, Building2, Projector, CheckSquare, Layout, } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
-import {
-  getAllRoomsAdmin,
-  createRoomAdmin,
-  updateRoomAdmin,
-  deleteRoomAdmin,
-  getAllRoomTypesAdmin,
-  bulkActionRoomsAdmin,
-  toggleCinemaActivationAdmin,
-} from "@/services/api"
+import { getAllRoomsAdmin, createRoomAdmin, updateRoomAdmin, deleteRoomAdmin, getAllRoomTypesAdmin, bulkActionRoomsAdmin, toggleCinemaActivationAdmin, getSeatTypesAdmin, getRoomSeatsAdmin, updateRoomSeatsAdmin, } from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
-import { RoomForm, type RoomFormData } from "@/components/Admin/RoomForm"
+import { RoomForm, type RoomFormData, type SeatConfig } from "@/components/Admin/RoomForm"
 
 interface IRoom {
   maPhong: string
@@ -55,15 +27,33 @@ interface IRoom {
   }
 }
 
+interface ISeat {
+  maGhe: string;
+  maPhong: string;
+  hangGhe: string;
+  soGhe: number;
+  maLoaiGhe: string;
+  hoatDong: boolean;
+}
+
 const ManageRoomsPage = () => {
   const [rooms, setRooms] = useState<IRoom[]>([])
   const [roomTypes, setRoomTypes] = useState<{ maLoaiPhong: string; tenLoaiPhong: string }[]>([])
+  const [seatTypes, setSeatTypes] = useState<{ maLoaiGhe: string; tenLoaiGhe: string }[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isSeatViewDialogOpen, setIsSeatViewDialogOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<IRoom | null>(null)
   const [selectedRoomIds, setSelectedRoomIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
+
+  const [roomSeats, setRoomSeats] = useState<{
+    soHang: number
+    soCot: number
+    seats: SeatConfig[]
+  } | null>(null)
+  const [loadingSeats, setLoadingSeats] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState("")
   const [hienThiFilter, setHienThiFilter] = useState<"all" | "true" | "false">("all")
@@ -87,12 +77,24 @@ const ManageRoomsPage = () => {
   }, [])
 
   useEffect(() => {
+    const fetchSeatTypes = async () => {
+      try {
+        const types = await getSeatTypesAdmin()
+        setSeatTypes(types)
+      } catch (error) {
+        toast.error(handleError(error))
+      }
+    }
+    fetchSeatTypes()
+  }, [])
+
+  useEffect(() => {
     const fetchRooms = async () => {
       try {
         const res = await getAllRoomsAdmin({
           page: currentPage,
           search: searchQuery || undefined,
-          hienThi: hienThiFilter === "all" ? undefined : hienThiFilter === "true",
+          hoatDong: hienThiFilter === "all" ? undefined : hienThiFilter === "true",
         })
 
         setRooms(res.rooms)
@@ -105,7 +107,7 @@ const ManageRoomsPage = () => {
       }
     }
     fetchRooms()
-  }, [currentPage, searchQuery, hienThiFilter])
+  }, [currentPage, searchQuery, hienThiFilter, submitting])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -124,6 +126,7 @@ const ManageRoomsPage = () => {
   const handleBulkAction = async (action: "hoatDong" | "ngungHoatDong" | "xoa") => {
     if (selectedRoomIds.length === 0) {
       toast.error("Vui lòng chọn ít nhất một phòng để thực hiện hành động.")
+      return
     }
     setSubmitting(true)
     setSelectedRoomIds([])
@@ -150,29 +153,69 @@ const ManageRoomsPage = () => {
   }
 
   const handleRoomActivation = async (roomId: string) => {
-      setSubmitting(true)
-      try {
-        const res = await toggleCinemaActivationAdmin(roomId)
-        setRooms(prev => prev.map(r => r.maPhong === res.room.maPhong ? res.room : r))
-        toast.success(res.message)
-      } catch (error) {
-        toast.error(handleError(error))
-      } finally {
-        setSubmitting(false)
-      }
+    setSubmitting(true)
+    try {
+      const res = await toggleCinemaActivationAdmin(roomId)
+      setRooms(prev => prev.map(r => r.maPhong === res.room.maPhong ? res.room : r))
+      toast.success(res.message)
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setSubmitting(false)
     }
+  }
 
   const handleEditRoom = (room: IRoom) => {
     setSelectedRoom(room)
     setIsEditDialogOpen(true)
   }
 
-  const handleSubmitAdd = async (data: RoomFormData) => {
+  const handleViewSeats = async (room: IRoom) => {
+  setSelectedRoom(room)
+  setRoomSeats(null)
+  setIsSeatViewDialogOpen(true)
+  setLoadingSeats(true)
+
+  try {
+    const res = await getRoomSeatsAdmin(room.maPhong)
+      if (!res.room || res.room.ghes.length === 0) {
+        setRoomSeats({ soHang: 0, soCot: 0, seats: [] })
+        return
+      }
+
+      const hangGhes = [...new Set(res.room.ghes.map((g: ISeat) => g.hangGhe))]
+      const soGhes = [...new Set(res.room.ghes.map((g: ISeat) => g.soGhe))] as number[]
+
+      const seats = res.room.ghes.map((seat: ISeat) => ({
+        hangGhe: seat.hangGhe,
+        soGhe: seat.soGhe,
+        maLoaiGhe: seat.maLoaiGhe,
+        hoatDong: seat.hoatDong
+      }))
+
+      setRoomSeats({
+        soHang: hangGhes.length,
+        soCot: soGhes.length > 0 ? Math.max(...soGhes) : 0,
+        seats
+      })
+    } catch (error) {
+      toast.error(handleError(error))
+      setIsSeatViewDialogOpen(false)
+    } finally {
+      setLoadingSeats(false)
+    }
+  }
+
+
+  const handleSubmitAdd = async (data: RoomFormData, seatConfig: SeatConfig[]) => {
     setSubmitting(true)
     try {
       const res = await createRoomAdmin(
         data.tenPhong,
         data.maLoaiPhong,
+        data.soHang,
+        data.soCot,
+        seatConfig
       )
       setRooms((prev) => [res.room, ...prev])
       setIsAddDialogOpen(false)
@@ -200,6 +243,21 @@ const ManageRoomsPage = () => {
       toast.success(res.message)
     } catch (error) {
       toast.error(handleError(error) || "Cập nhật phòng thất bại!")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleUpdateSeats = async (data: RoomFormData, seatConfig: SeatConfig[]) => {
+    if (!selectedRoom) return
+    setSubmitting(true)
+    try {
+      const res = await updateRoomSeatsAdmin(selectedRoom.maPhong, seatConfig)
+      toast.success(res.message)
+      setIsSeatViewDialogOpen(false)
+      setRoomSeats(null)
+    } catch (error) {
+      toast.error(handleError(error) || "Cập nhật sơ đồ ghế thất bại!")
     } finally {
       setSubmitting(false)
     }
@@ -410,7 +468,18 @@ const ManageRoomsPage = () => {
                             onCheckedChange={() => handleSelectRoom(room.maPhong)}
                           />
                         </td>
-                        <td className="p-4 font-medium">{room.maPhong}</td>
+                        <td className="p-4">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-medium">{room.maPhong}</span>
+                            <button
+                              onClick={() => handleViewSeats(room)}
+                              className="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 w-fit"
+                            >
+                              <Layout className="h-3 w-3" />
+                              Xem sơ đồ ghế
+                            </button>
+                          </div>
+                        </td>
                         <td className="p-4 font-medium">{room.tenPhong}</td>
                         <td className="p-4">
                           <Badge variant="secondary">
@@ -462,40 +531,22 @@ const ManageRoomsPage = () => {
 
         {/* Modal add room */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+          <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Thêm Phòng Chiếu Mới</DialogTitle>
               <DialogDescription>
                 Nhập thông tin phòng chiếu và cấu hình ghế.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto pr-2">
+            <div className="flex-1 overflow-y-auto">
               <RoomForm
                 roomTypes={roomTypes}
+                seatTypes={seatTypes}
                 onSubmit={handleSubmitAdd}
                 onCancel={() => setIsAddDialogOpen(false)}
+                mode="create"
               />
             </div>
-            <DialogFooter className="border-t pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setIsAddDialogOpen(false)}
-                disabled={submitting}
-              >
-                Hủy
-              </Button>
-              <Button type="submit" form="room-form" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang tạo...
-                  </>
-                ) : (
-                  <>
-                    Tạo phòng
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -505,20 +556,35 @@ const ManageRoomsPage = () => {
             <DialogHeader>
               <DialogTitle>Sửa Phòng Chiếu</DialogTitle>
               <DialogDescription>
-                Cập nhật thông tin phòng chiếu. Lưu ý: Không thể thay đổi số hàng/cột sau khi tạo.
+                Cập nhật loại phòng chiếu. Để chỉnh sửa sơ đồ ghế, vui lòng sử dụng "Xem sơ đồ ghế".
               </DialogDescription>
             </DialogHeader>
             <div className="flex-1 overflow-y-auto pr-2">
               {selectedRoom && (
-                <RoomForm
-                  defaultValues={{
-                    tenPhong: selectedRoom.tenPhong,
-                    maLoaiPhong: selectedRoom.maLoaiPhong,
-                  }}
-                  roomTypes={roomTypes}
-                  onSubmit={handleSubmitEdit}
-                  onCancel={() => setIsEditDialogOpen(false)}
-                />
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label>Tên phòng</Label>
+                    <Input value={selectedRoom.tenPhong} disabled className="bg-gray-50" />
+                  </div>
+                  <div>
+                    <Label>Loại phòng <span className="text-red-600">*</span></Label>
+                    <Select 
+                      value={selectedRoom.maLoaiPhong}
+                      onValueChange={(value) => setSelectedRoom({ ...selectedRoom, maLoaiPhong: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roomTypes.map((type) => (
+                          <SelectItem key={type.maLoaiPhong} value={type.maLoaiPhong}>
+                            {type.tenLoaiPhong}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               )}
             </div>
             <DialogFooter className="border-t pt-4">
@@ -529,7 +595,19 @@ const ManageRoomsPage = () => {
               >
                 Hủy
               </Button>
-              <Button type="submit" form="room-form" disabled={submitting}>
+              <Button 
+                onClick={() => {
+                  if (selectedRoom) {
+                    handleSubmitEdit({
+                      tenPhong: selectedRoom.tenPhong,
+                      maLoaiPhong: selectedRoom.maLoaiPhong,
+                      soHang: 10,
+                      soCot: 12
+                    })
+                  }
+                }}
+                disabled={submitting}
+              >
                 {submitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang cập nhật...
@@ -541,6 +619,40 @@ const ManageRoomsPage = () => {
                 )}
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal view/edit seats */}
+        <Dialog open={isSeatViewDialogOpen} onOpenChange={setIsSeatViewDialogOpen}>
+          <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Sơ đồ ghế - {selectedRoom?.tenPhong}</DialogTitle>
+              <DialogDescription>
+                Xem và chỉnh sửa sơ đồ ghế của phòng chiếu
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto pr-2">
+              {selectedRoom && roomSeats && (
+                <RoomForm
+                  defaultValues={{
+                    tenPhong: selectedRoom.tenPhong,
+                    maLoaiPhong: selectedRoom.maLoaiPhong,
+                    soHang: roomSeats.soHang,
+                    soCot: roomSeats.soCot,
+                  }}
+                  roomTypes={roomTypes}
+                  seatTypes={seatTypes}
+                  existingSeats={roomSeats.seats}
+                  onSubmit={handleUpdateSeats}
+                  onCancel={() => {
+                    setIsSeatViewDialogOpen(false)
+                    setRoomSeats(null)
+                  }}
+                  mode="edit"
+                  isLoading={loadingSeats}
+                />
+              )} 
+            </div>
           </DialogContent>
         </Dialog>
 

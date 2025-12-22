@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 class SuatChieusController {
 
-  // [GET] /showtime/:id/seats
+  // [GET] /showtimes/:id/seats
   async getGheTheoSuatChieuId(req: Request, res: Response) {
     try {
       const { id } = req.params

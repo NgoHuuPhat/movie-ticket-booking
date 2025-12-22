@@ -10,66 +10,68 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import AdminLayout from "@/components/layout/AdminLayout"
-import { getAllAgeRatingsAdmin, createAgeRatingAdmin, updateAgeRatingAdmin, deleteAgeRatingAdmin } from "@/services/api"
+import {
+  getSeatTypesAdmin,
+  createSeatTypeAdmin,
+  updateSeatTypeAdmin,
+  deleteSeatTypeAdmin,
+} from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
 
-interface IAgeRating {
-  maPhanLoaiDoTuoi: string
-  tenPhanLoaiDoTuoi: string
+interface ISeatType {
+  maLoaiGhe: string
+  tenLoaiGhe: string
   moTa: string
 }
 
-const ageRatingSchema = z.object({
-  tenPhanLoaiDoTuoi: z.string().min(1, "Tên phân loại không được để trống").max(3, "Tên phân loại không được vượt quá 3 ký tự").trim(),
-  moTa: z.string().min(1, "Mô tả không được để trống").trim(),
+const seatTypeSchema = z.object({
+  tenLoaiGhe: z.string().min(1, "Tên loại ghế không được để trống").trim(),
+  moTa: z.string().optional(),
 })
-type AgeRatingFormData = z.infer<typeof ageRatingSchema>
+  
+type SeatTypeFormData = z.infer<typeof seatTypeSchema>
 
-const ManageAgeRatingsPage: React.FC = () => {
-  const [ageRatings, setAgeRatings] = useState<IAgeRating[]>([])
-  const [loading, setLoading] = useState(true)
+const ManageSeatTypesPage: React.FC = () => {
+  const [seatTypes, setSeatTypes] = useState<ISeatType[]>([])
   const [searchQuery, setSearchQuery] = useState("")
 
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-  const [selectedRating, setSelectedRating] = useState<IAgeRating | null>(null)
+  const [selectedSeatType, setSelectedSeatType] = useState<ISeatType | null>(null)
 
-  const form = useForm<AgeRatingFormData>({
-    resolver: zodResolver(ageRatingSchema),
+  const form = useForm<SeatTypeFormData>({
+    resolver: zodResolver(seatTypeSchema),
     mode: "onTouched",
   })
 
   useEffect(() => {
-    const fetchAgeRatings = async () => {
-      setLoading(true)
+    const fetchSeatTypes = async () => {
       try {
-        const res = await getAllAgeRatingsAdmin(searchQuery)
-        setAgeRatings(res)
+        const res = await getSeatTypesAdmin(searchQuery || undefined)
+        setSeatTypes(res)
       } catch (error) {
-        toast.error("Không thể tải danh sách phân loại độ tuổi")
+        toast.error("Không thể tải danh sách loại ghế")
         console.error(error)
-      } finally {
-        setLoading(false)
-      }
+      } 
     }
 
-    fetchAgeRatings()
+    fetchSeatTypes()
   }, [searchQuery])
 
   const resetFormAndClose = () => {
-    form.reset({ tenPhanLoaiDoTuoi: "", moTa: "" })
-    setSelectedRating(null)
+    form.reset({ tenLoaiGhe: "", moTa: "" })
+    setSelectedSeatType(null)
     setIsAddOpen(false)
     setIsEditOpen(false)
   }
 
-  const handleCreate = async (data: AgeRatingFormData) => {
+  const handleCreate = async (data: SeatTypeFormData) => {
     try {
-      const res = await createAgeRatingAdmin(data.tenPhanLoaiDoTuoi, data.moTa)
-      setAgeRatings(prev => [...prev, res.ageRating]) 
+      const res = await createSeatTypeAdmin(data.tenLoaiGhe, data.moTa)
+      setSeatTypes(prev => [...prev, res.category])
       toast.success(res.message)
       resetFormAndClose()
     } catch (error) {
@@ -77,18 +79,12 @@ const ManageAgeRatingsPage: React.FC = () => {
     }
   }
 
-  const handleUpdate = async (data: AgeRatingFormData) => {
-    if (!selectedRating) return
+  const handleUpdate = async (data: SeatTypeFormData) => {
+    if (!selectedSeatType) return
 
     try {
-      const res = await updateAgeRatingAdmin(selectedRating.maPhanLoaiDoTuoi, data.tenPhanLoaiDoTuoi, data.moTa)
-      setAgeRatings(prev =>
-        prev.map(item =>
-          item.maPhanLoaiDoTuoi === res.ageRating.maPhanLoaiDoTuoi
-            ? { ...item, tenPhanLoaiDoTuoi: data.tenPhanLoaiDoTuoi, moTa: data.moTa }
-            : item
-        )
-      )
+      const res = await updateSeatTypeAdmin(selectedSeatType.maLoaiGhe, data.tenLoaiGhe, data.moTa)
+      setSeatTypes(prev => prev.map(item => item.maLoaiGhe === res.category.maLoaiGhe ? res.category : item))
       toast.success(res.message)
       resetFormAndClose()
     } catch (error) {
@@ -97,36 +93,36 @@ const ManageAgeRatingsPage: React.FC = () => {
   }
 
   const handleDelete = async () => {
-    if (!selectedRating) return
+    if (!selectedSeatType) return
 
     try {
-      const res = await deleteAgeRatingAdmin(selectedRating.maPhanLoaiDoTuoi)
-      setAgeRatings(prev => prev.filter(item => item.maPhanLoaiDoTuoi !== selectedRating.maPhanLoaiDoTuoi))
+      const res = await deleteSeatTypeAdmin(selectedSeatType.maLoaiGhe)
+      setSeatTypes(prev => prev.filter(item => item.maLoaiGhe !== selectedSeatType.maLoaiGhe))
       toast.success(res.message)
       setIsDeleteOpen(false)
-      setSelectedRating(null)
+      setSelectedSeatType(null)
     } catch (error) {
-      toast.error(handleError(error) || "Xóa phân loại độ tuổi thất bại!")
+      toast.error(handleError(error))
     }
   }
 
   const openAddModal = () => {
-    setSelectedRating(null)
-    form.reset({ tenPhanLoaiDoTuoi: "", moTa: "" })
+    setSelectedSeatType(null)
+    form.reset({ tenLoaiGhe: "", moTa: "" })
     setIsAddOpen(true)
   }
 
-  const openEditModal = (rating: IAgeRating) => {
-    setSelectedRating(rating)
+  const openEditModal = (seatType: ISeatType) => {
+    setSelectedSeatType(seatType)
     form.reset({
-      tenPhanLoaiDoTuoi: rating.tenPhanLoaiDoTuoi,
-      moTa: rating.moTa,
+      tenLoaiGhe: seatType.tenLoaiGhe,
+      moTa: seatType.moTa,
     })
     setIsEditOpen(true)
   }
 
-  const openDeleteModal = (rating: IAgeRating) => {
-    setSelectedRating(rating)
+  const openDeleteModal = (seatType: ISeatType) => {
+    setSelectedSeatType(seatType)
     setIsDeleteOpen(true)
   }
 
@@ -137,15 +133,15 @@ const ManageAgeRatingsPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Quản Lý Phân Loại Độ Tuổi Phim
+              Quản Lý Loại Ghế
             </h1>
             <p className="mt-2 text-sm text-gray-600">
-              Thêm, sửa, xóa các phân loại độ tuổi (P, K, T13, T16, T18, C18,...)
+              Thêm, sửa, xóa các loại ghế trong rạp (Thường, VIP, Sweetbox, Couple,...)
             </p>
           </div>
           <Button onClick={openAddModal}>
             <Plus className="mr-2 h-4 w-4" />
-            Thêm Phân Loại
+            Thêm Loại Ghế
           </Button>
         </div>
 
@@ -155,7 +151,7 @@ const ManageAgeRatingsPage: React.FC = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Tìm kiếm phân loại độ tuổi..."
+                placeholder="Tìm kiếm loại ghế hoặc mô tả..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -167,7 +163,7 @@ const ManageAgeRatingsPage: React.FC = () => {
         {/* Table */}
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle>Danh Sách Phân Loại Độ Tuổi</CardTitle>
+            <CardTitle>Danh Sách Loại Ghế</CardTitle>
           </CardHeader>
           <CardContent className="p-2">
             <div className="overflow-x-auto">
@@ -175,31 +171,25 @@ const ManageAgeRatingsPage: React.FC = () => {
                 <thead className="border-b bg-gray-50/50">
                   <tr>
                     <th className="text-left p-4 text-sm font-medium text-gray-600 w-32">Mã ID</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-600">Tên phân loại</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-600">Tên loại ghế</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Mô tả</th>
                     <th className="text-right p-4 text-sm font-medium text-gray-600 w-32">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan={4} className="text-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-                      </td>
-                    </tr>
-                  ) : ageRatings.length === 0 ? (
+                  { seatTypes.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="text-center py-12 text-gray-500">
-                        {searchQuery ? "Không tìm thấy phân loại nào" : "Chưa có phân loại độ tuổi nào"}
+                        {searchQuery ? "Không tìm thấy loại ghế nào" : "Chưa có loại ghế nào"}
                       </td>
                     </tr>
                   ) : (
-                    ageRatings.map((item) => (
-                      <tr key={item.maPhanLoaiDoTuoi} className="border-b hover:bg-gray-50/50">
-                        <td className="p-4 font-medium text-sm">{item.maPhanLoaiDoTuoi}</td>
+                    seatTypes.map((item) => (
+                      <tr key={item.maLoaiGhe} className="border-b hover:bg-gray-50/50">
+                        <td className="p-4 font-medium text-sm">{item.maLoaiGhe}</td>
                         <td className="p-4">
                           <Badge variant="secondary" className="text-sm font-medium">
-                            {item.tenPhanLoaiDoTuoi}
+                            {item.tenLoaiGhe}
                           </Badge>
                         </td>
                         <td className="p-4 text-sm text-gray-700 max-w-md">
@@ -227,25 +217,25 @@ const ManageAgeRatingsPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Modal add age rating */}
+        {/* Modal Thêm */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Thêm Phân Loại Độ Tuổi Mới</DialogTitle>
-              <DialogDescription>Nhập thông tin phân loại độ tuổi mới.</DialogDescription>
+              <DialogTitle>Thêm Loại Ghế Mới</DialogTitle>
+              <DialogDescription>Nhập thông tin loại ghế mới.</DialogDescription>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(handleCreate)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="add-name">Tên phân loại (ví dụ: C16, T18)</Label>
+                <Label htmlFor="add-name">Tên loại ghế</Label>
                 <Input
                   id="add-name"
-                  {...form.register("tenPhanLoaiDoTuoi")}
-                  placeholder="C16"
+                  {...form.register("tenLoaiGhe")}
+                  placeholder="VIP"
                   autoFocus
                 />
-                {form.formState.errors.tenPhanLoaiDoTuoi && (
+                {form.formState.errors.tenLoaiGhe && (
                   <p className="text-sm text-destructive">
-                    {form.formState.errors.tenPhanLoaiDoTuoi.message}
+                    {form.formState.errors.tenLoaiGhe.message}
                   </p>
                 )}
               </div>
@@ -254,7 +244,7 @@ const ManageAgeRatingsPage: React.FC = () => {
                 <Textarea
                   id="add-desc"
                   {...form.register("moTa")}
-                  placeholder="Phim dành cho khán giả từ 16 tuổi trở lên..."
+                  placeholder="Ghế VIP có không gian rộng rãi, tựa lưng êm ái, vị trí đẹp..."
                   rows={4}
                 />
                 {form.formState.errors.moTa && (
@@ -285,24 +275,24 @@ const ManageAgeRatingsPage: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Modal edit age rating */}
+        {/* Modal Sửa */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Sửa Phân Loại Độ Tuổi</DialogTitle>
-              <DialogDescription>Cập nhật thông tin phân loại.</DialogDescription>
+              <DialogTitle>Sửa Loại Ghế</DialogTitle>
+              <DialogDescription>Cập nhật thông tin loại ghế.</DialogDescription>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(handleUpdate)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Tên phân loại</Label>
+                <Label htmlFor="edit-name">Tên loại ghế</Label>
                 <Input
                   id="edit-name"
-                  {...form.register("tenPhanLoaiDoTuoi")}
+                  {...form.register("tenLoaiGhe")}
                   autoFocus
                 />
-                {form.formState.errors.tenPhanLoaiDoTuoi && (
+                {form.formState.errors.tenLoaiGhe && (
                   <p className="text-sm text-destructive">
-                    {form.formState.errors.tenPhanLoaiDoTuoi.message}
+                    {form.formState.errors.tenLoaiGhe.message}
                   </p>
                 )}
               </div>
@@ -341,21 +331,21 @@ const ManageAgeRatingsPage: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Modal delete age rating */}
+        {/* Modal Xóa */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Xóa Phân Loại Độ Tuổi</DialogTitle>
+              <DialogTitle>Xóa Loại Ghế</DialogTitle>
               <DialogDescription>
-                Bạn có chắc chắn muốn xóa phân loại này? Hành động này không thể hoàn tác.
+                Bạn có chắc chắn muốn xóa loại ghế này? Hành động này không thể hoàn tác.
               </DialogDescription>
             </DialogHeader>
-            {selectedRating && (
+            {selectedSeatType && (
               <div className="py-4">
-                <p className="text-lg font-medium">{selectedRating.tenPhanLoaiDoTuoi}</p>
-                <p className="text-sm text-gray-500 mt-1">ID: {selectedRating.maPhanLoaiDoTuoi}</p>
-                {selectedRating.moTa && (
-                  <p className="text-sm text-gray-600 mt-2 italic">"{selectedRating.moTa}"</p>
+                <p className="text-lg font-medium">{selectedSeatType.tenLoaiGhe}</p>
+                <p className="text-sm text-gray-500 mt-1">ID: {selectedSeatType.maLoaiGhe}</p>
+                {selectedSeatType.moTa && (
+                  <p className="text-sm text-gray-600 mt-2 italic">"{selectedSeatType.moTa}"</p>
                 )}
               </div>
             )}
@@ -375,4 +365,4 @@ const ManageAgeRatingsPage: React.FC = () => {
   )
 }
 
-export default ManageAgeRatingsPage
+export default ManageSeatTypesPage

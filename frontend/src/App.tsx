@@ -22,6 +22,8 @@ import ManageAgeRatingsPage from "@/pages/Admin/ManageAgeRatingsPage"
 import CinemaInfoPage from "@/pages/Admin/CinemaInfoPage"
 import ManageRoomsPage from "@/pages/Admin/ManageRoomsPage" 
 import ManageRoomTypePage from "./pages/Admin/ManageRoomTypePage"
+import ManageSeatTypesPage from "./pages/Admin/ManageSeatTypesPage"
+import ManageSeatPricesPage from "./pages/Admin/ManageSeatPricesPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -68,6 +70,9 @@ function App(){
           <Route path="/admin/cinema" element={<CinemaInfoPage />} />
           <Route path="/admin/cinema/rooms" element={<ManageRoomsPage />} />
           <Route path="/admin/cinema/room-types" element={<ManageRoomTypePage />} />
+
+          <Route path="/admin/seats/types" element={<ManageSeatTypesPage />} />
+          <Route path="/admin/seats/prices" element={<ManageSeatPricesPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>

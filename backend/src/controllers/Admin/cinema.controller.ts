@@ -38,17 +38,17 @@ class RapController {
   // [GET] /admin/cinema/rooms
   async getAllRooms(req: Request, res: Response) {
     try {
-      const { hienThi, search, page = 1, sortField = 'maPhong', sortOrder = 'desc' } = req.query
+      const { hoatDong, search, page = 1, sortField = 'maPhong', sortOrder = 'desc' } = req.query
         const limit = 10
         const filter: any = {}
         const skip = (Number(page) - 1) * limit
         const sortFields = sortField as string
 
-        if(hienThi !== undefined) {
-          filter.hienThi = hienThi === 'true'
+        if(hoatDong !== undefined) {
+          filter.hoatDong = hoatDong === 'true'
         }
         if(search) {
-          filter.tenPhong = { contains: String(search) }
+          filter.tenPhong = { contains: search as string, mode: 'insensitive'}
         }
         
       const [rooms, total] = await Promise.all([
@@ -85,23 +85,57 @@ class RapController {
   // [POST] /admin/cinema/rooms
   async createRoom(req: Request, res: Response) {
     try {
-      const { tenPhong, maLoaiPhong } = req.body
+      const { tenPhong, maLoaiPhong, soHang, soCot, seatConfig } = req.body
       const maRap = process.env.DEFAULT_RAP
+      
       if(!maRap) {
-        return res.status(500).json({ message: 'Default cinema ID is not set' })
+        return res.status(500).json({ message: 'Cấu hình rạp mặc định chưa được thiết lập' })
       }
 
-      const newId = await generateIncrementalId(prisma.pHONGCHIEU, 'maPhong', 'P')
-      const newRoom = await prisma.pHONGCHIEU.create({
-        data: {
-          maPhong: newId,
-          tenPhong,
-          maLoaiPhong,
-          maRap: maRap,
-        },
-        include: { loaiPhongChieu: { select: { tenLoaiPhong: true } } }
+      if (!tenPhong || !maLoaiPhong || !soHang || !soCot || !seatConfig) {
+        return res.status(400).json({ message: 'Thiếu trường dữ liệu bắt buộc' })
+      }
+
+      if (soHang < 1 || soHang > 26) {
+        return res.status(400).json({ message: 'Số hàng phải từ 1 đến 26' })
+      }
+
+      if (soCot < 1 || soCot > 30) {
+        return res.status(400).json({ message: 'Số cột phải từ 1 đến 30' })
+      }
+
+      const result = await prisma.$transaction(async (tx) => {
+        const newRoomId = await generateIncrementalId(tx.pHONGCHIEU, 'maPhong', 'P')
+        const newRoom = await tx.pHONGCHIEU.create({
+          data: {
+            maPhong: newRoomId,
+            tenPhong,
+            maLoaiPhong,
+            maRap: maRap,
+          },
+          include: { loaiPhongChieu: { select: { tenLoaiPhong: true } } }
+        })
+
+        const seatsToCreate = seatConfig.map((seat: any) => ({
+          maGhe: `${newRoomId}-${seat.hangGhe}${seat.soGhe}`,
+          maPhong: newRoomId,
+          hangGhe: seat.hangGhe,
+          soGhe: seat.soGhe,
+          maLoaiGhe: seat.maLoaiGhe,
+          hoatDong: seat.hoatDong,
+        }))
+
+        await tx.gHE.createMany({
+          data: seatsToCreate
+        })
+
+        return newRoom
       })
-      res.status(201).json({message: 'Tạo phòng chiếu thành công', room: newRoom})
+
+      res.status(201).json({
+        message: 'Tạo phòng chiếu và cấu hình ghế thành công', 
+        room: result
+      })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -183,7 +217,8 @@ class RapController {
       }
       const updatedCinema = await prisma.pHONGCHIEU.update({
         where: { maPhong: id },
-        data: { hoatDong: !cinema.hoatDong }
+        data: { hoatDong: !cinema.hoatDong },
+        include: { loaiPhongChieu: { select: { tenLoaiPhong: true } } }
       })
       res.status(200).json({message: "Cập nhật trạng thái phòng chiếu thành công", room: updatedCinema})
     } catch (error) {
@@ -191,6 +226,67 @@ class RapController {
       res.status(500).json({ message: 'Internal server error' })
     }
   }
+
+  // [GET] /admin/cinema/rooms/:id/seats
+  async getRoomSeats(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const room = await prisma.pHONGCHIEU.findUnique({
+        where: { maPhong: id },
+        include: {
+          ghes: {
+            orderBy: [
+              { hangGhe: 'asc' },
+              { soGhe: 'asc' }
+            ],
+            include: {
+              loaiGhe: true
+            }
+          }
+        }
+      })
+      if (!room) {
+        return res.status(404).json({ message: 'Phòng không tồn tại' })
+      }
+      
+      res.json({room})
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
+  // [PATCH] /admin/cinema/rooms/:id/seats
+  async updateRoomSeats(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const { seatConfig } = req.body
+      
+      if (!seatConfig || !Array.isArray(seatConfig)) {
+        return res.status(400).json({ message: 'Invalid seat configuration' })
+      }
+      
+      await prisma.$transaction(async (tx) => {
+        for (const seat of seatConfig) {
+          const maGhe = `${id}-${seat.hangGhe}${seat.soGhe}`
+          
+          await tx.gHE.update({
+            where: { maGhe },
+            data: {
+              maLoaiGhe: seat.maLoaiGhe,
+              hoatDong: seat.hoatDong
+            }
+          })
+        }
+      })
+      
+      res.json({ message: 'Cập nhật sơ đồ ghế thành công' })
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
 }
 
 export default new RapController()

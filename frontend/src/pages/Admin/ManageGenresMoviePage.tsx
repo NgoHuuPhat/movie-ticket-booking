@@ -8,11 +8,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import AdminLayout from "@/components/layout/AdminLayout"
 import { getAllCategoriesAdmin, createCategoryAdmin, updateCategoryAdmin, deleteCategoryAdmin } from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
+import { z } from "zod"
 
 interface ICategory {
   maTheLoai: string

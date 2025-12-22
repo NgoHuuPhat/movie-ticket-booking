@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown, MapPin } from 'lucide-react'
+import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown, MapPin, Armchair } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -30,6 +30,15 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       ]
     },
     
+    {
+      icon: Armchair, 
+      label: 'Quản lý ghế',
+      children: [
+        { label: 'Loại ghế', path: '/admin/seats/types' },
+        { label: 'Giá ghế theo loại phòng', path: '/admin/seats/prices' },
+      ]
+    },
+
     { 
       icon: Film, label: 'Quản lý lịch chiếu', 
       children: [

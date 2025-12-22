@@ -154,46 +154,40 @@ const ManageRoomTypePage: React.FC = () => {
             <CardTitle>Danh sách loại phòng</CardTitle>
           </CardHeader>
           <CardContent className="p-2">
-            {roomTypes.length === 0 ? (
-              <div className="text-center py-12 text-gray-600">
-                {searchQuery ? "Không tìm thấy loại phòng nào" : "Chưa có loại phòng nào"}
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Mã loại phòng</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Tên loại phòng</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-600">Hành động</th>
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-medium text-gray-600">Mã loại phòng</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-600">Tên loại phòng</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roomTypes.map((roomType) => (
+                    <tr key={roomType.maLoaiPhong} className="border-b hover:bg-muted/50 transition-colors">
+                      <td className="p-4">
+                        <span className="text-sm">{roomType.maLoaiPhong}</span>
+                      </td>
+                      <td className="p-4 font-medium">{roomType.tenLoaiPhong}</td>
+                      <td className="p-4 text-right space-x-2">
+                        <Button size="sm" variant="ghost" onClick={() => openEditDialog(roomType)}>
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => openDeleteDialog(roomType)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {roomTypes.map((roomType) => (
-                      <tr key={roomType.maLoaiPhong} className="border-b hover:bg-muted/50 transition-colors">
-                        <td className="p-4">
-                          <span className="text-sm">{roomType.maLoaiPhong}</span>
-                        </td>
-                        <td className="p-4 font-medium">{roomType.tenLoaiPhong}</td>
-                        <td className="p-4 text-right space-x-2">
-                          <Button size="sm" variant="ghost" onClick={() => openEditDialog(roomType)}>
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:text-red-700"
-                            onClick={() => openDeleteDialog(roomType)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
 

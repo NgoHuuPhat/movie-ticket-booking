@@ -192,13 +192,45 @@ export const getRoomsForSelectAdmin = async () => {
   return res.data
 }
 
-export const getAllRoomsAdmin = async (params: { page?: number; search?: string; hienThi?: boolean; sortField?: string; sortOrder?: string }) => {
+export const getAllRoomsAdmin = async (params: { page?: number; search?: string; hoatDong?: boolean; sortField?: string; sortOrder?: string }) => {
   const res = await request.get("/admin/cinema/rooms", { params })
   return res.data
 }
 
-export const createRoomAdmin = async (tenPhong: string, maLoaiPhong: string) => {
-  const res = await request.post("/admin/cinema/rooms", { tenPhong, maLoaiPhong })
+export const createRoomAdmin = async (
+  tenPhong: string, 
+  maLoaiPhong: string,
+  soHang: number,
+  soCot: number,
+  seatConfig: Array<{
+    hangGhe: string
+    soGhe: number
+    maLoaiGhe: string
+    hoatDong: boolean
+  }>
+) => {
+  const res = await request.post("/admin/cinema/rooms", { 
+    tenPhong, 
+    maLoaiPhong,
+    soHang,
+    soCot,
+    seatConfig 
+  })
+  return res.data
+}
+
+export const getRoomSeatsAdmin = async (roomId: string) => {
+  const res = await request.get(`/admin/cinema/rooms/${roomId}/seats`)
+  return res.data
+}
+
+export const updateRoomSeatsAdmin = async (roomId: string, seatConfig: Array<{
+  hangGhe: string
+  soGhe: number
+  maLoaiGhe: string
+  hoatDong: boolean
+}>) => {
+  const res = await request.patch(`/admin/cinema/rooms/${roomId}/seats`, { seatConfig })
   return res.data
 }
 
@@ -242,3 +274,37 @@ export const updateRoomTypeAdmin = async (id: string, tenLoaiPhong: string) => {
   return res.data
 }
 
+export const getSeatTypesAdmin = async (search?: string) => {
+  const res = await request.get("/admin/seats/types", { params: { search } })
+  return res.data
+}
+
+export const createSeatTypeAdmin = async (tenLoaiGhe: string, moTa?: string) => {
+  const res = await request.post("/admin/seats/types", { tenLoaiGhe, moTa })
+  return res.data
+}
+
+export const updateSeatTypeAdmin = async (id: string, tenLoaiGhe: string, moTa?: string) => {
+  const res = await request.patch(`/admin/seats/types/${id}`, { tenLoaiGhe, moTa })
+  return res.data
+}
+
+export const deleteSeatTypeAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/seats/types/${id}`)
+  return res.data
+}
+
+export const getSeatPricesAdmin = async (search?: string) => {
+  const res = await request.get("/admin/seats/prices", { params: { search } })
+  return res.data
+}
+
+export const createSeatPriceAdmin = async (maLoaiGhe: string, maLoaiPhong: string, giaTien: number) => {
+  const res = await request.post("/admin/seats/prices", { maLoaiGhe, maLoaiPhong, giaTien })
+  return res.data
+}
+
+export const updateSeatPriceAdmin = async (maLoaiPhong: string, maLoaiGhe: string, giaTien: number) => {
+  const res = await request.patch(`/admin/seats/prices/${maLoaiPhong}/${maLoaiGhe}`, { giaTien })
+  return res.data
+}
