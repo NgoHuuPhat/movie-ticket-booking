@@ -18,7 +18,7 @@ import {
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
-import { getSeatTypesAdmin, getAllRoomTypesAdmin } from "@/services/api" // đã có từ trước
+import { getSeatTypesAdmin, getAllRoomTypesAdmin } from "@/services/api"
 
 interface ISeatPrice {
   maLoaiPhong: string
@@ -182,7 +182,7 @@ const ManageSeatPricesPage: React.FC = () => {
           <CardContent className="p-2">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b bg-gray-50/50">
+                <thead className="border-b bg-gray-100/50">
                   <tr>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Loại Phòng</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Loại Ghế</th>

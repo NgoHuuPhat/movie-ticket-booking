@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -54,15 +54,13 @@ export const MovieForm = ({
     handleSubmit,
     formState: { errors },
     setValue,
-    watch
+    control
   } = useForm<MovieFormData>({
     resolver: zodResolver(movieSchema),
     mode: "onTouched",
     defaultValues: defaultValues
   })
  
-  const selectedCategories = watch("maTheLoais") || []
-
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 sm:grid-cols-2 py-4" id="movie-form">
@@ -173,85 +171,110 @@ export const MovieForm = ({
 
         <div>
           <Label htmlFor="maPhanLoaiDoTuoi">Phân loại độ tuổi <span className="text-red-600">*</span></Label>
-          <Select
-            value={watch("maPhanLoaiDoTuoi")}
-            onValueChange={(value) => setValue("maPhanLoaiDoTuoi", value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Chọn phân loại độ tuổi" />
-            </SelectTrigger>
-            <SelectContent>
-              {ageRatings.map((rating) => (
-                <SelectItem key={rating.maPhanLoaiDoTuoi} value={rating.maPhanLoaiDoTuoi}>
-                  {rating.tenPhanLoaiDoTuoi} {rating.moTa && `- ${rating.moTa}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Controller
+            name="maPhanLoaiDoTuoi"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn phân loại độ tuổi" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ageRatings.map(r => (
+                    <SelectItem key={r.maPhanLoaiDoTuoi} value={r.maPhanLoaiDoTuoi}>
+                      {r.tenPhanLoaiDoTuoi}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.maPhanLoaiDoTuoi && <p className="text-sm text-red-600 mt-1">{errors.maPhanLoaiDoTuoi.message}</p>}
         </div>
 
         <div>
           <Label htmlFor="phienBan">Phiên bản <span className="text-red-600">*</span></Label>
-          <Select
-            value={watch("phienBan")}
-            onValueChange={(value) => setValue("phienBan", value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Chọn phiên bản" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(phienBan).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Controller
+            name="phienBan"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn phiên bản" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(phienBan).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.phienBan && <p className="text-sm text-red-600 mt-1">{errors.phienBan.message}</p>}
         </div>
 
         <div>
           <Label htmlFor="ngonNgu">Ngôn ngữ <span className="text-red-600">*</span></Label>
-          <Select
-            value={watch("ngonNgu")}
-            onValueChange={(value) => setValue("ngonNgu", value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Chọn ngôn ngữ" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(ngonNgu).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Controller
+            name="ngonNgu"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn ngôn ngữ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(ngonNgu).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.ngonNgu && <p className="text-sm text-red-600 mt-1">{errors.ngonNgu.message}</p>}
         </div>
 
         <div>
           <Label>Thể loại phim <span className="text-red-600">*</span></Label>
-          <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
-            {categories.map((cat) => (
-              <div key={cat.maTheLoai} className="flex items-center space-x-2">
-                <Checkbox
-                  checked={selectedCategories.includes(cat.maTheLoai)}
-                  onCheckedChange={(checked) => {
-                    const current = selectedCategories
-                    setValue(
-                      "maTheLoais",
-                      checked
-                        ? [...current, cat.maTheLoai]
-                        : current.filter((id) => id !== cat.maTheLoai)
-                    )
-                  }}
-                />
-                <label className="text-sm">{cat.tenTheLoai}</label>
+          <Controller
+            name="maTheLoais"
+            control={control}
+            render={({ field }) => (
+              <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                {categories.map((cat) => {
+                  const checked = field.value?.includes(cat.maTheLoai)
+
+                  return (
+                    <div key={cat.maTheLoai} className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(isChecked) => {
+                          const nextValue = isChecked
+                            ? [...(field.value || []), cat.maTheLoai]
+                            : field.value.filter(
+                                (id: string) => id !== cat.maTheLoai
+                              )
+
+                          field.onChange(nextValue)
+                        }}
+                      />
+                      <label className="text-sm">{cat.tenTheLoai}</label>
+                    </div>
+                  )
+                })}
               </div>
-            ))}
-          </div>
+            )}
+          />
           {errors.maTheLoais && <p className="text-sm text-red-600 mt-1">{errors.maTheLoais.message}</p>}
         </div>
       </div>

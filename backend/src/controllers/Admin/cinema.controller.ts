@@ -64,7 +64,7 @@ class RapController {
       const startIndex = skip + 1
       const endIndex = Math.min(Number(page) * Number(limit), total)
 
-      res.status(200).json({ rooms, total, limit, page: Number(page), startIndex, endIndex, totalPages: Math.ceil(total / Number(limit)) })
+      res.status(200).json({ rooms, total, startIndex, endIndex, page: Number(page), totalPages: Math.ceil(total / Number(limit)) })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -266,21 +266,20 @@ class RapController {
         return res.status(400).json({ message: 'Invalid seat configuration' })
       }
       
-      await prisma.$transaction(async (tx) => {
-        for (const seat of seatConfig) {
+      const updatedSeats = await prisma.$transaction(
+        seatConfig.map(seat => {
           const maGhe = `${id}-${seat.hangGhe}${seat.soGhe}`
-          
-          await tx.gHE.update({
+          return prisma.gHE.update({
             where: { maGhe },
             data: {
               maLoaiGhe: seat.maLoaiGhe,
               hoatDong: seat.hoatDong
             }
           })
-        }
-      })
+        })
+      )
       
-      res.json({ message: 'Cập nhật sơ đồ ghế thành công' })
+      res.json({ message: 'Cập nhật sơ đồ ghế thành công', updatedSeats  })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })

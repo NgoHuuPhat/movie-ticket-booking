@@ -14,16 +14,17 @@ import VerifyOTPPage from "@/pages/VerifyOTPPage"
 import ResetPasswordPage from "@/pages/ResetPasswordPage"
 import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
-import CheckoutResultPage from "./pages/CheckoutResultPage"
+import CheckoutResultPage from "@/pages/CheckoutResultPage"
 import DashboardPage from "@/pages/Admin/DashboardPage"
 import ManageMoviePage from "@/pages/Admin/ManageMoviePage"
 import ManageGenresMoviePage from "@/pages/Admin/ManageGenresMoviePage"
 import ManageAgeRatingsPage from "@/pages/Admin/ManageAgeRatingsPage"
 import CinemaInfoPage from "@/pages/Admin/CinemaInfoPage"
 import ManageRoomsPage from "@/pages/Admin/ManageRoomsPage" 
-import ManageRoomTypePage from "./pages/Admin/ManageRoomTypePage"
-import ManageSeatTypesPage from "./pages/Admin/ManageSeatTypesPage"
-import ManageSeatPricesPage from "./pages/Admin/ManageSeatPricesPage"
+import ManageRoomTypePage from "@/pages/Admin/ManageRoomTypePage"
+import ManageSeatTypesPage from "@/pages/Admin/ManageSeatTypesPage"
+import ManageSeatPricesPage from "@/pages/Admin/ManageSeatPricesPage"
+import ManageShowtimePage from "@/pages/Admin/ManageShowtimePage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -73,6 +74,8 @@ function App(){
 
           <Route path="/admin/seats/types" element={<ManageSeatTypesPage />} />
           <Route path="/admin/seats/prices" element={<ManageSeatPricesPage />} />
+          
+          <Route path="/admin/showtimes" element={<ManageShowtimePage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>

@@ -156,7 +156,7 @@ const ManageRoomTypePage: React.FC = () => {
           <CardContent className="p-2">
             <div className="overflow-x-auto">
               <table className="w-full table-fixed">
-                <thead>
+                <thead className="border-b bg-gray-100/50">
                   <tr className="border-b">
                     <th className="text-left py-3 px-4 font-medium text-gray-600">Mã loại phòng</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-600">Tên loại phòng</th>

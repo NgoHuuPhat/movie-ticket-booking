@@ -120,7 +120,7 @@ class PhimsController {
         const startIndex = skip + 1
         const endIndex = Math.min(Number(page) * Number(limit), total)
 
-        return res.status(200).json({ movies: resultMovies, limit, total, startIndex, endIndex, page: Number(page), totalPages: Math.ceil(total / Number(limit)) })
+        return res.status(200).json({ movies: resultMovies, total, startIndex, endIndex, page: Number(page), totalPages: Math.ceil(total / Number(limit)) })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -336,6 +336,25 @@ class PhimsController {
         data: { hienThi: !movie.hienThi }
       })
       res.status(200).json({ message: 'Cập nhật trạng thái hiển thị phim thành công', movie: updatedMovie })
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
+  // [GET] /admin/movies/select
+  async getMoviesForSelect(req: Request, res: Response) {
+    try {
+      const movies = await prisma.pHIM.findMany({
+        where: { 
+          hienThi: true,
+          ngayKhoiChieu: { lte: new Date()},
+          ngayKetThuc: { gte: new Date() }
+         },
+        orderBy: { ngayKhoiChieu: 'desc' },
+        select: { maPhim: true, tenPhim: true, ngayKetThuc: true, ngayKhoiChieu: true }
+      })
+      res.status(200).json(movies)
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })

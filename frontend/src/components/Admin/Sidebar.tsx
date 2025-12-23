@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown, MapPin, Armchair } from 'lucide-react'
+import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown, MapPin, Armchair, Calendar } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -38,16 +38,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Giá ghế theo loại phòng', path: '/admin/seats/prices' },
       ]
     },
-
-    { 
-      icon: Film, label: 'Quản lý lịch chiếu', 
-      children: [
-        { label: 'Thể loại lịch', path: '/admin/showtimes/types' },
-        { label: 'Phân loại độ tuổi', path: '/admin/showtimes/ratings' },
-        { label: 'Danh sách lịch chiếu', path: '/admin/showtimes' },
-      ]
-    },
-    
+    { icon: Calendar, label: 'Quản lý suất chiếu', path: '/admin/showtimes' },
     { icon: Ticket, label: 'Đơn đặt vé', path: '/admin/orders' },
     { icon: Users, label: 'Khách hàng', path: '/admin/customers' },
     { icon: Popcorn, label: 'Combo đồ ăn', path: '/admin/foods-combos' },

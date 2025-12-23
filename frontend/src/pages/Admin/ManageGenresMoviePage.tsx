@@ -158,7 +158,7 @@ const ManageGenresMoviePage = () => {
           <CardContent className="p-2">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b bg-gray-50/50">
+                <thead className="border-b bg-gray-100/50">
                   <tr>
                     <th className="text-left p-4 text-sm font-medium text-gray-600 w-32">Mã thể loại</th>
                     <th className="p-4 text-sm font-medium text-gray-600">Tên thể loại</th>

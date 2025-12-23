@@ -6,6 +6,7 @@ import uploadToAWSS3 from '@/middlewares/uploadToAWSS3.middleware'
 const router = Router()
 
 router.get('/', moviesController.getAllMovies)
+router.get('/select', moviesController.getMoviesForSelect)
 router.get('/stats', moviesController.getMovieStats)
 router.get('/:id', moviesController.getMovieById)
 router.post('/', upload.single('anhBia'), uploadToAWSS3, moviesController.createMovie)

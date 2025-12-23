@@ -103,6 +103,11 @@ export const getAllMoviesAdmin = async (params: { page?: number; search?: string
   return res.data
 }
 
+export const getMoviesForSelect = async () => {
+  const res = await request.get("/admin/movies/select")
+  return res.data
+}
+
 export const getStatsMoviesAdmin = async () => {
   const res = await request.get("/admin/movies/stats")
   return res.data
@@ -306,5 +311,40 @@ export const createSeatPriceAdmin = async (maLoaiGhe: string, maLoaiPhong: strin
 
 export const updateSeatPriceAdmin = async (maLoaiPhong: string, maLoaiGhe: string, giaTien: number) => {
   const res = await request.patch(`/admin/seats/prices/${maLoaiPhong}/${maLoaiGhe}`, { giaTien })
+  return res.data
+}
+
+export const getShowtimesAdmin = async (params: { page?: number; trangThai?: string; date?: string; search?: string; }) => {
+  const res = await request.get("/admin/showtimes", { params })
+  return res.data
+}
+
+export const createShowtimeAdmin = async (maPhim: string, maPhong: string, gioBatDau: string, gioKetThuc: string) => {
+  const res = await request.post("/admin/showtimes", { maPhim, maPhong, gioBatDau, gioKetThuc })
+  return res.data
+}
+
+export const updateShowtimeAdmin = async (id: string, gioBatDau: string, gioKetThuc: string) => {
+  const res = await request.patch(`/admin/showtimes/${id}`, { gioBatDau, gioKetThuc })
+  return res.data
+}
+
+export const deleteShowtimeAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/showtimes/${id}`)
+  return res.data
+}
+
+export const getShowtimeStatsAdmin = async () => {
+  const res = await request.get(`/admin/showtimes/stats`)
+  return res.data
+}
+
+export const bulkActionShowtimesAdmin = async (showtimeIds: string[], action: string) => {
+  const res = await request.post("/admin/showtimes/bulk-action", { showtimeIds, action })
+  return res.data
+}
+
+export const toggleShowtimeActivationAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/showtimes/${id}/activate`)
   return res.data
 }

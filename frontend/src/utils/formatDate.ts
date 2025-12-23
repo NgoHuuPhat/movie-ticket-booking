@@ -13,3 +13,4 @@ export function formatTime(dateString?: string): string {
   const date = parseISO(dateString)
   return format(date, "HH:mm")
 }
+

@@ -148,9 +148,9 @@ const ManageMoviePage = () => {
 
         setMovies(res.movies)
         setTotalMovies(res.total)
-        setTotalPages(Math.ceil(res.total / res.limit))
-        setStartIndex(res.startIndex || (currentPage - 1) * res.limit + 1)
-        setEndIndex(res.endIndex || Math.min(currentPage * res.limit, res.total))
+        setTotalPages(res.totalPages)
+        setStartIndex(res.startIndex)
+        setEndIndex(res.endIndex)
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error)
         toast.error("Không thể tải dữ liệu từ server")
@@ -475,7 +475,7 @@ const ManageMoviePage = () => {
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b bg-gray-50/50">
+                <thead className="border-b bg-gray-100/50">
                   <tr>
                     <th className="text-left p-4 font-medium text-gray-600 w-12">
                       <Checkbox

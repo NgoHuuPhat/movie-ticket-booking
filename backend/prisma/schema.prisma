@@ -139,9 +139,9 @@ model SUATCHIEU {
   maSuatChieu   String    @id
   maPhim        String
   maPhong       String
-  ngayChieu     DateTime  @db.Date
-  gioChieu      DateTime  @db.Time
-  gioKetThuc    DateTime  @db.Time
+  gioBatDau     DateTime  
+  gioKetThuc    DateTime  
+  hoatDong      Boolean   @default(true)
 
   gheSuatChieus GHE_SUATCHIEU[]
   veSuatChieus  VE[]

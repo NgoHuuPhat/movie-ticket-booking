@@ -99,9 +99,9 @@ const ManageRoomsPage = () => {
 
         setRooms(res.rooms)
         setTotalRooms(res.total)
-        setTotalPages(res.totalPages || Math.ceil(res.total / res.limit))
-        setStartIndex(res.startIndex || (currentPage - 1) * res.limit + 1)
-        setEndIndex(res.endIndex || Math.min(currentPage * res.limit, res.total))
+        setTotalPages(res.totalPages)
+        setStartIndex(res.startIndex)
+        setEndIndex(res.endIndex)
       } catch (error) {
         toast.error(handleError(error))
       }
@@ -253,11 +253,29 @@ const ManageRoomsPage = () => {
     setSubmitting(true)
     try {
       const res = await updateRoomSeatsAdmin(selectedRoom.maPhong, seatConfig)
+
       toast.success(res.message)
+      if (res && res.updatedSeats && res.updatedSeats.ghes) {
+        const hangGhes = [...new Set(res.updatedSeats.ghes.map((g: ISeat) => g.hangGhe))]
+        const soGhes = [...new Set(res.updatedSeats.ghes.map((g: ISeat) => g.soGhe))] as number[]
+
+        const seats = res.updatedSeats.ghes.map((seat: ISeat) => ({
+          hangGhe: seat.hangGhe,
+          soGhe: seat.soGhe,
+          maLoaiGhe: seat.maLoaiGhe,
+          hoatDong: seat.hoatDong
+        }))
+
+        setRoomSeats({
+          soHang: hangGhes.length,
+          soCot: soGhes.length > 0 ? Math.max(...soGhes) : 0,
+          seats
+        })
+      }
+
       setIsSeatViewDialogOpen(false)
-      setRoomSeats(null)
     } catch (error) {
-      toast.error(handleError(error) || "Cập nhật sơ đồ ghế thất bại!")
+      toast.error(handleError(error))
     } finally {
       setSubmitting(false)
     }
@@ -437,7 +455,7 @@ const ManageRoomsPage = () => {
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b bg-gray-50/50">
+                <thead className="border-b bg-gray-100/50">
                   <tr>
                     <th className="text-left p-4 font-medium text-gray-600 w-12">
                       <Checkbox
