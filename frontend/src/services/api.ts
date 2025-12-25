@@ -348,3 +348,106 @@ export const toggleShowtimeActivationAdmin = async (id: string) => {
   const res = await request.patch(`/admin/showtimes/${id}/activate`)
   return res.data
 }
+
+export const getAllTicketsAdmin = async (params: { phim?: string; hinhThuc?: string; search?: string; page?: number;  date?: string; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/tickets", { params })
+  return res.data
+}
+
+export const getTicketStatsAdmin = async () => {
+  const res = await request.get("/admin/tickets/stats")
+  return res.data
+}
+
+export const getAllProductCategoriesAdmin = async (search?: string) => {
+  const res = await request.get("/admin/product-categories", { params: { search } })
+  return res.data
+}
+
+export const createProductCategoryAdmin = async (tenDanhMucSanPham: string) => {
+  const res = await request.post("/admin/product-categories", { tenDanhMucSanPham })
+  return res.data
+}
+
+export const updateProductCategoryAdmin = async (id: string, tenDanhMucSanPham: string) => {
+  const res = await request.patch(`/admin/product-categories/${id}`, { tenDanhMucSanPham })
+  return res.data
+}
+
+export const deleteProductCategoryAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/product-categories/${id}`)
+  return res.data
+}
+
+export const getAllProductsAdmin = async (params: { page?: number; search?: string; hienThi?: boolean; maDanhMucSanPham?: string; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/products", { params })
+  return res.data
+}
+
+export const createProductAdmin = async (productData: FormData) => {
+  const res = await request.post("/admin/products", productData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const updateProductAdmin = async (id: string, productData: FormData) => {
+  const res = await request.patch(`/admin/products/${id}`, productData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const deleteProductAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/products/${id}`)
+  return res.data
+}
+
+export const bulkActionProducts = async (productIds: string[], action: string) => {
+  const res = await request.post("/admin/products/bulk-action", { productIds, action })
+  return res.data
+}
+
+export const toggleShowProductAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/products/${id}/show`)
+  return res.data
+}
+
+export const getProductsForSelectAdmin = async () => {
+  const res = await request.get("/admin/products/select")
+  return res.data
+}
+
+export const getAllCombosAdmin = async (params: { page?: number; search?: string; hienThi?: boolean; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/combos", { params })
+  return res.data
+}
+
+export const createComboAdmin = async (comboData: FormData) => {
+  const res = await request.post("/admin/combos", comboData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const updateComboAdmin = async (id: string, comboData: FormData) => {
+  const res = await request.patch(`/admin/combos/${id}`, comboData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const deleteComboAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/combos/${id}`)
+  return res.data
+}
+
+export const bulkActionCombosAdmin = async (comboIds: string[], action: string) => {
+  const res = await request.post("/admin/combos/bulk-action", { comboIds, action })
+  return res.data
+}
+
+export const toggleShowComboAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/combos/${id}/show`)
+  return res.data
+}

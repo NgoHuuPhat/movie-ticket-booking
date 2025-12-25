@@ -34,8 +34,7 @@ export interface ITrailerModalProps {
 export interface IMovieShowtime {
   maSuatChieu: string
   maPhim: string
-  ngayChieu: string
-  gioChieu: string
+  gioBatDau: string
   gioKetThuc: string
   tenLoaiPhong: string
   tenPhongChieu: string

@@ -58,7 +58,22 @@ export const MovieForm = ({
   } = useForm<MovieFormData>({
     resolver: zodResolver(movieSchema),
     mode: "onTouched",
-    defaultValues: defaultValues
+    defaultValues: {
+      tenPhim: defaultValues?.tenPhim || "",
+      moTa: defaultValues?.moTa || "",
+      anhBia: null,
+      ngayKhoiChieu: defaultValues?.ngayKhoiChieu || "",
+      ngayKetThuc: defaultValues?.ngayKetThuc || "",
+      thoiLuong: defaultValues?.thoiLuong || 0,
+      quocGia: defaultValues?.quocGia || "",
+      daoDien: defaultValues?.daoDien || "",
+      dienVien: defaultValues?.dienVien || "",
+      trailerPhim: defaultValues?.trailerPhim || "",
+      maPhanLoaiDoTuoi: defaultValues?.maPhanLoaiDoTuoi || "",
+      phienBan: defaultValues?.phienBan || "",
+      ngonNgu: defaultValues?.ngonNgu || "",
+      maTheLoais: defaultValues?.maTheLoais || []
+    }
   })
  
   return (

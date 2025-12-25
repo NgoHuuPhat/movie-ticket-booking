@@ -31,7 +31,7 @@ class LoaiPhongChieusController {
           data: {
               maLoaiPhong: newId,
               tenLoaiPhong
-          }
+          },
         })
         res.status(201).json({ message: 'Loại phòng đã được tạo thành công', roomType: newRoomType })
     } catch (error) {

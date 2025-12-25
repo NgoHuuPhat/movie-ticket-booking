@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "GHE" ADD COLUMN     "hoatDong" BOOLEAN NOT NULL DEFAULT true;

@@ -1,14 +1,14 @@
 import { Router } from 'express'
-import showTimeController from '@/controllers/Admin/showtimes.controller'
+import showTimesController from '@/controllers/Admin/showtimes.controller'
 
 const router = Router()
 
-router.get('/', showTimeController.getAllShowtimes)
-router.get('/stats', showTimeController.getShowtimeStats)
-router.post('/', showTimeController.createShowtime)
-router.post('/bulk-action', showTimeController.bulkAction)
-router.patch('/:id/activate', showTimeController.toggleShowtimeActivation)
-router.patch('/:id', showTimeController.updateShowtime)
-router.delete('/:id', showTimeController.deleteShowtime)
+router.get('/', showTimesController.getAllShowtimes)
+router.get('/stats', showTimesController.getShowtimeStats)
+router.post('/', showTimesController.createShowtime)
+router.post('/bulk-action', showTimesController.bulkAction)
+router.patch('/:id/activate', showTimesController.toggleShowtimeActivation)
+router.patch('/:id', showTimesController.updateShowtime)
+router.delete('/:id', showTimesController.deleteShowtime)
 
 export default router

@@ -1,0 +1,424 @@
+-- CreateEnum
+CREATE TYPE "TRANGTHAINGUOIDUNG" AS ENUM ('HoatDong', 'BiKhoa');
+
+-- CreateEnum
+CREATE TYPE "GIOITINH" AS ENUM ('Nam', 'Nu', 'Khac');
+
+-- CreateEnum
+CREATE TYPE "PHIENBAN" AS ENUM ('TWO_D', 'THREE_D');
+
+-- CreateEnum
+CREATE TYPE "NGONNGU" AS ENUM ('LongTieng', 'PhuDe');
+
+-- CreateEnum
+CREATE TYPE "TRANGTHAIGHE" AS ENUM ('KhongSuDung', 'DangTrong', 'DaDat');
+
+-- CreateEnum
+CREATE TYPE "LOAIKHUYENMAI" AS ENUM ('GiamGiaTien', 'GiamPhanTram');
+
+-- CreateEnum
+CREATE TYPE "HINHTHUCVE" AS ENUM ('Offline', 'Online');
+
+-- CreateEnum
+CREATE TYPE "PHUONGTHUCTHANHTOAN" AS ENUM ('VNPAY', 'MOMO', 'TIENMAT');
+
+-- CreateEnum
+CREATE TYPE "TRANGTHAITHANHTOAN" AS ENUM ('DaThanhToan', 'ChuaThanhToan');
+
+-- CreateEnum
+CREATE TYPE "TRANGTHAIVE" AS ENUM ('DaCheckIn', 'DaDat', 'DaHuy', 'DaHoanTien');
+
+-- CreateTable
+CREATE TABLE "LOAINGUOIDUNG" (
+    "maLoaiNguoiDung" TEXT NOT NULL,
+    "tenLoaiNguoiDung" TEXT NOT NULL,
+    "moTa" TEXT,
+
+    CONSTRAINT "LOAINGUOIDUNG_pkey" PRIMARY KEY ("maLoaiNguoiDung")
+);
+
+-- CreateTable
+CREATE TABLE "NGUOIDUNG" (
+    "maNguoiDung" TEXT NOT NULL,
+    "hoTen" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "matKhau" TEXT NOT NULL,
+    "soDienThoai" TEXT NOT NULL,
+    "maLoaiNguoiDung" TEXT NOT NULL,
+    "ngaySinh" TIMESTAMP(3) NOT NULL,
+    "gioiTinh" "GIOITINH" NOT NULL,
+    "trangThai" "TRANGTHAINGUOIDUNG" NOT NULL DEFAULT 'HoatDong',
+    "ngayTao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "diemTichLuy" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "NGUOIDUNG_pkey" PRIMARY KEY ("maNguoiDung")
+);
+
+-- CreateTable
+CREATE TABLE "THELOAI" (
+    "maTheLoai" TEXT NOT NULL,
+    "tenTheLoai" TEXT NOT NULL,
+
+    CONSTRAINT "THELOAI_pkey" PRIMARY KEY ("maTheLoai")
+);
+
+-- CreateTable
+CREATE TABLE "PHIM_THELOAI" (
+    "maPhim" TEXT NOT NULL,
+    "maTheLoai" TEXT NOT NULL,
+
+    CONSTRAINT "PHIM_THELOAI_pkey" PRIMARY KEY ("maPhim","maTheLoai")
+);
+
+-- CreateTable
+CREATE TABLE "PHANLOAIDOTUOI" (
+    "maPhanLoaiDoTuoi" TEXT NOT NULL,
+    "tenPhanLoaiDoTuoi" TEXT NOT NULL,
+    "moTa" TEXT NOT NULL,
+
+    CONSTRAINT "PHANLOAIDOTUOI_pkey" PRIMARY KEY ("maPhanLoaiDoTuoi")
+);
+
+-- CreateTable
+CREATE TABLE "PHIM" (
+    "maPhim" TEXT NOT NULL,
+    "tenPhim" TEXT NOT NULL,
+    "daoDien" TEXT NOT NULL,
+    "dienVien" TEXT NOT NULL,
+    "thoiLuong" INTEGER NOT NULL,
+    "moTa" TEXT NOT NULL,
+    "anhBia" TEXT NOT NULL,
+    "ngayKhoiChieu" DATE NOT NULL,
+    "ngayKetThuc" DATE NOT NULL,
+    "maPhanLoaiDoTuoi" TEXT NOT NULL,
+    "trailerPhim" TEXT NOT NULL,
+    "quocGia" TEXT NOT NULL,
+    "phienBan" "PHIENBAN" NOT NULL,
+    "ngonNgu" "NGONNGU" NOT NULL,
+    "hienThi" BOOLEAN NOT NULL DEFAULT true,
+    "slug" TEXT NOT NULL,
+
+    CONSTRAINT "PHIM_pkey" PRIMARY KEY ("maPhim")
+);
+
+-- CreateTable
+CREATE TABLE "RAP" (
+    "maRap" TEXT NOT NULL,
+    "tenRap" TEXT NOT NULL,
+    "diaChi" TEXT NOT NULL,
+    "soDienThoai" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+
+    CONSTRAINT "RAP_pkey" PRIMARY KEY ("maRap")
+);
+
+-- CreateTable
+CREATE TABLE "PHONGCHIEU" (
+    "maPhong" TEXT NOT NULL,
+    "tenPhong" TEXT NOT NULL,
+    "maLoaiPhong" TEXT NOT NULL,
+    "maRap" TEXT NOT NULL,
+    "hoatDong" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "PHONGCHIEU_pkey" PRIMARY KEY ("maPhong")
+);
+
+-- CreateTable
+CREATE TABLE "LOAIPHONGCHIEU" (
+    "maLoaiPhong" TEXT NOT NULL,
+    "tenLoaiPhong" TEXT NOT NULL,
+    "moTa" TEXT,
+
+    CONSTRAINT "LOAIPHONGCHIEU_pkey" PRIMARY KEY ("maLoaiPhong")
+);
+
+-- CreateTable
+CREATE TABLE "SUATCHIEU" (
+    "maSuatChieu" TEXT NOT NULL,
+    "maPhim" TEXT NOT NULL,
+    "maPhong" TEXT NOT NULL,
+    "gioBatDau" TIMESTAMP(3) NOT NULL,
+    "gioKetThuc" TIMESTAMP(3) NOT NULL,
+    "hoatDong" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "SUATCHIEU_pkey" PRIMARY KEY ("maSuatChieu")
+);
+
+-- CreateTable
+CREATE TABLE "GIAGHEPHONG" (
+    "maLoaiPhong" TEXT NOT NULL,
+    "maLoaiGhe" TEXT NOT NULL,
+    "giaTien" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "GIAGHEPHONG_pkey" PRIMARY KEY ("maLoaiPhong","maLoaiGhe")
+);
+
+-- CreateTable
+CREATE TABLE "LOAIGHE" (
+    "maLoaiGhe" TEXT NOT NULL,
+    "tenLoaiGhe" TEXT NOT NULL,
+    "moTa" TEXT,
+
+    CONSTRAINT "LOAIGHE_pkey" PRIMARY KEY ("maLoaiGhe")
+);
+
+-- CreateTable
+CREATE TABLE "GHE" (
+    "maGhe" TEXT NOT NULL,
+    "maPhong" TEXT NOT NULL,
+    "hangGhe" TEXT NOT NULL,
+    "soGhe" INTEGER NOT NULL,
+    "maLoaiGhe" TEXT NOT NULL,
+    "hoatDong" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "GHE_pkey" PRIMARY KEY ("maGhe")
+);
+
+-- CreateTable
+CREATE TABLE "GHE_SUATCHIEU" (
+    "maGheSuatChieu" TEXT NOT NULL,
+    "maGhe" TEXT NOT NULL,
+    "maSuatChieu" TEXT NOT NULL,
+    "trangThaiGhe" "TRANGTHAIGHE" NOT NULL DEFAULT 'DangTrong',
+
+    CONSTRAINT "GHE_SUATCHIEU_pkey" PRIMARY KEY ("maGheSuatChieu")
+);
+
+-- CreateTable
+CREATE TABLE "DANHMUCSANPHAM" (
+    "maDanhMucSanPham" TEXT NOT NULL,
+    "tenDanhMucSanPham" TEXT NOT NULL,
+
+    CONSTRAINT "DANHMUCSANPHAM_pkey" PRIMARY KEY ("maDanhMucSanPham")
+);
+
+-- CreateTable
+CREATE TABLE "SANPHAM" (
+    "maSanPham" TEXT NOT NULL,
+    "tenSanPham" TEXT NOT NULL,
+    "giaTien" DOUBLE PRECISION NOT NULL,
+    "anhSanPham" TEXT NOT NULL,
+    "hienThi" BOOLEAN NOT NULL DEFAULT true,
+    "maDanhMucSanPham" TEXT NOT NULL,
+
+    CONSTRAINT "SANPHAM_pkey" PRIMARY KEY ("maSanPham")
+);
+
+-- CreateTable
+CREATE TABLE "CHITIETCOMBO" (
+    "maCombo" TEXT NOT NULL,
+    "maSanPham" TEXT NOT NULL,
+    "soLuong" INTEGER NOT NULL,
+
+    CONSTRAINT "CHITIETCOMBO_pkey" PRIMARY KEY ("maCombo","maSanPham")
+);
+
+-- CreateTable
+CREATE TABLE "COMBO" (
+    "maCombo" TEXT NOT NULL,
+    "tenCombo" TEXT NOT NULL,
+    "anhCombo" TEXT NOT NULL,
+    "giaGoc" DOUBLE PRECISION NOT NULL,
+    "giaBan" DOUBLE PRECISION NOT NULL,
+    "hienThi" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "COMBO_pkey" PRIMARY KEY ("maCombo")
+);
+
+-- CreateTable
+CREATE TABLE "DIEUKIENKHUYENMAI" (
+    "maDieuKien" TEXT NOT NULL,
+    "tenLoaiDieuKien" TEXT NOT NULL,
+    "maLoaiNguoiDung" TEXT,
+    "moTa" TEXT,
+
+    CONSTRAINT "DIEUKIENKHUYENMAI_pkey" PRIMARY KEY ("maDieuKien")
+);
+
+-- CreateTable
+CREATE TABLE "KHUYENMAI" (
+    "maKhuyenMai" TEXT NOT NULL,
+    "tenKhuyenMai" TEXT NOT NULL,
+    "maCode" TEXT NOT NULL,
+    "maDieuKien" TEXT NOT NULL,
+    "loaiKhuyenMai" "LOAIKHUYENMAI" NOT NULL,
+    "giaTriGiam" INTEGER NOT NULL,
+    "soLuong" INTEGER,
+    "soLuongDaDung" INTEGER NOT NULL DEFAULT 0,
+    "thangApDung" INTEGER,
+    "ngayApDung" INTEGER,
+    "ngayBatDau" TIMESTAMP(3) NOT NULL,
+    "ngayKetThuc" TIMESTAMP(3) NOT NULL,
+    "hoatDong" BOOLEAN NOT NULL DEFAULT true,
+    "moTa" TEXT,
+
+    CONSTRAINT "KHUYENMAI_pkey" PRIMARY KEY ("maKhuyenMai")
+);
+
+-- CreateTable
+CREATE TABLE "HOADON" (
+    "maHoaDon" TEXT NOT NULL,
+    "maQR" TEXT NOT NULL,
+    "maNguoiDung" TEXT NOT NULL,
+    "maNhanVienDat" TEXT,
+    "maGiaoDich" TEXT,
+    "maKhuyenMai" TEXT,
+    "tongTien" DOUBLE PRECISION NOT NULL,
+    "phuongThucThanhToan" "PHUONGTHUCTHANHTOAN" NOT NULL,
+    "trangThaiThanhToan" "TRANGTHAITHANHTOAN" NOT NULL,
+    "ngayThanhToan" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ngayHoanTien" TIMESTAMP(3),
+    "noiDungHoan" TEXT,
+
+    CONSTRAINT "HOADON_pkey" PRIMARY KEY ("maHoaDon")
+);
+
+-- CreateTable
+CREATE TABLE "VE" (
+    "maVe" TEXT NOT NULL,
+    "maGheSuatChieu" TEXT NOT NULL,
+    "maHoaDon" TEXT NOT NULL,
+    "giaVe" DOUBLE PRECISION NOT NULL,
+    "thoiGianCheckIn" TIMESTAMP(3),
+    "maNhanVienSoat" TEXT,
+    "trangThai" "TRANGTHAIVE" NOT NULL DEFAULT 'DaDat',
+
+    CONSTRAINT "VE_pkey" PRIMARY KEY ("maVe")
+);
+
+-- CreateTable
+CREATE TABLE "HOADON_COMBO" (
+    "maHoaDon" TEXT NOT NULL,
+    "maCombo" TEXT NOT NULL,
+    "soLuong" INTEGER NOT NULL,
+    "donGia" DOUBLE PRECISION NOT NULL,
+    "tongTien" DOUBLE PRECISION NOT NULL,
+    "daLay" BOOLEAN NOT NULL DEFAULT false,
+    "thoiGianLay" TIMESTAMP(3),
+
+    CONSTRAINT "HOADON_COMBO_pkey" PRIMARY KEY ("maHoaDon","maCombo")
+);
+
+-- CreateTable
+CREATE TABLE "HOADON_SANPHAM" (
+    "maHoaDon" TEXT NOT NULL,
+    "maSanPham" TEXT NOT NULL,
+    "soLuong" INTEGER NOT NULL,
+    "donGia" DOUBLE PRECISION NOT NULL,
+    "tongTien" DOUBLE PRECISION NOT NULL,
+    "daLay" BOOLEAN NOT NULL DEFAULT false,
+    "thoiGianLay" TIMESTAMP(3),
+
+    CONSTRAINT "HOADON_SANPHAM_pkey" PRIMARY KEY ("maHoaDon","maSanPham")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "NGUOIDUNG_email_key" ON "NGUOIDUNG"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "NGUOIDUNG_soDienThoai_key" ON "NGUOIDUNG"("soDienThoai");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PHIM_slug_key" ON "PHIM"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RAP_email_key" ON "RAP"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GHE_SUATCHIEU_maGhe_maSuatChieu_key" ON "GHE_SUATCHIEU"("maGhe", "maSuatChieu");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KHUYENMAI_maCode_key" ON "KHUYENMAI"("maCode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "HOADON_maQR_key" ON "HOADON"("maQR");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "HOADON_maGiaoDich_key" ON "HOADON"("maGiaoDich");
+
+-- AddForeignKey
+ALTER TABLE "NGUOIDUNG" ADD CONSTRAINT "NGUOIDUNG_maLoaiNguoiDung_fkey" FOREIGN KEY ("maLoaiNguoiDung") REFERENCES "LOAINGUOIDUNG"("maLoaiNguoiDung") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PHIM_THELOAI" ADD CONSTRAINT "PHIM_THELOAI_maPhim_fkey" FOREIGN KEY ("maPhim") REFERENCES "PHIM"("maPhim") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PHIM_THELOAI" ADD CONSTRAINT "PHIM_THELOAI_maTheLoai_fkey" FOREIGN KEY ("maTheLoai") REFERENCES "THELOAI"("maTheLoai") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PHIM" ADD CONSTRAINT "PHIM_maPhanLoaiDoTuoi_fkey" FOREIGN KEY ("maPhanLoaiDoTuoi") REFERENCES "PHANLOAIDOTUOI"("maPhanLoaiDoTuoi") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PHONGCHIEU" ADD CONSTRAINT "PHONGCHIEU_maLoaiPhong_fkey" FOREIGN KEY ("maLoaiPhong") REFERENCES "LOAIPHONGCHIEU"("maLoaiPhong") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PHONGCHIEU" ADD CONSTRAINT "PHONGCHIEU_maRap_fkey" FOREIGN KEY ("maRap") REFERENCES "RAP"("maRap") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SUATCHIEU" ADD CONSTRAINT "SUATCHIEU_maPhim_fkey" FOREIGN KEY ("maPhim") REFERENCES "PHIM"("maPhim") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SUATCHIEU" ADD CONSTRAINT "SUATCHIEU_maPhong_fkey" FOREIGN KEY ("maPhong") REFERENCES "PHONGCHIEU"("maPhong") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GIAGHEPHONG" ADD CONSTRAINT "GIAGHEPHONG_maLoaiGhe_fkey" FOREIGN KEY ("maLoaiGhe") REFERENCES "LOAIGHE"("maLoaiGhe") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GIAGHEPHONG" ADD CONSTRAINT "GIAGHEPHONG_maLoaiPhong_fkey" FOREIGN KEY ("maLoaiPhong") REFERENCES "LOAIPHONGCHIEU"("maLoaiPhong") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GHE" ADD CONSTRAINT "GHE_maLoaiGhe_fkey" FOREIGN KEY ("maLoaiGhe") REFERENCES "LOAIGHE"("maLoaiGhe") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GHE" ADD CONSTRAINT "GHE_maPhong_fkey" FOREIGN KEY ("maPhong") REFERENCES "PHONGCHIEU"("maPhong") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GHE_SUATCHIEU" ADD CONSTRAINT "GHE_SUATCHIEU_maGhe_fkey" FOREIGN KEY ("maGhe") REFERENCES "GHE"("maGhe") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GHE_SUATCHIEU" ADD CONSTRAINT "GHE_SUATCHIEU_maSuatChieu_fkey" FOREIGN KEY ("maSuatChieu") REFERENCES "SUATCHIEU"("maSuatChieu") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SANPHAM" ADD CONSTRAINT "SANPHAM_maDanhMucSanPham_fkey" FOREIGN KEY ("maDanhMucSanPham") REFERENCES "DANHMUCSANPHAM"("maDanhMucSanPham") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CHITIETCOMBO" ADD CONSTRAINT "CHITIETCOMBO_maCombo_fkey" FOREIGN KEY ("maCombo") REFERENCES "COMBO"("maCombo") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CHITIETCOMBO" ADD CONSTRAINT "CHITIETCOMBO_maSanPham_fkey" FOREIGN KEY ("maSanPham") REFERENCES "SANPHAM"("maSanPham") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DIEUKIENKHUYENMAI" ADD CONSTRAINT "DIEUKIENKHUYENMAI_maLoaiNguoiDung_fkey" FOREIGN KEY ("maLoaiNguoiDung") REFERENCES "LOAINGUOIDUNG"("maLoaiNguoiDung") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KHUYENMAI" ADD CONSTRAINT "KHUYENMAI_maDieuKien_fkey" FOREIGN KEY ("maDieuKien") REFERENCES "DIEUKIENKHUYENMAI"("maDieuKien") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON" ADD CONSTRAINT "HOADON_maNguoiDung_fkey" FOREIGN KEY ("maNguoiDung") REFERENCES "NGUOIDUNG"("maNguoiDung") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON" ADD CONSTRAINT "HOADON_maNhanVienDat_fkey" FOREIGN KEY ("maNhanVienDat") REFERENCES "NGUOIDUNG"("maNguoiDung") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON" ADD CONSTRAINT "HOADON_maKhuyenMai_fkey" FOREIGN KEY ("maKhuyenMai") REFERENCES "KHUYENMAI"("maKhuyenMai") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "VE" ADD CONSTRAINT "VE_maNhanVienSoat_fkey" FOREIGN KEY ("maNhanVienSoat") REFERENCES "NGUOIDUNG"("maNguoiDung") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "VE" ADD CONSTRAINT "VE_maHoaDon_fkey" FOREIGN KEY ("maHoaDon") REFERENCES "HOADON"("maHoaDon") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "VE" ADD CONSTRAINT "VE_maGheSuatChieu_fkey" FOREIGN KEY ("maGheSuatChieu") REFERENCES "GHE_SUATCHIEU"("maGheSuatChieu") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON_COMBO" ADD CONSTRAINT "HOADON_COMBO_maHoaDon_fkey" FOREIGN KEY ("maHoaDon") REFERENCES "HOADON"("maHoaDon") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON_COMBO" ADD CONSTRAINT "HOADON_COMBO_maCombo_fkey" FOREIGN KEY ("maCombo") REFERENCES "COMBO"("maCombo") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON_SANPHAM" ADD CONSTRAINT "HOADON_SANPHAM_maHoaDon_fkey" FOREIGN KEY ("maHoaDon") REFERENCES "HOADON"("maHoaDon") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HOADON_SANPHAM" ADD CONSTRAINT "HOADON_SANPHAM_maSanPham_fkey" FOREIGN KEY ("maSanPham") REFERENCES "SANPHAM"("maSanPham") ON DELETE CASCADE ON UPDATE CASCADE;

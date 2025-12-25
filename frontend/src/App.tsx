@@ -25,6 +25,10 @@ import ManageRoomTypePage from "@/pages/Admin/ManageRoomTypePage"
 import ManageSeatTypesPage from "@/pages/Admin/ManageSeatTypesPage"
 import ManageSeatPricesPage from "@/pages/Admin/ManageSeatPricesPage"
 import ManageShowtimePage from "@/pages/Admin/ManageShowtimePage"
+import ManageTicketPage from "@/pages/Admin/ManageTicketPage"
+import ManageProductCategoriesPage from "@/pages/Admin/ManageProductCategoriesPage"
+import ManageCombosPage from "@/pages/Admin/ManageCombosPage"
+import ManageProductsPage from "@/pages/Admin/ManageProductsPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -76,6 +80,12 @@ function App(){
           <Route path="/admin/seats/prices" element={<ManageSeatPricesPage />} />
           
           <Route path="/admin/showtimes" element={<ManageShowtimePage />} />
+          <Route path="/admin/orders" element={<ManageTicketPage />} />
+          
+          <Route path="/admin/food-categories" element={<ManageProductCategoriesPage />} />
+          <Route path="/admin/foods" element={<ManageProductsPage />} />
+          <Route path="/admin/combos" element={<ManageCombosPage />} />
+          <Route path="/admin/discount-codes" element={<div>Manage Discount Codes Page</div>} />
 
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>

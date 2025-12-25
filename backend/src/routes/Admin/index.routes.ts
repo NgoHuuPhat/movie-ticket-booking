@@ -6,6 +6,10 @@ import cinemaRouter from '@/routes/Admin/cinema.routes'
 import roomtypesRouter from '@/routes/Admin/roomtypes.routes'
 import seatsRouter from '@/routes/Admin/seats.routes'
 import showtimesRouter from '@/routes/Admin/showtimes.routes'
+import ticketsRouter from '@/routes/Admin/tickets.routes'
+import productsRouter from '@/routes/Admin/products.routes'
+import combosRouter from '@/routes/Admin/combos.routes'
+import productCategoriesRouter from '@/routes/Admin/productcategories.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 import { checkAdmin } from '@/middlewares/role.middleware'
 
@@ -18,5 +22,9 @@ router.use('/cinema', authenticateToken, checkAdmin, cinemaRouter)
 router.use('/room-types', authenticateToken, checkAdmin, roomtypesRouter)
 router.use('/seats', authenticateToken, checkAdmin, seatsRouter)
 router.use('/showtimes', authenticateToken, checkAdmin, showtimesRouter)
+router.use('/tickets', authenticateToken, checkAdmin, ticketsRouter)
+router.use('/product-categories', authenticateToken, checkAdmin, productCategoriesRouter)
+router.use('/products', authenticateToken, checkAdmin, productsRouter)
+router.use('/combos', authenticateToken, checkAdmin, combosRouter)
 
 export default router

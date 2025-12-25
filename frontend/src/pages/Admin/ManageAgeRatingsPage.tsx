@@ -134,19 +134,18 @@ const ManageAgeRatingsPage: React.FC = () => {
     <AdminLayout>
       <div className="w-full space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Quản Lý Phân Loại Độ Tuổi Phim
-            </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Thêm, sửa, xóa các phân loại độ tuổi (P, K, T13, T16, T18, C18,...)
-            </p>
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Phân Loại Độ Tuổi Phim</h1>
+              <p className="mt-2 text-sm sm:text-base text-gray-600">
+                Thêm, sửa hoặc xóa các phân loại độ tuổi cho phim chiếu tại rạp
+              </p>
+            </div>
+            <Button onClick={() => { openAddModal() }}>
+              <Plus className="mr-2 h-4 w-4" /> Thêm phân loại độ tuổi
+            </Button>
           </div>
-          <Button onClick={openAddModal}>
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm Phân Loại
-          </Button>
         </div>
 
         {/* Search */}

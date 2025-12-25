@@ -301,7 +301,7 @@ const ManageRoomsPage = () => {
     <AdminLayout>
       <div className="max-w-7xl mx-auto pb-10">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-indigo-100 via-white to-teal-100 p-6 sm:p-8 shadow-sm">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">

@@ -179,7 +179,7 @@ const ticketTemplate = (data: ITicketData) => {
         <strong>Lưu ý / Note:</strong><br>
         Lưu ý / Note:
         Vé đã mua không thể hủy, đổi hoặc trả lại. Vui lòng liên hệ Ban Quản Lý rạp hoặc tra cứu thông tin 
-        tại mục Điều khoản mua và sử dụng vé xem phim để biết thêm chi tiết. Cảm ơn bạn đã lựa chọn mua vé qua Ứng dụng VNPAY. Chúc bạn xem phim vui vẻ!
+        tại mục Điều khoản mua và sử dụng vé xem phim để biết thêm chi tiết. Cảm ơn bạn đã lựa chọn mua vé tại Ledocinema. Chúc bạn xem phim vui vẻ!
       </p>
       
       <div style="text-align:center; margin:20px 0;">

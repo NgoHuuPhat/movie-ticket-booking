@@ -102,11 +102,15 @@ export default function CinemaInfoPage() {
   return (
     <AdminLayout>
       <div className="max-w-8xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            Thông tin rạp chiếu
-          </h1>
-          <p className="text-gray-600 mt-2">Quản lý thông tin cơ bản của hệ thống rạp phim</p>
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Thông Tin Rạp</h1>
+              <p className="mt-2 text-sm sm:text-base text-gray-600">
+                Cập nhật thông tin cơ bản của hệ thống rạp phim
+              </p>
+            </div>
+          </div>
         </div>
 
         <Card>

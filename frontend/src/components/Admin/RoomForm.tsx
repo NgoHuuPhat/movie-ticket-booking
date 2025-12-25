@@ -236,6 +236,18 @@ export const RoomForm = ({
               </div>
 
               <div className="flex flex-col gap-2 items-center">
+                <div className="flex items-center gap-6 mb-2">
+                  <div className="flex gap-1.5">
+                    {Array.from({ length: soCot }).map((_, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className="w-9 text-center text-sm font-semibold text-gray-600"
+                      >
+                        {colIndex + 1}
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 {Array.from({ length: soHang }).map((_, rowIndex) => (
                   <div key={rowIndex} className="flex items-center gap-6">
                     <div className="w-8 text-center font-semibold text-gray-700">

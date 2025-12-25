@@ -110,6 +110,10 @@ class GhesController {
           maLoaiGhe,
           giaTien,
         },
+        include: {
+          loaiGhe: true,
+          loaiPhongChieu: true,
+        },
       })
       res.status(201).json({message: 'Tạo giá ghế mới thành công', price: newPrice})
     } catch (error: any) {

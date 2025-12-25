@@ -9,30 +9,36 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import AdminLayout from "@/components/layout/AdminLayout"
-import { getAllCategoriesAdmin, createCategoryAdmin, updateCategoryAdmin, deleteCategoryAdmin } from "@/services/api"
+import { getAllProductCategoriesAdmin, createProductCategoryAdmin, updateProductCategoryAdmin, deleteProductCategoryAdmin } from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
 
-interface ICategory {
-  maTheLoai: string
-  tenTheLoai: string
+interface IProductCategory {
+  maDanhMucSanPham: string
+  tenDanhMucSanPham: string
+  _count?: {
+    sanPhams: number
+  }
 }
 
 const categorySchema = z.object({
-  tenTheLoai: z.string().min(1, "Tên thể loại không được để trống").max(50, "Tên thể loại không được quá 50 ký tự").trim(),
+  tenDanhMucSanPham: z.string()
+    .min(1, "Tên danh mục không được để trống")
+    .max(100, "Tên danh mục không được quá 100 ký tự")
+    .trim(),
 })
 
 type CategoryFormData = z.infer<typeof categorySchema>
 
-const ManageGenresMoviePage = () => {
-  const [categories, setCategories] = useState<ICategory[]>([])
+const ManageProductCategoriesPage = () => {
+  const [categories, setCategories] = useState<IProductCategory[]>([])
   const [searchQuery, setSearchQuery] = useState("")
 
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<IProductCategory | null>(null)
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
@@ -42,14 +48,14 @@ const ManageGenresMoviePage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await getAllCategoriesAdmin(searchQuery)
+        const res = await getAllProductCategoriesAdmin(searchQuery)
         setCategories(res)
       } catch (error) {
-        toast.error("Không thể tải danh sách thể loại")
+        toast.error("Không thể tải danh sách danh mục sản phẩm")
         console.error(error)
-      } 
+      }
     }
-
+    
     fetchCategories()
   }, [searchQuery])
 
@@ -62,8 +68,8 @@ const ManageGenresMoviePage = () => {
 
   const handleAdd = async (data: CategoryFormData) => {
     try {
-      const res = await createCategoryAdmin(data.tenTheLoai)
-      setCategories(prev => [...prev, res.category])
+      const res = await createProductCategoryAdmin(data.tenDanhMucSanPham)
+      setCategories(prev => [res.newCategory, ...prev])
       toast.success(res.message)
       resetAndClose()
     } catch (error) {
@@ -75,9 +81,9 @@ const ManageGenresMoviePage = () => {
     if (!selectedCategory) return
 
     try {
-      const res = await updateCategoryAdmin(selectedCategory.maTheLoai, data.tenTheLoai)
+      const res = await updateProductCategoryAdmin(selectedCategory.maDanhMucSanPham, data.tenDanhMucSanPham)
       setCategories(prev =>
-        prev.map(cat => (cat.maTheLoai === res.category.maTheLoai ? res.category : cat))
+        prev.map(cat => (cat.maDanhMucSanPham === res.updatedCategory.maDanhMucSanPham ? res.updatedCategory : cat))
       )
       toast.success(res.message)
       resetAndClose()
@@ -90,8 +96,8 @@ const ManageGenresMoviePage = () => {
     if (!selectedCategory) return
 
     try {
-      const res = await deleteCategoryAdmin(selectedCategory.maTheLoai)
-      setCategories(prev => prev.filter(cat => cat.maTheLoai !== selectedCategory.maTheLoai))
+      const res = await deleteProductCategoryAdmin(selectedCategory.maDanhMucSanPham)
+      setCategories(prev => prev.filter(cat => cat.maDanhMucSanPham !== selectedCategory.maDanhMucSanPham))
       toast.success(res.message)
       setIsDeleteOpen(false)
       setSelectedCategory(null)
@@ -100,47 +106,47 @@ const ManageGenresMoviePage = () => {
     }
   }
 
-  const openEditModal = (category: ICategory) => {
+  const openEditModal = (category: IProductCategory) => {
     setSelectedCategory(category)
-    form.reset({ tenTheLoai: category.tenTheLoai })
+    form.reset({ tenDanhMucSanPham: category.tenDanhMucSanPham })
     setIsEditOpen(true)
   }
 
-  const openDeleteModal = (category: ICategory) => {
+  const openDeleteModal = (category: IProductCategory) => {
     setSelectedCategory(category)
     setIsDeleteOpen(true)
   }
 
   const openAddModal = () => {
-    form.reset({ tenTheLoai: "" })
+    form.reset({ tenDanhMucSanPham: "" })
     setIsAddOpen(true)
   }
 
   return (
     <AdminLayout>
-      <div className="w-full space-y-6">
+      <div className="max-w-8xl mx-auto pb-10">
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Thể Loại Phim</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Danh Mục Sản Phẩm</h1>
               <p className="mt-2 text-sm sm:text-base text-gray-600">
-                Thêm, sửa hoặc xóa các thể loại phim trong hệ thống
+                Thêm, sửa, xóa các danh mục sản phẩm trong hệ thống
               </p>
             </div>
             <Button onClick={() => { openAddModal() }}>
-              <Plus className="mr-2 h-4 w-4" /> Thêm thể loại phim
+              <Plus className="mr-2 h-4 w-4" /> Thêm Danh Mục Mới
             </Button>
           </div>
         </div>
 
         {/* Search */}
-        <Card className="shadow-sm">
+        <Card className="mb-6 shadow-sm">
           <CardContent className="p-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Tìm kiếm thể loại..."
+                placeholder="Tìm kiếm danh mục sản phẩm..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -152,48 +158,52 @@ const ManageGenresMoviePage = () => {
         {/* Table */}
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle>Danh Sách Thể Loại</CardTitle>
+            <CardTitle>Danh Sách Danh Mục Sản Phẩm</CardTitle>
           </CardHeader>
-          <CardContent className="p-2">
+          <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="border-b bg-gray-100/50">
                   <tr>
-                    <th className="text-left p-4 text-sm font-medium text-gray-600 w-32">Mã thể loại</th>
-                    <th className="text-left p-4 ps-70 text-sm font-medium text-gray-600">Tên thể loại</th>
-                    <th className="text-right p-4 text-sm font-medium text-gray-600 w-32">Hành động</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-700">Mã danh mục</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-700">Tên danh mục</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-700">Số sản phẩm</th>
+                    <th className="text-right p-4 text-sm font-medium text-gray-700">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.length === 0 ? (
+                  { categories.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="text-center py-12 text-gray-500">
-                        {searchQuery ? "Không tìm thấy thể loại nào" : "Chưa có thể loại nào"}
-                      </td>
-                    </tr>
-                  ) : categories.length === 0 ? (
-                    <tr>
-                      <td colSpan={3} className="text-center py-12 text-gray-500">
-                        {searchQuery ? "Không tìm thấy thể loại nào" : "Chưa có thể loại nào"}
+                      <td colSpan={4} className="text-center py-12 text-gray-500">
+                        {searchQuery ? "Không tìm thấy danh mục nào" : "Chưa có danh mục nào"}
                       </td>
                     </tr>
                   ) : (
                     categories.map((cat) => (
-                      <tr key={cat.maTheLoai} className="border-b hover:bg-gray-50/50">
-                        <td className="p-4 font-medium text-sm">{cat.maTheLoai}</td>
-                        <td className="p-4 ps-70">
-                          <Badge variant="secondary" className="text-sm">
-                            {cat.tenTheLoai}
+                      <tr key={cat.maDanhMucSanPham} className="border-b hover:bg-purple-50/30 transition-colors">
+                        <td className="p-4 font-medium text-gray-800 text-sm">{cat.maDanhMucSanPham}</td>
+                        <td className="p-4">
+                          <Badge variant="secondary" className="text-sm bg-purple-100 text-purple-800">
+                            {cat.tenDanhMucSanPham}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant="outline" className="text-sm">
+                            {cat._count?.sanPhams || 0} sản phẩm
                           </Badge>
                         </td>
                         <td className="p-4 text-right space-x-2">
-                          <Button size="sm" variant="ghost" onClick={() => openEditModal(cat)}>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => openEditModal(cat)}
+                          >
                             <Edit3 className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             onClick={() => openDeleteModal(cat)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -208,26 +218,26 @@ const ManageGenresMoviePage = () => {
           </CardContent>
         </Card>
 
-        {/* Modal Thêm Thể Loại */}
+        {/* Modal Thêm Danh Mục */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Thêm Thể Loại Mới</DialogTitle>
-              <DialogDescription>Nhập tên thể loại phim mới.</DialogDescription>
+              <DialogTitle>Thêm Danh Mục Sản Phẩm Mới</DialogTitle>
+              <DialogDescription>Nhập tên danh mục sản phẩm mới.</DialogDescription>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(handleAdd)}>
               <div className="py-4 space-y-4">
                 <div>
-                  <Label htmlFor="add-tenTheLoai">Tên thể loại</Label>
+                  <Label htmlFor="add-tenDanhMucSanPham">Tên danh mục <span className="text-red-500">*</span></Label>
                   <Input
-                    id="add-tenTheLoai"
-                    {...form.register("tenTheLoai")}
-                    placeholder="Ví dụ: Hành Động, Tình Cảm..."
+                    id="add-tenDanhMucSanPham"
+                    {...form.register("tenDanhMucSanPham")}
+                    placeholder="Ví dụ: Đồ ăn, Nước uống, Combo..."
                     autoFocus
                   />
-                  {form.formState.errors.tenTheLoai && (
+                  {form.formState.errors.tenDanhMucSanPham && (
                     <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.tenTheLoai.message}
+                      {form.formState.errors.tenDanhMucSanPham.message}
                     </p>
                   )}
                 </div>
@@ -254,25 +264,31 @@ const ManageGenresMoviePage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Modal Sửa Thể Loại */}
+        {/* Modal Sửa Danh Mục */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Sửa Thể Loại</DialogTitle>
-              <DialogDescription>Cập nhật tên thể loại.</DialogDescription>
+              <DialogTitle>Sửa Danh Mục Sản Phẩm</DialogTitle>
+              <DialogDescription>Cập nhật tên danh mục sản phẩm.</DialogDescription>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(handleEdit)}>
               <div className="py-4 space-y-4">
+                {selectedCategory && (
+                  <div className="mb-2 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Mã danh mục</p>
+                    <p className="font-medium">{selectedCategory.maDanhMucSanPham}</p>
+                  </div>
+                )}
                 <div>
-                  <Label htmlFor="edit-tenTheLoai">Tên thể loại</Label>
+                  <Label htmlFor="edit-tenDanhMucSanPham">Tên danh mục <span className="text-red-500">*</span></Label>
                   <Input
-                    id="edit-tenTheLoai"
-                    {...form.register("tenTheLoai")}
+                    id="edit-tenDanhMucSanPham"
+                    {...form.register("tenDanhMucSanPham")}
                     autoFocus
                   />
-                  {form.formState.errors.tenTheLoai && (
+                  {form.formState.errors.tenDanhMucSanPham && (
                     <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.tenTheLoai.message}
+                      {form.formState.errors.tenDanhMucSanPham.message}
                     </p>
                   )}
                 </div>
@@ -299,19 +315,26 @@ const ManageGenresMoviePage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Modal Xóa Thể Loại */}
+        {/* Modal Xóa Danh Mục */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Xóa Thể Loại</DialogTitle>
+              <DialogTitle>Xóa Danh Mục Sản Phẩm</DialogTitle>
               <DialogDescription>
-                Bạn có chắc chắn muốn xóa thể loại này? Hành động này không thể hoàn tác.
+                Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.
               </DialogDescription>
             </DialogHeader>
             {selectedCategory && (
-              <div className="py-4">
-                <p className="text-lg font-medium">{selectedCategory.tenTheLoai}</p>
-                <p className="text-sm text-gray-500 mt-1">Mã: {selectedCategory.maTheLoai}</p>
+              <div className="py-4 space-y-3">
+                <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                  <p className="font-semibold text-lg">{selectedCategory.tenDanhMucSanPham}</p>
+                  <p className="text-sm text-gray-600 mt-1">Mã: {selectedCategory.maDanhMucSanPham}</p>
+                  {selectedCategory._count && selectedCategory._count.sanPhams > 0 && (
+                    <p className="text-sm text-red-600 mt-2">
+                      ⚠️ Danh mục này có {selectedCategory._count.sanPhams} sản phẩm
+                    </p>
+                  )}
+                </div>
               </div>
             )}
             <DialogFooter>
@@ -330,4 +353,4 @@ const ManageGenresMoviePage = () => {
   )
 }
 
-export default ManageGenresMoviePage
+export default ManageProductCategoriesPage

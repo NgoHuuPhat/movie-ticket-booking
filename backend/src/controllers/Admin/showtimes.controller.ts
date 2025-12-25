@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 import { generateIncrementalId } from '@/utils/generateId.utils'
+import { toZonedTime  } from 'date-fns-tz'
 
 class SuatChieusController {
 
@@ -25,10 +26,12 @@ class SuatChieusController {
       }
 
       if(date) {
-        const selectedDate = new Date(date as string)
-        const nextDate = new Date(selectedDate)
-        nextDate.setDate(selectedDate.getDate() + 1)
-        filter.gioBatDau = { gte: selectedDate, lt: nextDate }
+        const VN_TZ = 'Asia/Ho_Chi_Minh'
+        const startOfDayUtc = toZonedTime(date as string, VN_TZ)
+        startOfDayUtc.setHours(0,0,0,0)
+        const endOfDayUtc = toZonedTime(date as string, VN_TZ)
+        endOfDayUtc.setHours(23,59,59,999)
+        filter.gioBatDau = { gte: startOfDayUtc, lt: endOfDayUtc }
       }
       
       if(search) {
@@ -66,19 +69,29 @@ class SuatChieusController {
       if(!phim) {
         return res.status(404).json({ message: 'Phim không tồn tại' })
       }
-      if(new Date(gioBatDau) < phim.ngayKhoiChieu || new Date(gioKetThuc) > phim.ngayKetThuc) {
+
+      // Check date validity
+      const movieStart = new Date(phim.ngayKhoiChieu)
+      movieStart.setHours(0,0,0,0)  
+
+      const movieEnd = new Date(phim.ngayKetThuc)
+      movieEnd.setHours(23,59,59,999) 
+
+      const timeStart = new Date(gioBatDau)
+      const timeEnd = new Date(gioKetThuc)
+
+      if(timeStart < movieStart || timeEnd > movieEnd) {
         return res.status(400).json({ message: 'Suất chiếu phải nằm trong khoảng thời gian chiếu của phim' })
       }
 
       if(new Date(gioBatDau) >= new Date(gioKetThuc)) {
         return res.status(400).json({ message: 'Thời gian kết thúc phải sau thời gian bắt đầu' })
       }
-      const maSuatChieu = await generateIncrementalId(prisma.sUATCHIEU, 'maSuatChieu', 'SC')
       
       const newShowtime = await prisma.$transaction(async (tx) => {
         const newShowtime = await tx.sUATCHIEU.create({
           data: {
-            maSuatChieu,
+            maSuatChieu: await generateIncrementalId(tx.sUATCHIEU, 'maSuatChieu', 'SC'),
             maPhim,
             maPhong,
             gioBatDau: new Date(gioBatDau),
@@ -88,10 +101,17 @@ class SuatChieusController {
           include: { phim: true, phongChieu: true }
         })
 
+        const gheList = await tx.gHE.findMany({
+            where: { maPhong },
+            select: { maGhe: true, hoatDong: true }
+          })
+
         await tx.gHE_SUATCHIEU.createMany({
-          data: (await tx.gHE.findMany({ where: { maPhong } })).map(ghe => ({
+          data: gheList.map(ghe => ({
+            maGheSuatChieu: `${newShowtime.maSuatChieu}_${ghe.maGhe}`,
             maGhe: ghe.maGhe,
-            maSuatChieu,
+            maSuatChieu: newShowtime.maSuatChieu,
+            trangThaiGhe: ghe.hoatDong ? 'DangTrong' : 'KhongSuDung'
           }))
         })
 
@@ -117,11 +137,21 @@ class SuatChieusController {
       if(!showtime) {
         return res.status(404).json({ message: 'Suất chiếu không tồn tại' })
       }
-      const phim = showtime.phim
-      if(new Date(gioBatDau) < phim.ngayKhoiChieu || new Date(gioKetThuc) > phim.ngayKetThuc) {
+
+      // Check date validity
+      const movieStart = new Date(showtime.phim.ngayKhoiChieu)
+      movieStart.setHours(0,0,0,0)  
+
+      const movieEnd = new Date(showtime.phim.ngayKetThuc)
+      movieEnd.setHours(23,59,59,999) 
+
+      const timeStart = new Date(gioBatDau)
+      const timeEnd = new Date(gioKetThuc)
+
+      if(timeStart < movieStart || timeEnd > movieEnd) {
         return res.status(400).json({ message: 'Suất chiếu phải nằm trong khoảng thời gian chiếu của phim' })
       }
-
+      
       if(new Date(gioBatDau) >= new Date(gioKetThuc)) {
         return res.status(400).json({ message: 'Thời gian kết thúc phải sau thời gian bắt đầu' })
       }

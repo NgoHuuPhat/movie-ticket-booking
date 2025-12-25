@@ -5,6 +5,7 @@ import slugify from 'slugify'
 import { deleteFromS3 } from '@/services/s3.service'
 import { parseS3Url } from '@/utils/s3.utils'
 import { getMovieStatus } from '@/utils/getMovieStatus.utils'
+import { getDayRange } from '@/utils/date.utils'
 
 class PhimsController {
 
@@ -70,19 +71,20 @@ class PhimsController {
         const filter: any = {}
         const skip = (Number(page) - 1) * limit
         const sortFields = sortField as string
+        const { startDate, endDate } = getDayRange()
 
         if(hienThi !== undefined) {
           filter.hienThi = hienThi === 'true'
         }
         if(trangThai === 'dangChieu') {
-          filter.ngayKhoiChieu = { lte: new Date() }
-          filter.ngayKetThuc = { gte: new Date() }
+          filter.ngayKhoiChieu = { lte: endDate }
+          filter.ngayKetThuc = { gte: startDate }
         }
         if(trangThai === 'sapChieu') {
-          filter.ngayKhoiChieu = { gt: new Date() }
+          filter.ngayKhoiChieu = { gt: endDate }
         }
         if(trangThai === 'daKetThuc') {
-          filter.ngayKetThuc = { lte: new Date() }
+          filter.ngayKetThuc = { lte: startDate }
         }
 
         if(search) {
@@ -130,22 +132,23 @@ class PhimsController {
   // [GET] /admin/movies/stats
   async getMovieStats(req: Request, res: Response) {
     try {
+      const { startDate, endDate } = getDayRange()
       const [ totalMovies, totalShowing, totalUpcoming, totalEnded ] = await Promise.all([
         prisma.pHIM.count(),
         prisma.pHIM.count({
           where: {
-            ngayKhoiChieu: { lte: new Date() },
-            ngayKetThuc: { gte: new Date() }
+            ngayKhoiChieu: { lte: endDate },
+            ngayKetThuc: { gte: startDate }
           }
         }),
         prisma.pHIM.count({
           where: {
-            ngayKhoiChieu: { gt: new Date() }
+            ngayKhoiChieu: { gt: endDate }
           }
         }),
         prisma.pHIM.count({
           where: {
-            ngayKetThuc: { lte: new Date() }
+            ngayKetThuc: { lte: startDate }
           }
         }),
       ])
@@ -169,12 +172,12 @@ class PhimsController {
         return res.status(404).json({ message: 'Phim không tồn tại' })
       }
 
+      const { folderName, fileName } = parseS3Url(movie.anhBia)
+      await deleteFromS3(folderName, fileName)
+
       await prisma.pHIM.delete({
         where: { maPhim: id }
       })
-
-      const { folderName, fileName } = parseS3Url(movie.anhBia)
-      await deleteFromS3(folderName, fileName)
 
       res.status(200).json({ message: 'Xóa phim thành công' })
     } catch (error) {
@@ -282,8 +285,6 @@ class PhimsController {
         return res.status(400).json({ message: 'Ngày kết thúc phải sau ngày khởi chiếu' })
       } 
 
-      const endDate = new Date(ngayKetThuc)
-      endDate.setHours(23, 59, 59, 999)
       const slug = slugify(tenPhim, { lower: true, strict: true, locale: 'vi' })
       
       const updatedMovie = await prisma.pHIM.update({
@@ -296,7 +297,7 @@ class PhimsController {
           moTa,
           anhBia,
           ngayKhoiChieu: new Date(ngayKhoiChieu),
-          ngayKetThuc: endDate,
+          ngayKetThuc: new Date(ngayKetThuc),
           maPhanLoaiDoTuoi,
           trailerPhim,
           quocGia,
@@ -315,7 +316,7 @@ class PhimsController {
         tenTheLoai: ptl.theLoai.tenTheLoai
       }))
 
-      const status = getMovieStatus(new Date(ngayKhoiChieu), endDate)
+      const status = getMovieStatus(new Date(ngayKhoiChieu), new Date(ngayKetThuc))
       res.status(200).json({ message: 'Cập nhật phim thành công', movie: { ...updatedMovie, phimTheLoais: mappedTheLoais, trangThai: status } })
     } catch (error) {
       console.error(error)
@@ -345,12 +346,12 @@ class PhimsController {
   // [GET] /admin/movies/select
   async getMoviesForSelect(req: Request, res: Response) {
     try {
+      const { startDate, endDate } = getDayRange()
       const movies = await prisma.pHIM.findMany({
-        where: { 
-          hienThi: true,
-          ngayKhoiChieu: { lte: new Date()},
-          ngayKetThuc: { gte: new Date() }
-         },
+        where: {
+          ngayKhoiChieu: { lte: endDate },
+          ngayKetThuc: { gte: startDate }
+        },
         orderBy: { ngayKhoiChieu: 'desc' },
         select: { maPhim: true, tenPhim: true, ngayKetThuc: true, ngayKhoiChieu: true }
       })

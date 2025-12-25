@@ -4,9 +4,14 @@ import { IUserRequest } from '@/types/user'
 
 class PhimsController {
 
-  // [GET] /movie/showing
+  // [GET] /movies/showing
   async getPhimDangChieu(req: IUserRequest, res: Response) {
     try {
+      const startOfToday = new Date()
+      startOfToday.setHours(0, 0, 0, 0)
+      const endOfToday = new Date()
+      endOfToday.setHours(23, 59, 59, 999)
+
       const result = (await prisma.pHIM.findMany({
         include: {
           phanLoaiDoTuoi: { select: { tenPhanLoaiDoTuoi: true } }, 
@@ -16,8 +21,8 @@ class PhimsController {
         },
         where: { 
           hienThi: true,
-          ngayKhoiChieu: { lte: new Date() },
-          ngayKetThuc: { gte: new Date() }
+          ngayKhoiChieu: { lte: endOfToday },
+          ngayKetThuc: { gte: startOfToday }
         },
         orderBy: { ngayKhoiChieu: 'desc' }
       })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
@@ -33,9 +38,14 @@ class PhimsController {
     }
   }
 
-  // [GET] /movie/upcoming
+  // [GET] /movies/upcoming
 async getPhimSapChieu(req: Request, res: Response) {
     try {
+      const startOfToday = new Date()
+      startOfToday.setHours(0, 0, 0, 0)
+      const endOfToday = new Date()
+      endOfToday.setHours(23, 59, 59, 999)
+      
         const result = (await prisma.pHIM.findMany({
           include: {
             phanLoaiDoTuoi: { select: { tenPhanLoaiDoTuoi: true } }, 
@@ -45,7 +55,7 @@ async getPhimSapChieu(req: Request, res: Response) {
           },
           where: { 
             hienThi: true,
-            ngayKhoiChieu: { gt: new Date() },
+            ngayKhoiChieu: { gt: endOfToday },
           },
           orderBy: { ngayKhoiChieu: 'asc' }
         })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
@@ -60,7 +70,7 @@ async getPhimSapChieu(req: Request, res: Response) {
     }
   }
 
-  // [GET] /movie/:slug
+  // [GET] /movies/:slug
   async getPhimBySlug(req: Request, res: Response) {
     try {
       const { slug } = req.params
@@ -90,12 +100,15 @@ async getPhimSapChieu(req: Request, res: Response) {
     }
   }
 
-  // [GET] /movie/:id/showtimes
+  // [GET] /movies/:id/showtimes
   async getSuatChieuByPhimId(req: Request, res: Response) {
     try {
       const { id } = req.params
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
       const suatChieus = (await prisma.sUATCHIEU.findMany({
-        where: { maPhim: id, ngayChieu: { gte: new Date()}},
+        where: { maPhim: id, gioBatDau: { gte: today }, hoatDong: true },
         include: {
           phongChieu: {
             include: {

@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Settings, Users, X, Popcorn, Ticket, Film, ChevronDown, MapPin, Armchair, Calendar } from 'lucide-react'
+import { Home, Settings, Users, X, Ticket, Film, ChevronDown, MapPin, Armchair, Calendar, Popcorn } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -39,9 +39,18 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       ]
     },
     { icon: Calendar, label: 'Quản lý suất chiếu', path: '/admin/showtimes' },
-    { icon: Ticket, label: 'Đơn đặt vé', path: '/admin/orders' },
-    { icon: Users, label: 'Khách hàng', path: '/admin/customers' },
-    { icon: Popcorn, label: 'Combo đồ ăn', path: '/admin/foods-combos' },
+    { icon: Ticket, label: 'Quản lý hóa đơn vé', path: '/admin/orders' },
+    {
+      icon: Popcorn, 
+      label: 'Dịch vụ và ưu đãi',
+      children: [
+        { label: 'Danh mục sản phẩm', path: '/admin/food-categories' },
+        { label: 'Quản lý đồ ăn', path: '/admin/foods' },
+        { label: 'Quản lý combo', path: '/admin/combos' },
+        { label: 'Quản lý mã giảm giá', path: '/admin/discount-codes' },
+      ]
+    },
+    { icon: Users, label: 'Quản lý người dùng', path: '/admin/customers' },
     { icon: Settings, label: 'Cài đặt hệ thống', path: '/admin/settings' },
   ]
 

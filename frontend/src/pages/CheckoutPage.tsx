@@ -163,8 +163,8 @@ export default function CheckoutPage() {
       anhBia: movie.anhBia
     },
     showtime: {
-      ngayChieu: formatDate(showtime.ngayChieu),
-      gioChieu: formatTime(showtime.gioChieu),
+      ngayChieu: formatDate(showtime.gioBatDau),
+      gioChieu: formatTime(showtime.gioBatDau),
       tenPhongChieu: showtime.tenPhongChieu,
       tenLoaiPhong: `${showtime.tenLoaiPhong}`
     },
@@ -306,7 +306,7 @@ export default function CheckoutPage() {
               <img
                 src={bookingData.movie.anhBia}
                 alt={bookingData.movie.tenPhim}
-                className="aspect-[2/3] rounded overflow-hidden object-cover border-2 border-yellow-300/30 shadow-2xl bg-gray-800"
+                className="aspect-[2/3] w-48 rounded overflow-hidden object-cover border-2 border-yellow-300/30 shadow-2xl bg-gray-800"
               />
 
               <div>
@@ -317,7 +317,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="pb-4 flex gap-10 border-b border-white/20 mb-4 space-y-3">
+            <div className="pb-4 flex gap-15 border-b border-white/20 mb-4 space-y-3">
               <div>
                 <p className="text-yellow-300 mb-4">Thời gian</p>
                 <div className="flex justify-between text-white">

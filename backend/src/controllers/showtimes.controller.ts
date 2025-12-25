@@ -9,7 +9,7 @@ class SuatChieusController {
       const { id } = req.params
 
       const showtime = await prisma.sUATCHIEU.findUnique({
-        where: { maSuatChieu: id },
+        where: { maSuatChieu: id, hoatDong: true },
         include: { phongChieu: true }
       })
       if (!showtime) {

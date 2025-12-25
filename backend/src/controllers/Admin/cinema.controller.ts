@@ -117,7 +117,7 @@ class RapController {
         })
 
         const seatsToCreate = seatConfig.map((seat: any) => ({
-          maGhe: `${newRoomId}-${seat.hangGhe}${seat.soGhe}`,
+          maGhe: `${newRoomId}_${seat.hangGhe}${seat.soGhe}`,
           maPhong: newRoomId,
           hangGhe: seat.hangGhe,
           soGhe: seat.soGhe,
@@ -261,25 +261,43 @@ class RapController {
     try {
       const { id } = req.params
       const { seatConfig } = req.body
-      
+
       if (!seatConfig || !Array.isArray(seatConfig)) {
         return res.status(400).json({ message: 'Invalid seat configuration' })
       }
       
-      const updatedSeats = await prisma.$transaction(
-        seatConfig.map(seat => {
-          const maGhe = `${id}-${seat.hangGhe}${seat.soGhe}`
-          return prisma.gHE.update({
+      const operations = seatConfig.flatMap(seat => {
+        const maGhe = `${id}_${seat.hangGhe}${seat.soGhe}`
+        return [
+          prisma.gHE.update({
             where: { maGhe },
             data: {
               maLoaiGhe: seat.maLoaiGhe,
               hoatDong: seat.hoatDong
             }
+          }),
+          prisma.gHE_SUATCHIEU.updateMany({
+            where: { maGhe },
+            data: { trangThaiGhe: seat.hoatDong ? 'DangTrong' : 'KhongSuDung' }
           })
-        })
-      )
+        ]
+      })
       
-      res.json({ message: 'Cập nhật sơ đồ ghế thành công', updatedSeats  })
+      await prisma.$transaction(operations)
+      
+      const updatedRoom = await prisma.pHONGCHIEU.findUnique({
+        where: { maPhong: id },
+        include: {
+          ghes: {
+            orderBy: [
+              { hangGhe: 'asc' },
+              { soGhe: 'asc' }
+            ]
+          }
+        }
+      })
+      
+      res.json({ message: 'Cập nhật sơ đồ ghế thành công', updatedSeats: updatedRoom })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })

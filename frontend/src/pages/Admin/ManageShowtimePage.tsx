@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, Fragment } from "react"
 import { Film, Search, Plus, Filter, MoreVertical, Edit3, Trash2, Eye, Loader2, Clock, Calendar, Video, CheckSquare, ChevronDown, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -129,34 +129,34 @@ const ManageShowtimePage = () => {
       }
     }
     fetchStats()
-  }, [])
+  }, [showtimes])
 
   useEffect(() => {
+    const fetchShowtimes = async () => {
+      try {
+        const res = await getShowtimesAdmin({
+          page: currentPage,
+          search: searchQuery || undefined,
+          trangThai: trangThaiFilter === "all" ? undefined : trangThaiFilter,
+          date: dateFilter || undefined,
+        })
+
+        const mapped = res.showtimes.map((s: IShowtime) => ({
+          ...s,
+          trangThai: getTrangThai(s.gioBatDau, s.gioKetThuc)
+        }))
+        setShowtimes(mapped)
+        setTotalShowtimes(res.total)
+        setTotalPages(res.totalPages)
+        setStartIndex(res.startIndex)
+        setEndIndex(res.endIndex)
+      } catch (error) {
+        toast.error(handleError(error))
+      }
+    }
+
     fetchShowtimes()
   }, [currentPage, searchQuery, trangThaiFilter, dateFilter])
-
-  const fetchShowtimes = async () => {
-    try {
-      const res = await getShowtimesAdmin({
-        page: currentPage,
-        search: searchQuery || undefined,
-        trangThai: trangThaiFilter === "all" ? undefined : trangThaiFilter,
-        date: dateFilter || undefined,
-      })
-
-      const mapped = res.showtimes.map((s: IShowtime) => ({
-        ...s,
-        trangThai: getTrangThai(s.gioBatDau, s.gioKetThuc)
-      }))
-      setShowtimes(mapped)
-      setTotalShowtimes(res.total)
-      setTotalPages(res.totalPages)
-      setStartIndex(res.startIndex)
-      setEndIndex(res.endIndex)
-    } catch (error) {
-      toast.error(handleError(error))
-    }
-  }
 
   const getTrangThai = (gioBatDau: string, gioKetThuc: string): "Sắp chiếu" | "Đang chiếu" | "Đã kết thúc" => {
     const now = new Date()
@@ -214,6 +214,7 @@ const ManageShowtimePage = () => {
     setSubmitting(true)
     try {
       const res = await createShowtimeAdmin(data.maPhim, data.maPhong, data.gioBatDau, data.gioKetThuc)
+      console.log(res)
       setShowtimes(prev => [{
         ...res.newShowtime,
         trangThai: getTrangThai(res.newShowtime.gioBatDau, res.newShowtime.gioKetThuc),
@@ -371,7 +372,7 @@ const ManageShowtimePage = () => {
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Phim</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Số suất chiếu</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Khoảng thời gian</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-700">Hành động</th>
+                    <th className="text-right p-4 text-sm font-medium text-gray-700">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -387,7 +388,7 @@ const ManageShowtimePage = () => {
                       const movieShowtimes = groupedShowtimes[movie.maPhim] || []
 
                       return (
-                        <React.Fragment key={movie.maPhim}>
+                        <Fragment key={movie.maPhim}>
                           <tr
                             className="border-b hover:bg-purple-50/30 transition-colors cursor-pointer bg-white"
                             onClick={() => toggleExpandMovie(movie.maPhim)}
@@ -418,7 +419,7 @@ const ManageShowtimePage = () => {
                                 </>
                               )}
                             </td>
-                            <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                            <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                               {new Date(movie.ngayKetThuc) < new Date() ? (
                                 <Badge variant="secondary" className="bg-gray-200 py-2 text-gray-800">Phim đã kết thúc</Badge>
                               ) : (
@@ -509,7 +510,7 @@ const ManageShowtimePage = () => {
                               </td>
                             </tr>
                           )}
-                        </React.Fragment>
+                        </Fragment>
                       )
                     })
                   )}

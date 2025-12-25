@@ -10,28 +10,26 @@ import { addTicketEmailToQueue } from '@/queues/email.queue'
 import { redisClient } from '@/services/redis.service'
 
 class ThanhToansController {
-
   // [POST] /payments/create-vnpay
   async createVNPay(req: IUserRequest, res: Response) {
-    const { maPhim, maSuatChieu, selectedSeats, selectedFoods, maCodeKhuyenMai, tongTien }: IVNPayRequestBody = req.body
+    const { maSuatChieu, selectedSeats, selectedFoods, maCodeKhuyenMai, tongTien }: IVNPayRequestBody = req.body
     const maNguoiDung = req.user?.maNguoiDung
-    let maKhuyenMai: string | undefined
-
-    if (!maSuatChieu || !selectedSeats || selectedSeats.length === 0 || !tongTien || !maNguoiDung) {
+    if (!maSuatChieu || !selectedSeats?.length || !tongTien || !maNguoiDung) {
       return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo đơn hàng.' })
     }
 
-    for(const seat of selectedSeats) {
-      const holder = await redisClient.get(`seathold:${maSuatChieu}:${seat.maGhe}`)
-      if(holder === maNguoiDung) {
-        await redisClient.expire(`seathold:${maSuatChieu}:${seat.maGhe}`, 5 * 60)
+    // Extend time seat hold
+    for (const seat of selectedSeats) {
+      const key = `seathold:${maSuatChieu}:${seat.maGhe}`
+      const holder = await redisClient.get(key)
+      if (holder === maNguoiDung) {
+        await redisClient.expire(key, 5 * 60) 
       }
     }
 
-    const maVe = await generateIncrementalId(prisma.vE, 'maVe', 'VE')
-    const orderId = `ORDER-${customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 12)()}` 
+    const orderId = `ORDER-${customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 12)()}`
 
-    if(!process.env.VNPAY_TMN_CODE || !process.env.VNPAY_HASH_SECRET || !process.env.VNPAY_RETURN_URL) {
+    if (!process.env.VNPAY_TMN_CODE || !process.env.VNPAY_HASH_SECRET || !process.env.VNPAY_RETURN_URL) {
       return res.status(500).json({ message: 'Cấu hình VNPAY chưa được thiết lập' })
     }
 
@@ -43,200 +41,262 @@ class ThanhToansController {
       hashAlgorithm: HashAlgorithm.SHA512,
       loggerFn: ignoreLogger,
     })
-    const vnpayReponse = await vnpay.buildPaymentUrl({
-      vnp_Amount: tongTien, 
+
+    const vnpayResponse = await vnpay.buildPaymentUrl({
+      vnp_Amount: tongTien,
       vnp_IpAddr: '127.0.0.1',
       vnp_TxnRef: orderId,
-      vnp_OrderInfo: `Thanh toán vé xem phim: ${maVe}`, 
+      vnp_OrderInfo: `Thanh toán hóa đơn vé xem phim: ${orderId}`,
       vnp_OrderType: ProductCode.Other,
-      vnp_ReturnUrl: process.env.VNPAY_RETURN_URL, 
-      vnp_Locale: VnpLocale.VN, 
-      vnp_CreateDate: dateFormat(new Date()), 
-      vnp_ExpireDate: dateFormat(new Date(Date.now() + 5 * 60 * 1000)), 
+      vnp_ReturnUrl: process.env.VNPAY_RETURN_URL,
+      vnp_Locale: VnpLocale.VN,
+      vnp_CreateDate: dateFormat(new Date()),
+      vnp_ExpireDate: dateFormat(new Date(Date.now() + 5 * 60 * 1000)),
     })
 
-    if(maCodeKhuyenMai) {
-      const khuyenMai = await prisma.kHUYENMAI.findUnique({
-        where: { maCode: maCodeKhuyenMai },
-        select : { maKhuyenMai: true }
-      })
-      if(!khuyenMai) {
-        return res.status(400).json({ message: 'Mã khuyến mãi không hợp lệ.' })
-      }
+    await redisClient.set(
+      `pending_order:${orderId}`,
+      JSON.stringify({
+        maNguoiDung,
+        maSuatChieu,
+        selectedSeats,
+        selectedFoods: selectedFoods || [],
+        maCodeKhuyenMai,
+        tongTien,
+        createdAt: new Date().toISOString(),
+      }),
+      'EX', 15 * 60
+    )
 
-      maKhuyenMai = khuyenMai.maKhuyenMai
-    }
-
-    await prisma.$transaction(async (tx) => {
-      const ve = await tx.vE.create({
-        data: {
-          maVe,
-          maPhim,
-          maSuatChieu,
-          maNguoiDung,
-          maQR: customAlphabet('0123456789', 10)(),
-          hinhThuc: 'Online',
-          phuongThucThanhToan: 'VNPAY',
-          maGiaoDich: orderId,
-          trangThaiThanhToan: 'ChuaThanhToan',
-          maKhuyenMai: maKhuyenMai || null,
-          tongTien,
-          chiTietVes: {
-            create: selectedSeats.map((seat) => ({
-              maGhe: seat.maGhe,
-              donGia: seat.giaTien,
-            })),
-          },
-        },
-      })
-
-      if (selectedFoods?.length > 0) {
-        const combos = selectedFoods.filter((f) => f.loai === 'combo')
-        const sanPhams = selectedFoods.filter((f) => f.loai === 'sanpham')
-
-        if (combos.length > 0) {
-          await tx.vE_COMBO.createMany({
-            data: combos.map((f) => ({
-              maVe: ve.maVe,
-              maCombo: f.maSanPham,
-              soLuong: f.soLuong,
-              donGia: f.donGia,
-              tongTien: f.donGia * f.soLuong,
-            })),
-          })
-        }
-
-        if (sanPhams.length > 0) {
-          await tx.vE_SANPHAM.createMany({
-            data: sanPhams.map((f) => ({
-              maVe: ve.maVe,
-              maSanPham: f.maSanPham,
-              soLuong: f.soLuong,
-              donGia: f.donGia,
-              tongTien: f.donGia * f.soLuong,
-            })),
-          })
-        }
-      }
-    })
-
-    return res.status(201).json(vnpayReponse)
+    return res.status(201).json(vnpayResponse)
   }
 
   // [GET] /payments/vnpay/vnpay-return
-  async handleVNPayReturn (req: Request, res: Response) {
+  async handleVNPayReturn(req: Request, res: Response) {
     try {
-      const { vnp_ResponseCode, vnp_TxnRef, vnp_PayDate } = req.query
-      
-      if(vnp_ResponseCode != '00') {
-        const ve = await prisma.vE.findUnique({
-          where: { maGiaoDich: vnp_TxnRef as string },
-          select: { 
-            maNguoiDung: true,
-            maSuatChieu: true,
-            chiTietVes: { select: { maGhe: true } }
-          }
-        })
+      const { vnp_ResponseCode, vnp_TxnRef, vnp_PayDate } = req.query as {
+        vnp_ResponseCode: string
+        vnp_TxnRef: string
+        vnp_PayDate: string
+      }
 
-        if(ve) {
-          for(const ct of ve.chiTietVes) {
-            const holder = await redisClient.get(`seathold:${ve.maSuatChieu}:${ct.maGhe}`)
-            if(holder === ve.maNguoiDung) {
-              const res = await redisClient.del(`seathold:${ve.maSuatChieu}:${ct.maGhe}`)
+      const orderId = vnp_TxnRef
+
+      const pendingDataStr = await redisClient.get(`pending_order:${orderId}`)
+      let pending: any = null
+      if (pendingDataStr) {
+        pending = JSON.parse(pendingDataStr)
+      }
+
+      // Payment failed
+      if (vnp_ResponseCode !== '00') {
+        if (pending?.selectedSeats?.length) {
+          for (const seat of pending.selectedSeats) {
+            const key = `seathold:${pending.maSuatChieu}:${seat.maGhe}`
+            const holder = await redisClient.get(key)
+            if (holder === pending.maNguoiDung) {
+              await redisClient.del(key)
             }
           }
         }
-
+        await redisClient.del(`pending_order:${orderId}`)
         return res.redirect(`${process.env.VNPAY_REDIRECT_NOTIFICATION_URL}?status=failed`)
       }
 
-      const ve = await prisma.vE.findUnique({
-        where: { maGiaoDich: vnp_TxnRef as string },
-        include: { 
-          chiTietVes: { include: { ghe: true } }, 
+      if (!pending) {
+        console.warn(`Không tìm thấy pending order cho ${orderId}`)
+        return res.redirect(`${process.env.VNPAY_REDIRECT_NOTIFICATION_URL}?status=failed&reason=expired`)
+      }
+
+      const parseVnpPayDate = (dateStr: string) => {
+        const year = dateStr.substring(0, 4)
+        const month = dateStr.substring(4, 6)
+        const day = dateStr.substring(6, 8)
+        const hour = dateStr.substring(8, 10)
+        const minute = dateStr.substring(10, 12)
+        const second = dateStr.substring(12, 14)
+        return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}+07:00`)
+      }
+      const ngayThanhToan = parseVnpPayDate(vnp_PayDate)
+
+      const hoaDon = await prisma.$transaction(async (tx) => {
+        const maHoaDon = await generateIncrementalId(tx.hOADON, 'maHoaDon', 'HD')
+
+        // Handle promotion
+        let maKhuyenMai: string | null = null
+        if (pending.maCodeKhuyenMai) {
+          const km = await tx.kHUYENMAI.findUnique({
+            where: { maCode: pending.maCodeKhuyenMai },
+            select: { maKhuyenMai: true },
+          })
+          if (km) maKhuyenMai = km.maKhuyenMai
+        }
+
+        // create HOADON
+        const createdHoaDon = await tx.hOADON.create({
+          data: {
+            maHoaDon,
+            maQR: customAlphabet('0123456789', 10)(),
+            maNguoiDung: pending.maNguoiDung,
+            maGiaoDich: orderId,
+            maKhuyenMai,
+            tongTien: pending.tongTien,
+            phuongThucThanhToan: 'VNPAY',
+            ngayThanhToan,
+          },
+        })
+
+        const gheSuatChieuIds: string[] = []
+        for (const seat of pending.selectedSeats) {
+          const gheSuatChieu = await tx.gHE_SUATCHIEU.findUnique({
+            where: {
+              maGhe_maSuatChieu: {
+                maGhe: seat.maGhe,
+                maSuatChieu: pending.maSuatChieu,
+              },
+            },
+          })
+
+          if (!gheSuatChieu) {
+            throw new Error(`Ghế ${seat.maGhe} không tồn tại trong suất chiếu ${pending.maSuatChieu}`)
+          }
+
+          gheSuatChieuIds.push(gheSuatChieu.maGheSuatChieu)
+
+          const maVe = await generateIncrementalId(tx.vE, 'maVe', 'VE')
+          await tx.vE.create({
+            data: {
+              maVe,
+              maGheSuatChieu: gheSuatChieu.maGheSuatChieu,
+              maHoaDon,
+              giaVe: seat.giaTien,
+              trangThai: 'DaThanhToan',
+            },
+          })
+        }
+
+        // Create HOADON_COMBO and HOADON_SANPHAM
+        if (pending.selectedFoods?.length > 0) {
+          const combos = pending.selectedFoods.filter((f: any) => f.loai === 'combo')
+          const sanPhams = pending.selectedFoods.filter((f: any) => f.loai === 'sanpham')
+
+          if (combos.length > 0) {
+            await tx.hOADON_COMBO.createMany({
+              data: combos.map((f: any) => ({
+                maHoaDon,
+                maCombo: f.maSanPham,
+                soLuong: f.soLuong,
+                donGia: f.donGia,
+                tongTien: f.donGia * f.soLuong,
+              })),
+            })
+          }
+
+          if (sanPhams.length > 0) {
+            await tx.hOADON_SANPHAM.createMany({
+              data: sanPhams.map((f: any) => ({
+                maHoaDon,
+                maSanPham: f.maSanPham,
+                soLuong: f.soLuong,
+                donGia: f.donGia,
+                tongTien: f.donGia * f.soLuong,
+              })),
+            })
+          }
+        }
+
+        if (gheSuatChieuIds.length > 0) {
+          await tx.gHE_SUATCHIEU.updateMany({
+            where: { maGheSuatChieu: { in: gheSuatChieuIds } },
+            data: { trangThaiGhe: 'DaDat' },
+          })
+        }
+
+        await tx.nGUOIDUNG.update({
+          where: { maNguoiDung: pending.maNguoiDung },
+          data: { diemTichLuy: { increment: Math.floor(pending.tongTien / 1000) } },
+        })
+
+        return createdHoaDon
+      })
+
+      for (const seat of pending.selectedSeats) {
+        const key = `seathold:${pending.maSuatChieu}:${seat.maGhe}`
+        await redisClient.del(key)
+      }
+
+      await redisClient.del(`pending_order:${orderId}`)
+
+      // Send email
+      const fullHoaDon = await prisma.hOADON.findUnique({
+        where: { maHoaDon: hoaDon.maHoaDon },
+        include: {
           nguoiDung: { select: { email: true } },
-          phim: true,
-          suatChieu: { include: { phongChieu: true } },
-          veCombos: true,
-          veSanPhams: true,
           khuyenMai: true,
+          ves: {
+            include: {
+              gheSuatChieu: {
+                include: {
+                  ghe: true,
+                  suatChieu: {
+                    include: { phim: true, phongChieu: true },
+                  },
+                },
+              },
+            },
+          },
+          hoaDonCombos: { include: { combo: true } },
+          hoaDonSanPhams: { include: { sanPham: true } },
         },
       })
 
-      if(!ve) {
-        return res.redirect(`${process.env.VNPAY_REDIRECT_NOTIFICATION_URL}?status=failed`)
-      }
+      if (!fullHoaDon) throw new Error('Không tìm thấy hóa đơn sau khi tạo')
 
-      for(const ct of ve.chiTietVes) {
-        const holder = await redisClient.get(`seathold:${ve.maSuatChieu}:${ct.maGhe}`)
-        if(holder === ve.maNguoiDung) {
-          await redisClient.del(`seathold:${ve.maSuatChieu}:${ct.maGhe}`)
-        }
-      }
+      const qrBase64 = await QRCode.toDataURL(fullHoaDon.maQR)
 
-      const parseVnpPayDate = (vnpPayDate: string) => {
-        const year = vnpPayDate.substring(0, 4)
-        const month = vnpPayDate.substring(4, 6)
-        const day = vnpPayDate.substring(6, 8)
-        const hour = vnpPayDate.substring(8, 10)
-        const minute = vnpPayDate.substring(10, 12)
-        const second = vnpPayDate.substring(12, 14)
-        return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`)
-      }
-      const ngayThanhToan = parseVnpPayDate(vnp_PayDate as string)
+      const firstVe = fullHoaDon.ves[0]
+      const phim = firstVe.gheSuatChieu.suatChieu.phim
+      const suatChieu = firstVe.gheSuatChieu.suatChieu
+      const phongChieu = suatChieu.phongChieu
 
-      await prisma.$transaction([
-        prisma.vE.update({
-          where: { maGiaoDich: vnp_TxnRef as string },
-          data: { trangThaiThanhToan: 'DaThanhToan', ngayMua: ngayThanhToan }
-        }),
-        prisma.gHE_SUATCHIEU.updateMany({
-          where: {
-            maSuatChieu: ve.maSuatChieu,
-            maGhe: { in: ve.chiTietVes.map(ct => ct.maGhe) },
-          },
-          data: { trangThaiGhe: 'DaDat' }
-        }),
-        prisma.nGUOIDUNG.updateMany({
-          where: { maNguoiDung: ve.maNguoiDung },
-          data: { diemTichLuy: { increment: Math.floor(ve.tongTien / 1000) } }
-        })
-      ])
-
-      const qrBase64 = await QRCode.toDataURL(ve.maQR)
-      const tienVe = ve.chiTietVes.reduce((sum, ct) => sum + ct.donGia, 0)
-      const tienCombo = (ve.veCombos?.reduce((sum, c) => sum + c.tongTien, 0) || 0) + 
-                        (ve.veSanPhams?.reduce((sum, s) => sum + s.tongTien, 0) || 0)
+      const tienVe = fullHoaDon.ves.reduce((sum, ve) => sum + ve.giaVe, 0)
+      const tienCombo =
+        (fullHoaDon.hoaDonCombos?.reduce((sum, c) => sum + c.tongTien, 0) || 0) +
+        (fullHoaDon.hoaDonSanPhams?.reduce((sum, s) => sum + s.tongTien, 0) || 0)
 
       const tongTienTruocGiam = tienVe + tienCombo
-      
+
       let soTienGiamGia = 0
-      if(ve.khuyenMai?.maCode && ve.maKhuyenMai) {
-        if(ve.khuyenMai.loaiKhuyenMai === 'GiamPhanTram') {
-          soTienGiamGia = Math.floor(tongTienTruocGiam * (ve.khuyenMai.giaTriGiam / 100))
-        } else if(ve.khuyenMai.loaiKhuyenMai === 'GiamGiaTien') {
-          soTienGiamGia = ve.khuyenMai.giaTriGiam
+      if (fullHoaDon.khuyenMai && fullHoaDon.maKhuyenMai) {
+        if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamPhanTram') {
+          soTienGiamGia = Math.floor(tongTienTruocGiam * (fullHoaDon.khuyenMai.giaTriGiam / 100))
+        } else if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamGiaTien') {
+          soTienGiamGia = fullHoaDon.khuyenMai.giaTriGiam
         }
       }
 
       const ticketData = {
-        maQR: ve.maQR,
-        tenPhim: ve.phim.tenPhim,
-        phongChieu: ve.suatChieu.phongChieu.tenPhong,
-        ngayChieu: new Date(ve.suatChieu.ngayChieu).toLocaleDateString('vi-VN'),
-        gioChieu: new Date(ve.suatChieu.gioChieu).toLocaleTimeString('vi-VN', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
+        maQR: fullHoaDon.maQR,
+        tenPhim: phim.tenPhim,
+        phongChieu: phongChieu.tenPhong,
+        ngayChieu: new Date(suatChieu.gioBatDau).toLocaleDateString('vi-VN'),
+        gioChieu: new Date(suatChieu.gioBatDau).toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
         }),
-        ghe: ve.chiTietVes.map(ct => `${ct.ghe.hangGhe}${ct.ghe.soGhe}`),
+        ghe: fullHoaDon.ves.map((ve) => {
+          const ghe = ve.gheSuatChieu.ghe
+          return `${ghe.hangGhe}${ghe.soGhe}`
+        }),
         thoiGianThanhToan: ngayThanhToan.toLocaleString('vi-VN'),
         tienComboBapNuoc: tienCombo,
-        soTienGiamGia: ve.maKhuyenMai ? soTienGiamGia : 0,
+        soTienGiamGia: fullHoaDon.maKhuyenMai ? soTienGiamGia : 0,
         tongTien: tongTienTruocGiam,
-        soTienThanhToan: ve.tongTien,
+        soTienThanhToan: fullHoaDon.tongTien,
       }
-      const subject = `Thông tin đặt vé xem phim - ${ve.phim.tenPhim} - Lê Độ Cinema`
-      await addTicketEmailToQueue(ve.nguoiDung.email, subject, ticketData, qrBase64)
+
+      const subject = `Thông tin đặt vé xem phim - ${phim.tenPhim} - Lê Độ Cinema`
+      await addTicketEmailToQueue(fullHoaDon.nguoiDung.email, subject, ticketData, qrBase64)
 
       return res.redirect(`${process.env.VNPAY_REDIRECT_NOTIFICATION_URL}?status=success`)
     } catch (error) {

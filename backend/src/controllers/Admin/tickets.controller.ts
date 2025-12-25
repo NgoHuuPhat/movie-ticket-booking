@@ -1,0 +1,201 @@
+import { Request, Response } from 'express'
+import { prisma } from '@/lib/prisma'
+import { toZonedTime } from 'date-fns-tz'
+
+class VesController {
+
+  // [GET] /api/tickets
+  async getInvoicesWithDetails(req: Request, res: Response) {
+    try {
+      const {
+        thanhToan,
+        phim,
+        date,
+        hinhThuc,
+        search,
+        page = '1',
+      } = req.query
+
+      const limit = 10
+      const currentPage = Number(page)
+      const skip = (currentPage - 1) * limit
+      const where: any = {}
+
+      // Filters
+      if (thanhToan === 'daThanhToan') {
+        where.trangThaiThanhToan = 'DaThanhToan'
+      } else if (thanhToan === 'chuaThanhToan') {
+        where.trangThaiThanhToan = 'ChuaThanhToan'
+      }
+
+      if (hinhThuc === 'online') {
+        where.phuongThucThanhToan = { in: ['VNPAY', 'MOMO'] }
+      } else if (hinhThuc === 'offline') {
+        where.phuongThucThanhToan = 'TIENMAT'
+      }
+
+      if(phim){
+        where.ves = {
+          some: {
+            gheSuatChieu: {
+              suatChieu: {
+                maPhim: phim
+              }
+            }
+          }
+        }
+      }
+
+      if(date) {
+        console.log("date filter in backend:", date)
+        const VN_TZ = 'Asia/Ho_Chi_Minh'
+        const startOfDayUtc = toZonedTime(date as string, VN_TZ)
+        startOfDayUtc.setHours(0,0,0,0)
+        const endOfDayUtc = toZonedTime(date as string, VN_TZ)
+        endOfDayUtc.setHours(23,59,59,999)
+        where.ngayThanhToan = { gte: startOfDayUtc, lt: endOfDayUtc }
+      }
+
+      if (search) {
+        where.OR = [
+          { maHoaDon: { contains: search, mode: 'insensitive' } },
+          { maQR: { contains: search, mode: 'insensitive' } },
+          { nguoiDung: { hoTen: { contains: search, mode: 'insensitive' } } },
+        ]
+      }
+
+      const [invoices, total] = await Promise.all([
+        prisma.hOADON.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { ngayThanhToan: 'desc' },
+          include: {
+            nguoiDung: true,
+            nhanVienDat: true,
+            ves: {
+              include: {
+                gheSuatChieu: {
+                  include: {
+                    ghe: true,
+                    suatChieu: {
+                      include: {
+                        phim: true,
+                        phongChieu: true,
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            hoaDonCombos: {
+              include: {
+                combo: true
+              }
+            },
+            hoaDonSanPhams: {
+              include: {
+                sanPham: true
+              }
+            }
+          }
+        }),
+        prisma.hOADON.count({ where })
+      ])
+
+      // Format data
+      const formatted = invoices.map(hd => ({
+        maHoaDon: hd.maHoaDon,
+        maQR: hd.maQR,
+        maNguoiDung: hd.maNguoiDung,
+        nhanVienDat: hd.nhanVienDat ? {
+          hoTen: hd.nhanVienDat.hoTen,
+          email: hd.nhanVienDat.email,
+          soDienThoai: hd.nhanVienDat.soDienThoai,
+        } : null,
+        nguoiDung: {
+          hoTen: hd.nguoiDung.hoTen,
+          email: hd.nguoiDung.email,
+          soDienThoai: hd.nguoiDung.soDienThoai,
+        },
+        tongTien: hd.tongTien,
+        phuongThucThanhToan: hd.phuongThucThanhToan,
+        ngayThanhToan: hd.ngayThanhToan,
+        hinhThuc: hd.phuongThucThanhToan === 'TIENMAT' ? 'Offline' : 'Online',
+        maKhuyenMai: hd.maKhuyenMai,
+        ves: hd.ves.map(v => ({
+          maVe: v.maVe,
+          giaVe: v.giaVe,
+          trangThai: v.trangThai,
+          thoiGianCheckIn: v.thoiGianCheckIn,
+          suatChieu: {
+            maSuatChieu: v.gheSuatChieu.suatChieu.maSuatChieu,
+            gioBatDau: v.gheSuatChieu.suatChieu.gioBatDau,
+            phongChieu: { tenPhong: v.gheSuatChieu.suatChieu.phongChieu.tenPhong },
+            phim: { tenPhim: v.gheSuatChieu.suatChieu.phim.tenPhim }
+          },
+          ghe: [v.gheSuatChieu.ghe.hangGhe + v.gheSuatChieu.ghe.soGhe]
+        })),
+        combos: hd.hoaDonCombos.map(hc => ({
+          maCombo: hc.maCombo,
+          tenCombo: hc.combo.tenCombo,
+          soLuong: hc.soLuong,
+          donGia: hc.donGia,
+          tongTien: hc.tongTien,
+          daLay: hc.daLay,
+          thoiGianLay: hc.thoiGianLay
+        })),
+        sanPhams: hd.hoaDonSanPhams.map(hs => ({
+          maSanPham: hs.maSanPham,
+          tenSanPham: hs.sanPham.tenSanPham,
+          soLuong: hs.soLuong,
+          donGia: hs.donGia,
+          tongTien: hs.tongTien,
+          daLay: hs.daLay,
+          thoiGianLay: hs.thoiGianLay
+        }))
+      }))
+
+      return res.status(200).json({
+        invoices: formatted,
+        total,
+        startIndex: skip + 1,
+        endIndex: Math.min(currentPage * limit, total),
+        page: currentPage,
+        totalPages: Math.ceil(total / limit),
+      })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
+  // [GET] /tickets/stats
+  async getTicketStats(req: Request, res: Response) {
+    try {
+      const [totalTickets, checkedInTickets, onlineTickets, offlineTickets, totalRevenue] =
+        await Promise.all([
+          prisma.vE.count(),
+          prisma.vE.count({ where: { trangThai: 'DaCheckIn' } }),
+          prisma.hOADON.count({
+            where: { phuongThucThanhToan: { in: ['VNPAY', 'MOMO'] } },
+          }),
+          prisma.hOADON.count({ where: { phuongThucThanhToan: 'TIENMAT' } }),
+          prisma.hOADON.aggregate({ _sum: { tongTien: true } }),
+        ])
+
+      return res.status(200).json({
+        totalTickets,
+        checkedInTickets,
+        onlineTickets,
+        offlineTickets,
+        totalRevenue: totalRevenue._sum.tongTien || 0,
+      })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+}
+
+export default new VesController()
