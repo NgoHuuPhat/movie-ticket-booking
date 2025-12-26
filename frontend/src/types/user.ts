@@ -7,7 +7,7 @@ export interface IUser {
   gioiTinh: "Nam" | "Nu"
   ngayTao: string
   diemTichLuy: number
-  maLoaiNguoiDung: "KH" | "ADMIN" | "VIP"
+  maLoaiNguoiDung: "KH" | "ADMIN" | "VIP" | "NV"
 }
 
 export type BulkAction = "activate" | "deactivate" | "delete"

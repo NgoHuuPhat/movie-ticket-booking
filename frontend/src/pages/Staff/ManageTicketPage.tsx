@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment } from "react"
 import {
   Ticket, Search, Filter, MoreVertical, Eye, XCircle,
-  Download, DollarSign, Users, ChevronDown, ChevronRight,
+  Download, ChevronDown, ChevronRight,
   Package, ShoppingBag
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,13 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
-import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
-import { getAllTicketsAdmin, getMoviesForSelect, getTicketStatsAdmin } from "@/services/api"
+import { getAllTicketsStaff, getMoviesForSelect } from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { Label } from "@/components/ui/label"
 import { formatDate, formatTime } from "@/utils/formatDate"
+import StaffLayout from "@/components/layout/StaffLayout"
 
 interface ITicket {
   maVe: string
@@ -29,6 +29,7 @@ interface ITicket {
     gioBatDau: string
     phongChieu: { tenPhong: string }
     phim: { tenPhim: string }
+    tenPhanLoaiDoTuoi: string
   }
   ghe: string[]
 }
@@ -67,11 +68,6 @@ interface IInvoiceDisplay {
     email: string
     soDienThoai: string
   } | null
-  nhanVienSoat: {
-    hoTen: string
-    email: string
-    soDienThoai: string
-  } | null
   tongTien: number
   phuongThucThanhToan: "VNPAY" | "MOMO" | "TIENMAT"
   trangThaiThanhToan: "DaThanhToan" | "ChuaThanhToan"
@@ -101,13 +97,6 @@ const ManageTicketPage = () => {
   const [startIndex, setStartIndex] = useState(0)
   const [endIndex, setEndIndex] = useState(0)
 
-  const [stats, setStats] = useState({
-    total: 0,
-    doanhThu: 0,
-    online: 0,
-    offline: 0
-  })
-
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
 
@@ -116,25 +105,6 @@ const ManageTicketPage = () => {
       prev.includes(maHoaDon) ? prev.filter(id => id !== maHoaDon) : [...prev, maHoaDon]
     )
   }
-
-  // Load stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await getTicketStatsAdmin()
-        setStats({
-          total: data.totalTickets,
-          doanhThu: data.totalRevenue,
-          online: data.onlineTickets,
-          offline: data.offlineTickets
-        })
-      } catch (err) {
-        console.error("Lỗi tải thống kê:", err)
-        toast.error("Không thể tải thống kê vé")
-      }
-    }
-    fetchStats()
-  }, [])
 
   // Load movies for filter
   useEffect(() => {
@@ -149,12 +119,13 @@ const ManageTicketPage = () => {
     fetchMovies()
   }, [])
 
+
   // Load list bills
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
 
-        const res = await getAllTicketsAdmin({
+        const res = await getAllTicketsStaff({
           page: currentPage,
           search: searchQuery || undefined,
           phim: movieFilter === "all" ? undefined : movieFilter,
@@ -173,6 +144,7 @@ const ManageTicketPage = () => {
     }
     fetchInvoices()
   }, [currentPage, searchQuery, movieFilter, hinhThucFilter, dateFilter])
+  console.log({ invoices })
 
   const handleSelectInvoice = (invoiceId: string) => {
     setSelectedInvoiceIds(prev =>
@@ -194,41 +166,17 @@ const ManageTicketPage = () => {
   }
 
   return (
-    <AdminLayout>
+    <StaffLayout>
       <div className="max-w-8xl mx-auto pb-10">
         {/* Header + Stats */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Hóa Đơn & Vé</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Danh sách Hóa Đơn Vé</h1>
               <p className="mt-2 text-sm sm:text-base text-gray-600">
-                Theo dõi và quản lý toàn bộ hóa đơn, vé trong hệ thống
+                Theo dõi danh sách hóa đơn vé đã được đặt.
               </p>
             </div>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" /> Export Excel
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { title: "Tổng vé", value: stats.total, icon: <Ticket />, color: "bg-purple-500" },
-              { title: "Doanh thu", value: stats.doanhThu.toLocaleString() + ' VNĐ', icon: <DollarSign />, color: "bg-amber-500" },
-              { title: "Online", value: stats.online, icon: <Ticket />, color: "bg-purple-500" },
-              { title: "Offline", value: stats.offline, icon: <Users />, color: "bg-gray-500" },
-            ].map((card, i) => (
-              <Card key={i} className="bg-white/60 shadow-sm hover:shadow-md transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium text-gray-600">{card.title}</p>
-                      <p className="text-xl font-bold mt-1">{card.value}</p>
-                    </div>
-                    <div className={`${card.color} p-3 rounded-lg text-white`}>{card.icon}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
 
@@ -332,7 +280,7 @@ const ManageTicketPage = () => {
                       return (
                         <Fragment key={invoice.maHoaDon}>
                           <tr
-                            className="border-b text-sm hover:bg-purple-50/30 transition-colors cursor-pointer group"
+                            className="border-b hover:bg-purple-50/30 transition-colors cursor-pointer group"
                             onClick={() => toggleExpandInvoice(invoice.maHoaDon)}
                           >
                             <td className="p-4" onClick={(e) => e.stopPropagation()}>
@@ -452,13 +400,15 @@ const ManageTicketPage = () => {
                                             <th className="text-left py-3 px-4 text-sm font-semibold text-purple-900">Trạng thái</th>
                                           </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-purple-100 text-sm">
+                                        <tbody className="divide-y divide-purple-100">
                                           {invoice.ves.map((ve) => {
                                             const veStatus = getTrangThaiVeDisplay(ve.trangThai);
                                             return (
                                               <tr key={ve.maVe} className="hover:bg-purple-50/50 transition-colors">
                                                 <td className="py-4 px-4 font-medium text-gray-800">{ve.maVe}</td>
-                                                <td className="py-4 px-4 font-medium">{ve.suatChieu.phim.tenPhim}</td>
+                                                <td className="py-4 px-4 font-medium">
+                                                  {ve.suatChieu.phim.tenPhim} ({ve.suatChieu.tenPhanLoaiDoTuoi})
+                                                  </td>
                                                 <td className="py-4 px-4">
                                                   <div className="text-sm">
                                                     {formatDate(ve.suatChieu.gioBatDau)}
@@ -652,29 +602,25 @@ const ManageTicketPage = () => {
                   <div className="space-y-3">
                     <div>
                       <Label className="text-sm text-gray-600">Mã hóa đơn</Label>
-                      <p className="font-semibold">{selectedInvoice.maHoaDon}</p>
+                      <p className="font-semibold text-lg">{selectedInvoice.maHoaDon}</p>
                     </div>
                     <div>
                       <Label className="text-sm text-gray-600">Mã QR</Label>
                       <p className="font-mono text-sm bg-white p-2 rounded border">{selectedInvoice.maQR}</p>
                     </div>
-                    <div className="flex mt-5">
-                      <div className="flex-1">
-                        <Label className="text-sm text-gray-600">Khách hàng</Label>
-                        <p className="font-medium">{selectedInvoice.nguoiDung.hoTen}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.email}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.soDienThoai}</p>
-                      </div>
-                      {selectedInvoice.nhanVienSoat && (
+                    <div>
+                      <Label className="text-sm text-gray-600">Khách hàng</Label>
+                      <p className="font-medium">{selectedInvoice.nguoiDung.hoTen}</p>
+                      <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.email}</p>
+                      <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.soDienThoai}</p>
+                    </div>
+                    {selectedInvoice.nhanVienDat && (
                       <div>
-                        <Label className="text-sm text-gray-600">Nhân viên soát vé</Label>
-                        <p className="font-medium">{selectedInvoice.nhanVienSoat.hoTen}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienSoat.email}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienSoat.soDienThoai}</p>
+                        <Label className="text-sm text-gray-600">Nhân viên đặt</Label>
+                        <p className="font-medium">{selectedInvoice.nhanVienDat.hoTen}</p>
+                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienDat.email}</p>
                       </div>
                     )}
-                    </div>
-                    
                   </div>
 
                   <div className="space-y-3">
@@ -876,7 +822,7 @@ const ManageTicketPage = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </AdminLayout>
+    </StaffLayout>
   )
 }
 

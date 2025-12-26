@@ -5,8 +5,13 @@ const PublicOnlyRoute = () => {
   const { user } = useAuthStore()
 
   if (user) {
-    const redirectTo = user.maLoaiNguoiDung === "ADMIN" ? "/admin" : "/"
-    return <Navigate to={redirectTo} replace />
+    if (user.maLoaiNguoiDung === "ADMIN") {
+      return <Navigate to="/admin" replace />
+    } else if (user.maLoaiNguoiDung === "NV") {
+      return <Navigate to="/staff" replace />
+    } else {
+      return <Navigate to="/" replace /> 
+    }
   }
 
   return <Outlet />

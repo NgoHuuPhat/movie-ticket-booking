@@ -17,10 +17,6 @@ model LOAINGUOIDUNG {
   dieuKienKhuyenMais DIEUKIENKHUYENMAI[]
 }
 
-enum TRANGTHAINGUOIDUNG {
-  HoatDong
-  BiKhoa
-} 
 enum GIOITINH {
   Nam
   Nu
@@ -35,7 +31,7 @@ model NGUOIDUNG {
   maLoaiNguoiDung String         
   ngaySinh      DateTime 
   gioiTinh      GIOITINH        
-  trangThai     TRANGTHAINGUOIDUNG @default(HoatDong)       
+  hoatDong      Boolean   @default(true)      
   ngayTao       DateTime  @default(now())
   diemTichLuy   Int @default(0)
 

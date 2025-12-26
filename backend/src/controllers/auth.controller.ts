@@ -16,6 +16,10 @@ class AuthController {
     try {
       const { hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh } = req.body
 
+      if(!process.env.DEFAULT_USER_ROLE_KH) {
+        return res.status(500).json({ message: 'Server configuration error' })
+      }
+
       const existingUser = await prisma.nGUOIDUNG.findUnique({ where: { email } })
       if (existingUser) {
         return res.status(400).json({ message: 'Email đã được sử dụng' })
@@ -44,7 +48,7 @@ class AuthController {
           hoTen,
           email,
           matKhau: hashedPassword,
-          maLoaiNguoiDung: 'KH',
+          maLoaiNguoiDung: process.env.DEFAULT_USER_ROLE_KH,
           soDienThoai,
           ngaySinh: new Date(ngaySinh),
           gioiTinh,
@@ -65,10 +69,16 @@ class AuthController {
       if (!user) {
         return res.status(401).json({ message: 'Email không tồn tại' })
       }
+      
       const isPasswordValid = await bcrypt.compare(matKhau, user.matKhau)
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Mật khẩu bạn nhập không đúng' })
       }
+
+      if(user.hoatDong === false) {
+        return  res.status(403).json({ message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.' })
+      }
+
       const payload = { maNguoiDung: user.maNguoiDung, maLoaiNguoiDung: user.maLoaiNguoiDung }
       const accessToken = generateAccessToken(payload)
       const refreshToken = generateRefreshToken(payload)
@@ -133,6 +143,9 @@ class AuthController {
       const user = await prisma.nGUOIDUNG.findUnique({ where: { maNguoiDung: req.user?.maNguoiDung }, include: { loaiNguoiDung: true } })
       if (!user) {
         return res.status(404).json({ message: 'Người dùng không tồn tại' })
+      }
+      if(user.hoatDong === false) {
+        return  res.status(403).json({ message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.' })
       }
       const { matKhau, ...userWithoutPassword } = user
       return res.status(200).json(userWithoutPassword)

@@ -33,6 +33,8 @@ const LoginForm = () => {
       const { user } = useAuthStore.getState()
       if (user?.maLoaiNguoiDung === "ADMIN") {
         navigate("/admin")
+      } else if (user?.maLoaiNguoiDung === "NV") {
+        navigate("/staff")
       } else {
         navigate("/")
       }

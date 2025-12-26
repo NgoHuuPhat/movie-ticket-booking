@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 import { toZonedTime } from 'date-fns-tz'
-import { tr } from 'date-fns/locale'
+import { IUserRequest } from '@/types/user'
 
 class VesController {
 
@@ -66,20 +66,24 @@ class VesController {
           orderBy: { [sortFields]: sortOrder },
           include: {
             nguoiDung: true,
+            nhanVienDat: true,
             ves: {
               include: {
-                gheSuatChieu: { 
+                gheSuatChieu: {
                   include: {
                     ghe: true,
                     suatChieu: {
                       include: {
-                        phim: true,
+                        phim: {
+                          include: {
+                            phanLoaiDoTuoi: true
+                          }
+                        },
                         phongChieu: true,
                       }
                     }
                   }
-                },
-                nhanVienSoat: true
+                }
               }
             },
             hoaDonCombos: {
@@ -102,10 +106,10 @@ class VesController {
         maHoaDon: hd.maHoaDon,
         maQR: hd.maQR,
         maNguoiDung: hd.maNguoiDung,
-        nhanVienSoat: hd.ves.length > 0 && hd.ves[0].nhanVienSoat ? {
-          hoTen: hd.ves[0].nhanVienSoat.hoTen,
-          email: hd.ves[0].nhanVienSoat.email,
-          soDienThoai: hd.ves[0].nhanVienSoat.soDienThoai,
+        nhanVienDat: hd.nhanVienDat ? {
+          hoTen: hd.nhanVienDat.hoTen,
+          email: hd.nhanVienDat.email,
+          soDienThoai: hd.nhanVienDat.soDienThoai,
         } : null,
         nguoiDung: {
           hoTen: hd.nguoiDung.hoTen,
@@ -126,7 +130,8 @@ class VesController {
             maSuatChieu: v.gheSuatChieu.suatChieu.maSuatChieu,
             gioBatDau: v.gheSuatChieu.suatChieu.gioBatDau,
             phongChieu: { tenPhong: v.gheSuatChieu.suatChieu.phongChieu.tenPhong },
-            phim: { tenPhim: v.gheSuatChieu.suatChieu.phim.tenPhim }
+            phim: { tenPhim: v.gheSuatChieu.suatChieu.phim.tenPhim },
+            tenPhanLoaiDoTuoi: v.gheSuatChieu.suatChieu.phim.phanLoaiDoTuoi.tenPhanLoaiDoTuoi
           },
           ghe: [v.gheSuatChieu.ghe.hangGhe + v.gheSuatChieu.ghe.soGhe]
         })),
@@ -159,32 +164,105 @@ class VesController {
     }
   }
 
-  // [GET] /tickets/stats
-  async getTicketStats(req: Request, res: Response) {
+  // [POST] /tickets/scan
+  async scanTicket(req: IUserRequest, res: Response) {
     try {
-      const [totalTickets, checkedInTickets, onlineTickets, offlineTickets, totalRevenue] =
-        await Promise.all([
-          prisma.vE.count(),
-          prisma.vE.count({ where: { trangThai: 'DaCheckIn' } }),
-          prisma.hOADON.count({
-            where: { phuongThucThanhToan: { in: ['VNPAY', 'MOMO'] } },
-          }),
-          prisma.hOADON.count({ where: { phuongThucThanhToan: 'TIENMAT' } }),
-          prisma.hOADON.aggregate({ _sum: { tongTien: true } }),
-        ])
+      const { maQR } = req.body
+      const maNhanVienSoat = req.user?.maNguoiDung
 
-      return res.status(200).json({
-        totalTickets,
-        checkedInTickets,
-        onlineTickets,
-        offlineTickets,
-        totalRevenue: totalRevenue._sum.tongTien || 0,
+      const hoaDon = await prisma.hOADON.findUnique({
+        where: { maQR },
+        include: {
+          ves: {
+            include: {
+              gheSuatChieu: {
+                include: {
+                  ghe: true,  
+                  suatChieu: {
+                    include: {
+                      phim: true,
+                      phongChieu: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          hoaDonCombos: {
+            include: {
+              combo: true 
+            }
+          },
+          hoaDonSanPhams: {
+            include: {
+              sanPham: true  
+            }
+          }
+        }
+      })
+      
+      if (!hoaDon) {
+        return res.status(404).json({ message: 'Mã QR không hợp lệ' })
+      }
+
+      const daCheckInVe = hoaDon.ves.find(v => v.trangThai === 'DaCheckIn')
+      if(daCheckInVe) {
+        return res.status(400).json({ 
+          message: `Vé đã được check-in trước đó.`, 
+          data: {
+            maHoaDon: hoaDon.maHoaDon,
+            tongTien: hoaDon.tongTien,
+            phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+            ngayThanhToan: hoaDon.ngayThanhToan,
+            ves: hoaDon.ves,
+            combos: hoaDon.hoaDonCombos,
+            sanPhams: hoaDon.hoaDonSanPhams
+          }
+        })
+      }
+
+      await prisma.$transaction(async (prisma) => {
+        await prisma.vE.updateMany({
+          where: { maHoaDon: hoaDon.maHoaDon },
+          data: {
+            trangThai: 'DaCheckIn',
+            thoiGianCheckIn: new Date(),
+            maNhanVienSoat
+          }
+        })
+
+        if(hoaDon.hoaDonCombos.length > 0) {
+          await prisma.hOADON_COMBO.updateMany({
+            where: { maHoaDon: hoaDon.maHoaDon, daLay: false },
+            data: { daLay: true, thoiGianLay: new Date() }
+          })
+        }
+        if(hoaDon.hoaDonSanPhams.length > 0) {
+          await prisma.hOADON_SANPHAM.updateMany({
+            where: { maHoaDon: hoaDon.maHoaDon, daLay: false },
+            data: { daLay: true, thoiGianLay: new Date() }
+          })
+        }
+      })
+
+      res.status(200).json({
+        message: 'Check-in vé thành công',
+        data: {
+          maHoaDon: hoaDon.maHoaDon,
+          tongTien: hoaDon.tongTien,
+          phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+          ngayThanhToan: hoaDon.ngayThanhToan,
+          ves: hoaDon.ves,
+          combos: hoaDon.hoaDonCombos,
+          sanPhams: hoaDon.hoaDonSanPhams
+        }
       })
     } catch (error) {
       console.error(error)
       return res.status(500).json({ message: 'Internal server error' })
     }
   }
+  
 }
 
 export default new VesController()

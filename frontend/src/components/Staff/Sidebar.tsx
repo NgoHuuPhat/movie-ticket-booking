@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Settings, Users, X, Ticket, Film, ChevronDown, MapPin, Armchair, Calendar, Popcorn } from 'lucide-react'
+import { Home, X, Ticket, Popcorn, ChevronDown } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -10,48 +10,18 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   const sidebarItems = [
-    { icon: Home, label: 'Tổng quan', path: '/admin/dashboard' },
-    
-    { 
-      icon: Film, label: 'Quản lý phim', 
-      children: [
-        { label: 'Thể loại phim', path: '/admin/movies/genres' },
-        { label: 'Phân loại độ tuổi', path: '/admin/movies/age-ratings' },
-        { label: 'Danh sách phim', path: '/admin/movies' },
-      ]
-    },
-    
-    { 
-      icon: MapPin, label: 'Hệ thống rạp', 
-      children: [
-        { label: 'Thông tin rạp chiếu', path: '/admin/cinema' },
-        { label: 'Loại phòng chiếu', path: '/admin/cinema/room-types' },
-        { label: 'Danh sách phòng chiếu', path: '/admin/cinema/rooms' },
-      ]
-    },
-    
-    {
-      icon: Armchair, 
-      label: 'Quản lý ghế',
-      children: [
-        { label: 'Loại ghế', path: '/admin/seats/types' },
-        { label: 'Giá ghế theo loại phòng', path: '/admin/seats/prices' },
-      ]
-    },
-    { icon: Calendar, label: 'Quản lý suất chiếu', path: '/admin/showtimes' },
-    { icon: Ticket, label: 'Quản lý hóa đơn vé', path: '/admin/orders' },
+    { icon: Home, label: 'Tổng quan', path: '/staff/dashboard' },
+    { icon: Ticket, label: 'Quản lý hóa đơn vé', path: '/staff/orders' },
     {
       icon: Popcorn, 
       label: 'Dịch vụ và ưu đãi',
       children: [
-        { label: 'Danh mục sản phẩm', path: '/admin/food-categories' },
-        { label: 'Quản lý đồ ăn', path: '/admin/foods' },
-        { label: 'Quản lý combo', path: '/admin/combos' },
-        { label: 'Quản lý mã giảm giá', path: '/admin/discount-codes' },
+        { label: 'Danh mục sản phẩm', path: '/staff/food-categories' },
+        { label: 'Quản lý đồ ăn', path: '/staff/foods' },
+        { label: 'Quản lý combo', path: '/staff/combos' },
+        { label: 'Quản lý mã giảm giá', path: '/staff/discount-codes' },
       ]
     },
-    { icon: Users, label: 'Quản lý người dùng', path: '/admin/users' },
-    { icon: Settings, label: 'Cài đặt hệ thống', path: '/admin/settings' },
   ]
 
   useEffect(() => {
@@ -94,7 +64,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                   <button onClick={() => handleToggle(item.label)} className="flex items-center cursor-pointer w-full px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm">
                     <item.icon className="mr-3 h-5 w-5 text-gray-500 group-hover:text-gray-700" />
                     <span className="flex-1 font-medium text-left">{item.label}</span>
-                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isOpenDropdown ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isOpenDropdown ? 'rotate-180' : ''}`} />  
                   </button>
                   {isOpenDropdown && (
                     <div className="ml-6 space-y-1 mt-1">

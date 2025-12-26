@@ -1,10 +1,10 @@
 import { 
-  Bell, 
   User, 
   Search, 
   Menu, 
   Settings, 
   LogOut,
+  ScanLine,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,13 +17,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
 import useAuthStore from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router-dom'
+import QRScannerModal from '@/components/Staff/QRScannerModal'
+import { useState } from 'react'
+import TicketDetailModal from '@/components/Staff/TicketDetailModal'
 
 const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const { user, signOut } = useAuthStore()
   const navigate = useNavigate()
+
+  const [showScanner, setShowScanner] = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
+  const [currentQRCode, setCurrentQRCode] = useState("")
 
   const handleLogout = async () => {
     try {
@@ -33,7 +39,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
       console.error("Logout error:", error)
     }
   }
-  
+
   return (
     <header className="sticky top-0 z-0 w-full shadow-xs bg-white backdrop-blur z-50">
       <div className="flex h-16 px-4 md:ps-55 md:pe-10">
@@ -49,7 +55,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
         </div>
 
         <div className="flex flex-1 items-center  gap-4 md:gap-6 lg:gap-8">
-          <h1 className="text-xl font-bold">Admin</h1>
+          <h1 className="text-xl font-bold">Staff</h1>
           <div className="w-full max-w-sm lg:max-w-md">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -62,19 +68,16 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="relative mt-2">
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">
-              3
-            </Badge>
+          <Button variant="ghost" size="icon" onClick={() => setShowScanner(true)}>
+            <ScanLine></ScanLine>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
+                <Avatar>
                   <AvatarFallback>
-                    <User className="h-4 w-4" />
+                    <User/>
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -106,6 +109,21 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
           </DropdownMenu>
         </div>
       </div>
+
+      <QRScannerModal 
+        open={showScanner}
+        onOpenChange={setShowScanner}
+        onScanSuccess={(text) => {
+          setCurrentQRCode(text)
+          setShowDetail(true)
+        }}
+      />
+
+      <TicketDetailModal
+        open={showDetail}
+        onOpenChange={setShowDetail}
+        ticketCode={currentQRCode}
+      />
     </header>
   )
 }

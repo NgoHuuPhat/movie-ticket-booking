@@ -451,3 +451,48 @@ export const toggleShowComboAdmin = async (id: string) => {
   const res = await request.patch(`/admin/combos/${id}/show`)
   return res.data
 }
+
+export const getAllUserTypesAdmin = async () => {
+  const res = await request.get("/admin/usertypes")
+  return res.data
+}
+
+export const getAllUsersAdmin = async (params: { page?: number; search?: string; hoatDong?: boolean; maLoaiNguoiDung?: string; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/users", { params })
+  return res.data
+}
+
+export const getUserStatsAdmin = async () => {
+  const res = await request.get("/admin/users/stats")
+  return res.data
+}
+
+export const createUserAdmin = async (hoTen: string, email: string, matKhau: string, soDienThoai: string, ngaySinh: string, gioiTinh: string, maLoaiNguoiDung: string) => {
+  const res = await request.post("/admin/users", { hoTen, email, matKhau, soDienThoai, ngaySinh, gioiTinh, maLoaiNguoiDung })
+  return res.data
+}
+
+export const toggleUserStatusAdmin = async (id: string, hoatDong: boolean) => {
+  const res = await request.patch(`/admin/users/${id}/status`, { hoatDong })
+  return res.data
+}
+
+export const bulkActionUsersAdmin = async (userIds: string[], action: string) => {
+  const res = await request.post("/admin/users/bulk-action", { userIds, action })
+  return res.data
+}
+
+export const deleteUserAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/users/${id}`)
+  return res.data
+}
+
+export const getAllTicketsStaff = async (params: { phim?: string; hinhThuc?: string; search?: string; page?: number;  date?: string; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/staff/tickets", { params })
+  return res.data
+}
+
+export const scanTicketStaff = async (maQR: string) => {
+  const res = await request.post("/staff/tickets/scan", { maQR })
+  return res.data
+}
