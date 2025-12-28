@@ -61,6 +61,32 @@ class SuatChieusController {
     }
   }
 
+  // [GET] /showtimes/:id/seats
+  async getShowtimeSeats(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const seats = await prisma.gHE_SUATCHIEU.findMany({
+        where: { maSuatChieu: id },
+        include: {
+          ghe: {
+            include: {
+              loaiGhe: true
+            }
+          }
+        },
+        orderBy: [
+          { ghe: { hangGhe: 'asc' } },
+          { ghe: { soGhe: 'asc' } }
+        ]
+      })
+
+      return res.status(200).json(seats)
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
   // [POST] /showtimes
   async createShowtime(req: Request, res: Response) {
     try {

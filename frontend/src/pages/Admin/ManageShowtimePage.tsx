@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
 import { getShowtimesAdmin, getShowtimeStatsAdmin, createShowtimeAdmin, updateShowtimeAdmin, deleteShowtimeAdmin, toggleShowtimeActivationAdmin, bulkActionShowtimesAdmin, getMoviesForSelect, getRoomsForSelectAdmin } from "@/services/api"
@@ -15,6 +14,7 @@ import { handleError } from "@/utils/handleError.utils"
 import { formatDate } from "@/utils/formatDate"
 import { ShowtimeForm, type ShowtimeFormData } from "@/components/Admin/ShowtimeForm"
 import { Switch } from "@/components/ui/switch"
+import { ShowtimeSeatsViewer } from "@/components/Admin/ShowtimeSeatsViewer"
 
 interface IShowtime {
   maSuatChieu: string
@@ -37,10 +37,11 @@ const ManageShowtimePage = () => {
   const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string, ngayKhoiChieu: string, ngayKetThuc: string }>>([])
   const [rooms, setRooms] = useState<Array<{ maPhong: string; tenPhong: string }>>([])
 
+  const [isSeatsDialogOpen, setIsSeatsDialogOpen] = useState(false)
+  const [selectedShowtimeForSeats, setSelectedShowtimeForSeats] = useState<IShowtime | null>(null)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -166,6 +167,11 @@ const ManageShowtimePage = () => {
     if (end <= now) return "Đã kết thúc"
     if (start <= now && now < end) return "Đang chiếu"
     return "Sắp chiếu"
+  }
+
+  const handleViewSeats = (showtime: IShowtime) => {
+    setSelectedShowtimeForSeats(showtime)
+    setIsSeatsDialogOpen(true)
   }
 
   const handlePageChange = (page: number) => setCurrentPage(page)
@@ -490,8 +496,8 @@ const ManageShowtimePage = () => {
                                                 </Button>
                                               </DropdownMenuTrigger>
                                               <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => { setSelectedShowtime(st); setIsViewDialogOpen(true) }}>
-                                                  <Eye className="mr-2 h-4 w-4" /> Xem
+                                                <DropdownMenuItem onClick={() => { handleViewSeats(st); setIsSeatsDialogOpen(true) }}>
+                                                  <Eye className="mr-2 h-4 w-4" /> Xem sơ đồ ghế
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => { setSelectedShowtime(st); setIsEditDialogOpen(true) }}>
                                                   <Edit3 className="mr-2 h-4 w-4" /> Sửa
@@ -603,30 +609,25 @@ const ManageShowtimePage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Dialog Xem chi tiết */}
-        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Chi Tiết Suất Chiếu</DialogTitle>
-            </DialogHeader>
-            {selectedShowtime && (
-              <div className="space-y-4 py-4">
-                <div><Label>Mã suất chiếu</Label><p className="font-medium">{selectedShowtime.maSuatChieu}</p></div>
-                <div><Label>Phim</Label><p className="font-medium">{selectedShowtime.phim.tenPhim}</p></div>
-                <div><Label>Phòng chiếu</Label><p className="font-medium">{selectedShowtime.phongChieu.tenPhong}</p></div>
-                <div><Label>Thời gian chiếu</Label>
-                  <p className="font-medium">
-                    {formatDate(selectedShowtime.gioBatDau, "dd/MM/yyyy HH:mm")} → {formatDate(selectedShowtime.gioKetThuc, "HH:mm")}
-                  </p>
-                </div>
-                <div><Label>Trạng thái</Label><Badge>{selectedShowtime.trangThai}</Badge></div>
-                <div><Label>Hoạt động</Label><Badge variant={selectedShowtime.hoatDong ? "default" : "secondary"}>{selectedShowtime.hoatDong ? "Có" : "Không"}</Badge></div>
+        {/* Dialog Xem sơ đồ ghế */}
+        <Dialog open={isSeatsDialogOpen} onOpenChange={setIsSeatsDialogOpen}>
+          <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
+            {selectedShowtimeForSeats && (
+              <>
+              <DialogHeader>
+                <DialogTitle>
+                  Sơ đồ ghế - {selectedShowtimeForSeats.phim.tenPhim}
+                </DialogTitle>
+                <DialogDescription>
+                  Phòng: {selectedShowtimeForSeats.phongChieu.tenPhong} • 
+                  Thời gian: {selectedShowtimeForSeats && formatDate(selectedShowtimeForSeats.gioBatDau, "dd/MM/yyyy HH:mm")}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto pr-2">
+                <ShowtimeSeatsViewer maSuatChieu={selectedShowtimeForSeats.maSuatChieu} />
               </div>
+            </>
             )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>Đóng</Button>
-              <Button onClick={() => { setIsViewDialogOpen(false); setIsEditDialogOpen(true) }}>Sửa</Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

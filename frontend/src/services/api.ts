@@ -319,6 +319,11 @@ export const getShowtimesAdmin = async (params: { page?: number; trangThai?: str
   return res.data
 }
 
+export const getShowtimeDetailsAdmin = async (id: string) => {
+  const res = await request.get(`/admin/showtimes/${id}/seats`)
+  return res.data
+}
+
 export const createShowtimeAdmin = async (maPhim: string, maPhong: string, gioBatDau: string, gioKetThuc: string) => {
   const res = await request.post("/admin/showtimes", { maPhim, maPhong, gioBatDau, gioKetThuc })
   return res.data
