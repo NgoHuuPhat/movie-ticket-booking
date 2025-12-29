@@ -150,7 +150,7 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="md:max-w-2xl max-h-[90vh] flex flex-col p-0">
         {/* Header cố định */}
         <DialogHeader className="px-6 py-5 border-b">
           <DialogTitle className="text-2xl font-bold">Check-in vé</DialogTitle>

@@ -10,7 +10,7 @@ const DashboardPage = () => {
   return (
     <StaffLayout>
       <div className="max-w-7xl">
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
               Welcome back, {user?.hoTen}! 👋

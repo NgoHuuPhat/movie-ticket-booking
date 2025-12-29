@@ -70,7 +70,7 @@ export default function Homepage() {
             <ChevronRight className="w-12 h-12" />
           </button>
 
-          <div className="relative h-96 sm:h-80 lg:h-96 rounded overflow-hidden shadow-2xl ">
+          <div className="relative h-96 md:h-80 lg:h-96 rounded overflow-hidden shadow-2xl ">
             {bannerSlides.map((slide, i) => (
               <div
                 key={slide.id}
@@ -84,10 +84,10 @@ export default function Homepage() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-anton text-white uppercase mb-4 tracking-tight drop-shadow-2xl">
+                  <h1 className="text-4xl md:text-5xl md:text-6xl lg:text-7xl font-anton text-white uppercase mb-4 tracking-tight drop-shadow-2xl">
                     {slide.title}
                   </h1>
-                  <p className="text-xl sm:text-2xl lg:text-3xl text-yellow-300 font-semibold mb-8 drop-shadow-lg">
+                  <p className="text-xl md:text-2xl lg:text-3xl text-yellow-300 font-semibold mb-8 drop-shadow-lg">
                     {slide.subtitle}
                   </p>
                   <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-anton py-4 px-10 rounded-full text-lg uppercase transition-all hover:scale-110 shadow-2xl flex items-center gap-3">
@@ -211,7 +211,7 @@ export default function Homepage() {
 
         {/* Promotions */}
         <section className="mt-25">
-          <h2 className="text-center text-4xl sm:text-4xl font-anton text-white mb-12 uppercase">
+          <h2 className="text-center text-4xl md:text-4xl font-anton text-white mb-12 uppercase">
             Khuyến mãi đặc biệt
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

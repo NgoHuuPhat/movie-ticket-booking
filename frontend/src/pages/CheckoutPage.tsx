@@ -298,11 +298,11 @@ export default function CheckoutPage() {
 
           {/* Right: Order Summary */}
           <div className="text-lg bg-white/10 backdrop-blur-lg border border-white/20 rounded p-6">
-            <div className="flex flex-row justify-center border-b pb-4 border-white/20 sm:items-center mb-4 gap-4">
+            <div className="flex flex-row justify-center border-b pb-4 border-white/20 md:items-center mb-4 gap-4">
               <h2 className="text-base text-white">Thời gian giữ ghế:</h2>
               <p className="text-base font-anton text-purple-900 px-2 rounded bg-yellow-300">{formatTimeCountdown(countdown)}</p>
             </div>
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 my-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 my-6">
               <img
                 src={bookingData.movie.anhBia}
                 alt={bookingData.movie.tenPhim}

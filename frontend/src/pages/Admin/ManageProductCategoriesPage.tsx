@@ -126,11 +126,11 @@ const ManageProductCategoriesPage = () => {
     <AdminLayout>
       <div className="max-w-8xl mx-auto pb-10">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Danh Mục Sản Phẩm</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Danh Mục Sản Phẩm</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Thêm, sửa, xóa các danh mục sản phẩm trong hệ thống
               </p>
             </div>
@@ -220,7 +220,7 @@ const ManageProductCategoriesPage = () => {
 
         {/* Modal Thêm Danh Mục */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Thêm Danh Mục Sản Phẩm Mới</DialogTitle>
               <DialogDescription>Nhập tên danh mục sản phẩm mới.</DialogDescription>
@@ -266,7 +266,7 @@ const ManageProductCategoriesPage = () => {
 
         {/* Modal Sửa Danh Mục */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Sửa Danh Mục Sản Phẩm</DialogTitle>
               <DialogDescription>Cập nhật tên danh mục sản phẩm.</DialogDescription>
@@ -317,7 +317,7 @@ const ManageProductCategoriesPage = () => {
 
         {/* Modal Xóa Danh Mục */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Xóa Danh Mục Sản Phẩm</DialogTitle>
               <DialogDescription>

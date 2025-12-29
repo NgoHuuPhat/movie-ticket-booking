@@ -123,11 +123,11 @@ const ManageRoomTypePage: React.FC = () => {
     <AdminLayout>
       <div className="w-full space-y-6">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý loại phòng</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý loại phòng</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Quản lý danh sách các loại phòng trong hệ thống
               </p>
             </div>
@@ -196,7 +196,7 @@ const ManageRoomTypePage: React.FC = () => {
 
         {/* Modal create room type */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogContent className="sm:max-w-xl">
+          <DialogContent className="md:max-w-xl">
             <DialogHeader>
               <DialogTitle>Thêm loại phòng mới</DialogTitle>
               <DialogDescription>Nhập tên loại phòng mới</DialogDescription>
@@ -237,7 +237,7 @@ const ManageRoomTypePage: React.FC = () => {
 
         {/* Modal edit room type */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-xl">
+          <DialogContent className="md:max-w-xl">
             <DialogHeader>
               <DialogTitle>Sửa loại phòng</DialogTitle>
               <DialogDescription>Cập nhật tên loại phòng</DialogDescription>
@@ -278,7 +278,7 @@ const ManageRoomTypePage: React.FC = () => {
 
         {/* Modal delete room type */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-          <DialogContent className="sm:max-w-xl">
+          <DialogContent className="md:max-w-xl">
             <DialogHeader>
               <DialogTitle>Xóa loại phòng</DialogTitle>
               <DialogDescription>

@@ -276,18 +276,18 @@ const ManageShowtimePage = () => {
     <AdminLayout>
       <div className="max-w-7xl mx-auto pb-10">
         {/* Header + Stats */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Suất Chiếu</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">Quản lý lịch chiếu phim trong rạp</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Suất Chiếu</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">Quản lý lịch chiếu phim trong rạp</p>
             </div>
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> Thêm Suất Chiếu Mới
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { title: "Tổng suất chiếu", value: stats.total, icon: <Film className="h-5 w-5" />, color: "bg-purple-500" },
               { title: "Sắp chiếu", value: stats.sapChieu, icon: <Calendar className="h-5 w-5" />, color: "bg-blue-500" },
@@ -295,11 +295,11 @@ const ManageShowtimePage = () => {
               { title: "Đã kết thúc", value: stats.daKetThuc, icon: <Clock className="h-5 w-5" />, color: "bg-gray-500" },
             ].map((card, i) => (
               <Card key={i} className="bg-white/50 shadow-sm hover:shadow-md transition-all">
-                <CardContent className="p-4 sm:p-6">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-600">{card.title}</p>
-                      <p className="text-2xl sm:text-3xl font-bold">{card.value}</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-600">{card.title}</p>
+                      <p className="text-2xl md:text-3xl font-bold">{card.value}</p>
                     </div>
                     <div className={`${card.color} p-3 rounded-lg text-white`}>{card.icon}</div>
                   </div>
@@ -311,7 +311,7 @@ const ManageShowtimePage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -539,7 +539,7 @@ const ManageShowtimePage = () => {
 
         {/* Dialog Thêm Suất Chiếu */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="md:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Thêm Suất Chiếu Mới</DialogTitle>
               <DialogDescription>Chọn phim, phòng và thời gian chiếu.</DialogDescription>
@@ -558,7 +558,7 @@ const ManageShowtimePage = () => {
         
         {/* Dialog Sửa Suất Chiếu */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="md:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Sửa Suất Chiếu</DialogTitle>
               <DialogDescription>Cập nhật thông tin suất chiếu.</DialogDescription>
@@ -611,7 +611,7 @@ const ManageShowtimePage = () => {
 
         {/* Dialog Xem sơ đồ ghế */}
         <Dialog open={isSeatsDialogOpen} onOpenChange={setIsSeatsDialogOpen}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-[900px] max-h-[90vh] flex flex-col">
             {selectedShowtimeForSeats && (
               <>
               <DialogHeader>

@@ -11,7 +11,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
   const sidebarItems = [
     { icon: Home, label: 'Tổng quan', path: '/admin/dashboard' },
-    
+
     { 
       icon: Film, label: 'Quản lý phim', 
       children: [
@@ -20,7 +20,18 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Danh sách phim', path: '/admin/movies' },
       ]
     },
-    
+
+    { icon: Calendar, label: 'Quản lý suất chiếu', path: '/admin/showtimes' },
+
+    { 
+      icon: Armchair, 
+      label: 'Quản lý ghế',
+      children: [
+        { label: 'Loại ghế', path: '/admin/seats/types' },
+        { label: 'Giá ghế theo loại phòng', path: '/admin/seats/prices' },
+      ]
+    },
+
     { 
       icon: MapPin, label: 'Hệ thống rạp', 
       children: [
@@ -29,18 +40,10 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Danh sách phòng chiếu', path: '/admin/cinema/rooms' },
       ]
     },
-    
-    {
-      icon: Armchair, 
-      label: 'Quản lý ghế',
-      children: [
-        { label: 'Loại ghế', path: '/admin/seats/types' },
-        { label: 'Giá ghế theo loại phòng', path: '/admin/seats/prices' },
-      ]
-    },
-    { icon: Calendar, label: 'Quản lý suất chiếu', path: '/admin/showtimes' },
+
     { icon: Ticket, label: 'Quản lý hóa đơn vé', path: '/admin/orders' },
-    {
+
+    { 
       icon: Popcorn, 
       label: 'Dịch vụ và ưu đãi',
       children: [
@@ -50,9 +53,21 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Quản lý mã giảm giá', path: '/admin/discount-codes' },
       ]
     },
+
+    { 
+      icon: Calendar,
+      label: 'Quản lý ca làm việc',
+      children: [
+        { label: 'Danh sách ca', path: '/admin/shifts' },
+        { label: 'Phân ca nhân viên', path: '/admin/assign-shifts' },
+      ]
+    },
+
     { icon: Users, label: 'Quản lý người dùng', path: '/admin/users' },
+
     { icon: Settings, label: 'Cài đặt hệ thống', path: '/admin/settings' },
   ]
+
 
   useEffect(() => {
     const currentDropdown = sidebarItems.find(item => 

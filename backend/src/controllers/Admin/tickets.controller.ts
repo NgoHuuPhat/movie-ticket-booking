@@ -107,11 +107,11 @@ class VesController {
           email: hd.ves[0].nhanVienSoat.email,
           soDienThoai: hd.ves[0].nhanVienSoat.soDienThoai,
         } : null,
-        nguoiDung: {
+        nguoiDung: hd.nguoiDung ? {
           hoTen: hd.nguoiDung.hoTen,
           email: hd.nguoiDung.email,
           soDienThoai: hd.nguoiDung.soDienThoai,
-        },
+        } : null,
         tongTien: hd.tongTien,
         phuongThucThanhToan: hd.phuongThucThanhToan,
         ngayThanhToan: hd.ngayThanhToan,

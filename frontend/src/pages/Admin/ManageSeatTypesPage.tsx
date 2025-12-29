@@ -130,11 +130,11 @@ const ManageSeatTypesPage: React.FC = () => {
     <AdminLayout>
       <div className="w-full space-y-6">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Loại Ghế</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Loại Ghế</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Thêm, sửa, xóa các loại ghế trong rạp (Thường, VIP, Sweetbox, Couple,...)
               </p>
             </div>
@@ -218,7 +218,7 @@ const ManageSeatTypesPage: React.FC = () => {
 
         {/* Modal Thêm */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Thêm Loại Ghế Mới</DialogTitle>
               <DialogDescription>Nhập thông tin loại ghế mới.</DialogDescription>
@@ -276,7 +276,7 @@ const ManageSeatTypesPage: React.FC = () => {
 
         {/* Modal Sửa */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Sửa Loại Ghế</DialogTitle>
               <DialogDescription>Cập nhật thông tin loại ghế.</DialogDescription>
@@ -332,7 +332,7 @@ const ManageSeatTypesPage: React.FC = () => {
 
         {/* Modal Xóa */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Xóa Loại Ghế</DialogTitle>
               <DialogDescription>

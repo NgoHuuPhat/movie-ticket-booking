@@ -10,7 +10,7 @@ class LoaiNguoiDungsController {
       const userTypes = await prisma.lOAINGUOIDUNG.findMany()
       res.status(200).json(userTypes)
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error', error })
+      res.status(500).json({ message: 'Internal server error' })
     }
   }
 

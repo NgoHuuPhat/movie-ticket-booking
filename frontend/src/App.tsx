@@ -35,9 +35,11 @@ import ManageProductCategoriesPage from "@/pages/Admin/ManageProductCategoriesPa
 import ManageCombosPage from "@/pages/Admin/ManageCombosPage"
 import ManageProductsPage from "@/pages/Admin/ManageProductsPage"
 import ManageUsersPage from "@/pages/Admin/ManageUsersPage"
+import ManageShiftsPage from "@/pages/Admin/ManageShiftsPage"
 
 import DashboardStaffPage from "@/pages/Staff/DashboardPage"
 import ManageTicketStaffPage from "@/pages/Staff/ManageTicketPage"
+import ManageWorkSchedulesPage from "@/pages/Admin/ManageWorkSchedulesPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -99,6 +101,10 @@ function App(){
           <Route path="/admin/discount-codes" element={<div>Manage Discount Codes Page</div>} />
 
           <Route path="/admin/users" element={<ManageUsersPage />} />
+
+          <Route path="/admin/shifts" element={<ManageShiftsPage />} />
+          <Route path="/admin/assign-shifts" element={<ManageWorkSchedulesPage />} />
+
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
 

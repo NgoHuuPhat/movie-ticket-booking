@@ -232,11 +232,11 @@ const ManageProductsPage = () => {
     <AdminLayout>
       <div className="max-w-8xl mx-auto pb-10">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Sản Phẩm</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Sản Phẩm</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Quản lý toàn bộ sản phẩm trong hệ thống
               </p>
             </div>
@@ -248,7 +248,7 @@ const ManageProductsPage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -451,7 +451,7 @@ const ManageProductsPage = () => {
 
         {/* Dialog Thêm */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="md:max-w-[700px]">
             <DialogHeader>
               <DialogTitle>Thêm Sản Phẩm Mới</DialogTitle>
               <DialogDescription>
@@ -468,7 +468,7 @@ const ManageProductsPage = () => {
 
         {/* Dialog Sửa */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="md:max-w-[700px]">
             <DialogHeader>
               <DialogTitle>Sửa Sản Phẩm</DialogTitle>
               <DialogDescription>
@@ -493,7 +493,7 @@ const ManageProductsPage = () => {
 
         {/* Dialog Xóa */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="md:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Xác nhận xóa</DialogTitle>
               <DialogDescription>
@@ -539,7 +539,7 @@ const ManageProductsPage = () => {
 
         {/* Dialog Xem chi tiết */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="md:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Chi tiết sản phẩm</DialogTitle>
             </DialogHeader>

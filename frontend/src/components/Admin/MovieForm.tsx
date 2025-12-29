@@ -78,7 +78,7 @@ export const MovieForm = ({
  
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 sm:grid-cols-2 py-4" id="movie-form">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 md:grid-cols-2 py-4" id="movie-form">
       <div className="space-y-5">
         <div>
           <Label htmlFor="tenPhim">Tên phim <span className="text-red-600">*</span></Label>

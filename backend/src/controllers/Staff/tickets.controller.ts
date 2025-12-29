@@ -66,7 +66,7 @@ class VesController {
           orderBy: { [sortFields]: sortOrder },
           include: {
             nguoiDung: true,
-            nhanVienDat: true,
+            nhanVienBanVe: true,
             ves: {
               include: {
                 gheSuatChieu: {
@@ -106,16 +106,16 @@ class VesController {
         maHoaDon: hd.maHoaDon,
         maQR: hd.maQR,
         maNguoiDung: hd.maNguoiDung,
-        nhanVienDat: hd.nhanVienDat ? {
-          hoTen: hd.nhanVienDat.hoTen,
-          email: hd.nhanVienDat.email,
-          soDienThoai: hd.nhanVienDat.soDienThoai,
+        nhanVienBanVe: hd.nhanVienBanVe ? {
+          hoTen: hd.nhanVienBanVe.hoTen,
+          email: hd.nhanVienBanVe.email,
+          soDienThoai: hd.nhanVienBanVe.soDienThoai,
         } : null,
-        nguoiDung: {
+        nguoiDung: hd.nguoiDung ? {
           hoTen: hd.nguoiDung.hoTen,
           email: hd.nguoiDung.email,
           soDienThoai: hd.nguoiDung.soDienThoai,
-        },
+        } : null,
         tongTien: hd.tongTien,
         phuongThucThanhToan: hd.phuongThucThanhToan,
         ngayThanhToan: hd.ngayThanhToan,

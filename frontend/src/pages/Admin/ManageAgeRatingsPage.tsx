@@ -134,11 +134,11 @@ const ManageAgeRatingsPage: React.FC = () => {
     <AdminLayout>
       <div className="w-full space-y-6">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Phân Loại Độ Tuổi Phim</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Phân Loại Độ Tuổi Phim</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Thêm, sửa hoặc xóa các phân loại độ tuổi cho phim chiếu tại rạp
               </p>
             </div>
@@ -228,7 +228,7 @@ const ManageAgeRatingsPage: React.FC = () => {
 
         {/* Modal add age rating */}
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Thêm Phân Loại Độ Tuổi Mới</DialogTitle>
               <DialogDescription>Nhập thông tin phân loại độ tuổi mới.</DialogDescription>
@@ -286,7 +286,7 @@ const ManageAgeRatingsPage: React.FC = () => {
 
         {/* Modal edit age rating */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Sửa Phân Loại Độ Tuổi</DialogTitle>
               <DialogDescription>Cập nhật thông tin phân loại.</DialogDescription>
@@ -342,7 +342,7 @@ const ManageAgeRatingsPage: React.FC = () => {
 
         {/* Modal delete age rating */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Xóa Phân Loại Độ Tuổi</DialogTitle>
               <DialogDescription>

@@ -278,11 +278,11 @@ const ManageUsersPage = () => {
     <AdminLayout>
       <div className="max-w-8xl mx-auto pb-10">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Người Dùng</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Người Dùng</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Quản lý toàn bộ tài khoản người dùng trong hệ thống
               </p>
             </div>
@@ -316,7 +316,7 @@ const ManageUsersPage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -515,7 +515,7 @@ const ManageUsersPage = () => {
 
         {/* Dialog Thêm người dùng */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="md:max-w-[700px]">
             <DialogHeader>
               <DialogTitle>Thêm Người Dùng Mới</DialogTitle>
               <DialogDescription>
@@ -524,7 +524,7 @@ const ManageUsersPage = () => {
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onCreateSubmit)} className="space-y-6 py-4">
-              <div className="grid gap-6 sm:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-5">
                   <div>
                     <label className="block text-sm font-medium">Họ và tên <span className="text-red-600">*</span></label>
@@ -647,7 +647,7 @@ const ManageUsersPage = () => {
 
         {/* Dialog Xóa */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="md:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Xác nhận xóa</DialogTitle>
               <DialogDescription>
@@ -687,7 +687,7 @@ const ManageUsersPage = () => {
 
         {/* Dialog Xem chi tiết */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="md:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Chi tiết người dùng</DialogTitle>
             </DialogHeader>

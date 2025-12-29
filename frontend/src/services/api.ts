@@ -501,3 +501,44 @@ export const scanTicketStaff = async (maQR: string) => {
   const res = await request.post("/staff/tickets/scan", { maQR })
   return res.data
 }
+
+export const getAllShiftsAdmin = async (search?: string) => {
+  const res = await request.get("/admin/shifts", { params: { search } })
+  return res.data
+}
+
+export const createShiftAdmin = async (tenCaLam: string, gioBatDau: string, gioKetThuc: string) => {
+  const res = await request.post("/admin/shifts", { tenCaLam, gioBatDau, gioKetThuc })
+  return res.data
+}
+
+export const updateShiftAdmin = async (id: string, tenCaLam: string, gioBatDau: string, gioKetThuc: string) => {
+  const res = await request.patch(`/admin/shifts/${id}`, { tenCaLam, gioBatDau, gioKetThuc })
+  return res.data
+}
+
+export const deleteShiftAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/shifts/${id}`)
+  return res.data
+}
+
+export const getAllWorkSchedulesAdmin = async (params: { ngayLam?: string, maCaLam?: string, viTriLam?: string, search?: string, page?: number }) => {
+  const res = await request.get("/admin/workschedules", { params })
+  return res.data
+}
+
+export const createWorkScheduleAdmin = async (maNhanVien: string, maCaLam: string, ngayLam: string, viTriLam: string) => {
+  const res = await request.post("/admin/workschedules", { maNhanVien, maCaLam, ngayLam, viTriLam })
+  return res.data
+}
+
+export const updateWorkScheduleAdmin = async (maNhanVien: string, maCaLam: string, ngayLam: string, viTriLam: string) => {
+  const res = await request.patch(`/admin/workschedules/${maNhanVien}/${maCaLam}/${ngayLam}`, { viTriLam })
+  return res.data
+}
+
+export const deleteWorkScheduleAdmin = async (maNhanVien: string, maCaLam: string, ngayLam: string) => {
+  const res = await request.delete(`/admin/workschedules/${maNhanVien}/${maCaLam}/${ngayLam}`)
+  return res.data
+}
+

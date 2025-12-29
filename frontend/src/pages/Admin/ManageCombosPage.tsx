@@ -240,11 +240,11 @@ const ManageCombosPage = () => {
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto pb-10">
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Combo</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">Quản lý các combo khuyến mãi tại rạp</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Combo</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">Quản lý các combo khuyến mãi tại rạp</p>
             </div>
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> Thêm Combo
@@ -254,7 +254,7 @@ const ManageCombosPage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -415,7 +415,7 @@ const ManageCombosPage = () => {
 
         {/* Modals */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-2xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Thêm Combo Mới</DialogTitle>
               <DialogDescription>Nhập thông tin combo để thêm vào hệ thống.</DialogDescription>
@@ -447,7 +447,7 @@ const ManageCombosPage = () => {
         </Dialog>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-2xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Sửa Combo - {selectedCombo?.tenCombo}</DialogTitle>
               <DialogDescription>Cập nhật thông tin combo.</DialogDescription>
@@ -492,7 +492,7 @@ const ManageCombosPage = () => {
 
         {/* View Dialog */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
+          <DialogContent className="md:max-w-[600px] max-h-[80vh]">
             <DialogHeader>
               <DialogTitle>Chi Tiết Combo</DialogTitle>
             </DialogHeader>
@@ -503,7 +503,7 @@ const ManageCombosPage = () => {
                   <img
                     src={selectedCombo.anhCombo}
                     alt={selectedCombo.tenCombo}
-                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded"
+                    className="w-24 h-24 md:w-32 md:h-32 object-cover rounded"
                   />
                   <div className="flex-1 min-w-0 space-y-1">
                     <h3 className="text-xl font-semibold truncate">{selectedCombo.tenCombo}</h3>
@@ -556,7 +556,7 @@ const ManageCombosPage = () => {
 
         {/* Delete Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle>Xóa Combo</DialogTitle>
               <DialogDescription>

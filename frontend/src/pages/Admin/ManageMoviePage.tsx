@@ -349,18 +349,18 @@ const ManageMoviePage = () => {
     <AdminLayout>
       <div className="max-w-7xl mx-auto pb-10">
         {/* Header + Stats */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Quản Lý Phim</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">Quản lý toàn bộ phim trong hệ thống rạp chiếu</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Phim</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">Quản lý toàn bộ phim trong hệ thống rạp chiếu</p>
             </div>
             <Button onClick={() => { resetForm(); setIsAddDialogOpen(true) }}>
               <Plus className="mr-2 h-4 w-4" /> Thêm Phim Mới
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { title: "Tổng số phim", value: stats.total, icon: <Film className="h-5 w-5" />, color: "bg-purple-500" },
               { title: "Đang chiếu", value: stats.dangChieu, icon: <Video className="h-5 w-5" />, color: "bg-green-500" },
@@ -368,11 +368,11 @@ const ManageMoviePage = () => {
               { title: "Đã kết thúc", value: stats.daKetThuc, icon: <Clock className="h-5 w-5" />, color: "bg-gray-500" },
             ].map((card, i) => (
               <Card key={i} className="bg-white/50 shadow-sm hover:shadow-md transition-all">
-                <CardContent className="p-4 sm:p-6">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-600">{card.title}</p>
-                      <p className="text-2xl sm:text-3xl font-bold">{card.value}</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-600">{card.title}</p>
+                      <p className="text-2xl md:text-3xl font-bold">{card.value}</p>
                     </div>
                     <div className={`${card.color} p-3 rounded-lg text-white`}>{card.icon}</div>
                   </div>
@@ -384,7 +384,7 @@ const ManageMoviePage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -442,7 +442,7 @@ const ManageMoviePage = () => {
               {selectedMovieIds.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="sm:w-auto">
+                    <Button variant="outline" className="md:w-auto">
                       <CheckSquare className="mr-2 h-4 w-4" />
                       Actions ({selectedMovieIds.length})
                     </Button>
@@ -559,7 +559,7 @@ const ManageMoviePage = () => {
 
         {/* Modal add movie */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-[900px] max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Thêm Phim Mới</DialogTitle>
               <DialogDescription>Nhập đầy đủ thông tin phim để thêm vào hệ thống.</DialogDescription>
@@ -593,7 +593,7 @@ const ManageMoviePage = () => {
 
         {/* Modal Sửa Phim */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-[900px] max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Sửa Phim</DialogTitle>
               <DialogDescription>Nhập đầy đủ thông tin phim để thêm vào hệ thống.</DialogDescription>
@@ -628,7 +628,7 @@ const ManageMoviePage = () => {
 
         {/* Modal Xóa Phim */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="md:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Xóa Phim</DialogTitle>
               <DialogDescription>Bạn có chắc chắn muốn xóa phim này? Hành động này không thể hoàn tác.</DialogDescription>
@@ -653,7 +653,7 @@ const ManageMoviePage = () => {
 
         {/* Modal Xem Chi Tiết Phim */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
+          <DialogContent className="md:max-w-[700px] max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>Chi Tiết Phim</DialogTitle>
             </DialogHeader>

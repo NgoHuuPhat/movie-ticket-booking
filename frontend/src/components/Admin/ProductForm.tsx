@@ -46,7 +46,7 @@ export const ProductForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-5">
           <div>
             <Label>Tên sản phẩm <span className="text-red-600">*</span></Label>

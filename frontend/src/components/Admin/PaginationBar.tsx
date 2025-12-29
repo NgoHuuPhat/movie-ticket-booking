@@ -112,9 +112,9 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
   }
 
   return (
-    <div className={`mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 ${className}`}>
+    <div className={`mt-6 flex flex-col md:flex-row items-center justify-between gap-4 ${className}`}>
       <p
-        className={"text-sm text-gray-600 sm:order-1"}
+        className={"text-sm text-gray-600 md:order-1"}
       >
         {totalItems > 0
           ? `Hiển thị ${startIndex} đến ${endIndex} trong tổng số ${totalItems} mục (Trang ${currentPage} trên ${totalPages})`
@@ -122,7 +122,7 @@ const PaginationBar: React.FC<PaginationBarProps> = ({
       </p>
 
       {totalPages >= 1 && (
-        <div className="w-full sm:w-auto sm:order-2 flex justify-end">
+        <div className="w-full md:w-auto md:order-2 flex justify-end">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

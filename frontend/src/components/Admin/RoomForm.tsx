@@ -153,7 +153,7 @@ export const RoomForm = ({
   if (step === 1) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2">
           <div>
             <Label htmlFor="tenPhong">Tên phòng <span className="text-red-600">*</span></Label>
             <Input id="tenPhong" placeholder="Ví dụ: Phòng 1, Phòng VIP..." {...register("tenPhong")} disabled={isEdit} />

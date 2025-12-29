@@ -55,7 +55,7 @@ const QRScannerModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="md:max-w-xl">
         <DialogHeader>
           <DialogTitle>Quét hoặc nhập mã</DialogTitle>
           <DialogDescription>

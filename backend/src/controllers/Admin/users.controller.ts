@@ -56,7 +56,7 @@ class NguoiDungsController {
       res.status(200).json({ users, total, startIndex, endIndex, page: Number(page), totalPages: Math.ceil(total / Number(limit)) })
     } catch (error) {
       console.error(error)
-      res.status(500).json({ message: 'Internal server error', error })
+      res.status(500).json({ message: 'Internal server error' })
     }
   }
 
@@ -125,7 +125,7 @@ class NguoiDungsController {
       res.status(201).json({message: 'Tạo người dùng thành công', newUser})
     } catch (error) {
       console.error(error)
-      res.status(500).json({ message: 'Internal server error', error })
+      res.status(500).json({ message: 'Internal server error' })
     }
   }
 
@@ -182,7 +182,7 @@ class NguoiDungsController {
       res.status(200).json({ message: 'Cập nhật trạng thái người dùng thành công' })
     } catch (error) {
       console.error(error)
-      res.status(500).json({ message: 'Internal server error', error })
+      res.status(500).json({ message: 'Internal server error' })
     }
   }
   
@@ -196,7 +196,7 @@ class NguoiDungsController {
       res.status(204).json({message: 'Xóa người dùng thành công'})
     } catch (error) {
       console.error(error)
-      res.status(500).json({ message: 'Internal server error', error })
+      res.status(500).json({ message: 'Internal server error' })
     }
   }
 

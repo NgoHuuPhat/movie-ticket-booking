@@ -77,7 +77,7 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
             className="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 text-sm font-medium transition"
           >
             <Play className="w-5 h-5" />
-            <span className="hidden sm:inline">Trailer</span>
+            <span className="hidden md:inline">Trailer</span>
           </button>
           
           {isComingSoon ? (

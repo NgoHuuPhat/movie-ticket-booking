@@ -63,7 +63,7 @@ interface IInvoiceDisplay {
     email: string
     soDienThoai: string
   }
-  nhanVienDat: {
+  nhanVienBanVe: {
     hoTen: string
     email: string
     soDienThoai: string
@@ -169,11 +169,11 @@ const ManageTicketPage = () => {
     <StaffLayout>
       <div className="max-w-8xl mx-auto pb-10">
         {/* Header + Stats */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Danh sách Hóa Đơn Vé</h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Danh sách Hóa Đơn Vé</h1>
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Theo dõi danh sách hóa đơn vé đã được đặt.
               </p>
             </div>
@@ -182,7 +182,7 @@ const ManageTicketPage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4 flex-wrap">
               <div className="relative flex-1 min-w-[280px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -307,8 +307,8 @@ const ManageTicketPage = () => {
                               <div className="text-xs text-gray-500">{invoice.nguoiDung.email}</div>
                             </td>
                             <td className="p-4">
-                              <div className="font-medium">{invoice.nhanVienDat ? invoice.nhanVienDat.hoTen : ""} </div>
-                              <div className="text-xs text-gray-500">{invoice.nhanVienDat ? invoice.nhanVienDat.email : ""}</div>
+                              <div className="font-medium">{invoice.nhanVienBanVe ? invoice.nhanVienBanVe.hoTen : ""} </div>
+                              <div className="text-xs text-gray-500">{invoice.nhanVienBanVe ? invoice.nhanVienBanVe.email : ""}</div>
                             </td>
                             <td className="p-4">
                               <Badge variant="secondary" className="font-medium bg-purple-100 text-purple-800">
@@ -589,7 +589,7 @@ const ManageTicketPage = () => {
 
         {/* Dialog Chi tiết hóa đơn */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="md:max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Chi tiết hóa đơn #{selectedInvoice?.maHoaDon}</DialogTitle>
               <DialogDescription>Thông tin chi tiết về hóa đơn và các mục đã mua</DialogDescription>
@@ -614,11 +614,11 @@ const ManageTicketPage = () => {
                       <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.email}</p>
                       <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.soDienThoai}</p>
                     </div>
-                    {selectedInvoice.nhanVienDat && (
+                    {selectedInvoice.nhanVienBanVe && (
                       <div>
                         <Label className="text-sm text-gray-600">Nhân viên đặt</Label>
-                        <p className="font-medium">{selectedInvoice.nhanVienDat.hoTen}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienDat.email}</p>
+                        <p className="font-medium">{selectedInvoice.nhanVienBanVe.hoTen}</p>
+                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienBanVe.email}</p>
                       </div>
                     )}
                   </div>
@@ -784,7 +784,7 @@ const ManageTicketPage = () => {
 
         {/* Dialog Xác nhận hủy hóa đơn */}
         <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="md:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-red-600">Hủy hóa đơn</DialogTitle>
               <DialogDescription>

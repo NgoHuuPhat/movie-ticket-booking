@@ -301,13 +301,13 @@ const ManageRoomsPage = () => {
     <AdminLayout>
       <div className="max-w-7xl mx-auto pb-10">
         {/* Header */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                 Quản Lý Phòng Chiếu
               </h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600">
+              <p className="mt-2 text-sm md:text-base text-gray-600">
                 Quản lý các phòng chiếu phim trong rạp
               </p>
             </div>
@@ -316,15 +316,15 @@ const ManageRoomsPage = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="bg-white/50 shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                    <p className="text-xs md:text-sm font-medium text-gray-600">
                       Tổng số phòng
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold">{totalRooms}</p>
+                    <p className="text-2xl md:text-3xl font-bold">{totalRooms}</p>
                   </div>
                   <div className="bg-indigo-500 p-3 rounded-lg text-white">
                     <Building2 className="h-5 w-5" />
@@ -334,13 +334,13 @@ const ManageRoomsPage = () => {
             </Card>
 
             <Card className="bg-white/50 shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                    <p className="text-xs md:text-sm font-medium text-gray-600">
                       Đang hoạt động
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold">
+                    <p className="text-2xl md:text-3xl font-bold">
                       {rooms.filter((r) => r.hoatDong).length}
                     </p>
                   </div>
@@ -352,13 +352,13 @@ const ManageRoomsPage = () => {
             </Card>
 
             <Card className="bg-white/50 shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                    <p className="text-xs md:text-sm font-medium text-gray-600">
                       Tạm dừng
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold">
+                    <p className="text-2xl md:text-3xl font-bold">
                       {rooms.filter((r) => !r.hoatDong).length}
                     </p>
                   </div>
@@ -373,7 +373,7 @@ const ManageRoomsPage = () => {
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -422,7 +422,7 @@ const ManageRoomsPage = () => {
               {selectedRoomIds.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="sm:w-auto">
+                    <Button variant="outline" className="md:w-auto">
                       <CheckSquare className="mr-2 h-4 w-4" />
                       Actions ({selectedRoomIds.length})
                     </Button>
@@ -549,7 +549,7 @@ const ManageRoomsPage = () => {
 
         {/* Modal add room */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-4xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Thêm Phòng Chiếu Mới</DialogTitle>
               <DialogDescription>
@@ -570,7 +570,7 @@ const ManageRoomsPage = () => {
 
         {/* Modal update room */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-[600px] max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Sửa Phòng Chiếu</DialogTitle>
               <DialogDescription>
@@ -642,7 +642,7 @@ const ManageRoomsPage = () => {
 
         {/* Modal view/edit seats */}
         <Dialog open={isSeatViewDialogOpen} onOpenChange={setIsSeatViewDialogOpen}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-[900px] max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Sơ đồ ghế - {selectedRoom?.tenPhong}</DialogTitle>
               <DialogDescription>
@@ -676,7 +676,7 @@ const ManageRoomsPage = () => {
 
         {/* Modal delete room */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="md:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Xóa Phòng Chiếu</DialogTitle>
               <DialogDescription>
