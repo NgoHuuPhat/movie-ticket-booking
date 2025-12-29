@@ -4,7 +4,6 @@ import {
   Menu, 
   Settings, 
   LogOut,
-  ScanLine,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,17 +18,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import useAuthStore from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router-dom'
-import QRScannerModal from '@/components/Staff/QRScannerModal'
-import { useState } from 'react'
-import TicketDetailModal from '@/components/Staff/TicketDetailModal'
 
 const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const { user, signOut } = useAuthStore()
   const navigate = useNavigate()
-
-  const [showScanner, setShowScanner] = useState(false)
-  const [showDetail, setShowDetail] = useState(false)
-  const [currentQRCode, setCurrentQRCode] = useState("")
 
   const handleLogout = async () => {
     try {
@@ -68,10 +60,6 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setShowScanner(true)}>
-            <ScanLine></ScanLine>
-          </Button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -109,21 +97,6 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
           </DropdownMenu>
         </div>
       </div>
-
-      <QRScannerModal 
-        open={showScanner}
-        onOpenChange={setShowScanner}
-        onScanSuccess={(text) => {
-          setCurrentQRCode(text)
-          setShowDetail(true)
-        }}
-      />
-
-      <TicketDetailModal
-        open={showDetail}
-        onOpenChange={setShowDetail}
-        ticketCode={currentQRCode}
-      />
     </header>
   )
 }

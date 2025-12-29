@@ -41,7 +41,6 @@ class VesController {
       }
 
       if(date) {
-        console.log("date filter in backend:", date)
         const VN_TZ = 'Asia/Ho_Chi_Minh'
         const startOfDayUtc = toZonedTime(date as string, VN_TZ)
         startOfDayUtc.setHours(0,0,0,0)
@@ -88,7 +87,15 @@ class VesController {
             },
             hoaDonCombos: {
               include: {
-                combo: true
+                combo: {
+                  include: {
+                    chiTietCombos: {
+                      include: {
+                        sanPham: true
+                      }
+                    }
+                  }
+                }
               }
             },
             hoaDonSanPhams: {
@@ -142,7 +149,12 @@ class VesController {
           donGia: hc.donGia,
           tongTien: hc.tongTien,
           daLay: hc.daLay,
-          thoiGianLay: hc.thoiGianLay
+          thoiGianLay: hc.thoiGianLay,
+          chiTietCombos: hc.combo.chiTietCombos.map(ctc => ({
+            maSanPham: ctc.maSanPham,
+            tenSanPham: ctc.sanPham.tenSanPham,
+            soLuong: ctc.soLuong,
+          }))
         })),
         sanPhams: hd.hoaDonSanPhams.map(hs => ({
           maSanPham: hs.maSanPham,
@@ -164,12 +176,10 @@ class VesController {
     }
   }
 
-  // [POST] /tickets/scan
+  // [POST] /tickets/scan-ticket
   async scanTicket(req: IUserRequest, res: Response) {
     try {
       const { maQR } = req.body
-      const maNhanVienSoat = req.user?.maNguoiDung
-
       const hoaDon = await prisma.hOADON.findUnique({
         where: { maQR },
         include: {
@@ -215,33 +225,15 @@ class VesController {
             phuongThucThanhToan: hoaDon.phuongThucThanhToan,
             ngayThanhToan: hoaDon.ngayThanhToan,
             ves: hoaDon.ves,
-            combos: hoaDon.hoaDonCombos,
-            sanPhams: hoaDon.hoaDonSanPhams
           }
         })
       }
 
-      await prisma.$transaction(async (prisma) => {
-        await prisma.vE.updateMany({
-          where: { maHoaDon: hoaDon.maHoaDon },
-          data: {
-            trangThai: 'DaCheckIn',
-            thoiGianCheckIn: new Date(),
-            maNhanVienSoat
-          }
-        })
-
-        if(hoaDon.hoaDonCombos.length > 0) {
-          await prisma.hOADON_COMBO.updateMany({
-            where: { maHoaDon: hoaDon.maHoaDon, daLay: false },
-            data: { daLay: true, thoiGianLay: new Date() }
-          })
-        }
-        if(hoaDon.hoaDonSanPhams.length > 0) {
-          await prisma.hOADON_SANPHAM.updateMany({
-            where: { maHoaDon: hoaDon.maHoaDon, daLay: false },
-            data: { daLay: true, thoiGianLay: new Date() }
-          })
+      await prisma.vE.updateMany({
+        where: { maHoaDon: hoaDon.maHoaDon },
+        data: {
+          trangThai: 'DaCheckIn',
+          thoiGianCheckIn: new Date(),
         }
       })
 
@@ -253,10 +245,90 @@ class VesController {
           phuongThucThanhToan: hoaDon.phuongThucThanhToan,
           ngayThanhToan: hoaDon.ngayThanhToan,
           ves: hoaDon.ves,
-          combos: hoaDon.hoaDonCombos,
-          sanPhams: hoaDon.hoaDonSanPhams
         }
       })
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
+  // [POST] /tickets/scan-food
+  async scanFood(req: IUserRequest, res: Response) {
+    try {
+      const { maQR } = req.body
+      const hoaDon = await prisma.hOADON.findUnique({
+        where: { maQR },
+        include: {
+          hoaDonCombos: {
+            include: {
+              combo: {
+                include: {
+                  chiTietCombos: {
+                    include: {
+                      sanPham: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          hoaDonSanPhams: {
+            include: {
+              sanPham: true  
+            }
+          }
+        }
+      })
+      if (!hoaDon) {
+        return res.status(404).json({ message: 'Mã QR không hợp lệ' })
+      }
+
+      const hasFood = hoaDon.hoaDonSanPhams.length > 0 || hoaDon.hoaDonCombos.length > 0
+      if (!hasFood) {
+        return res.status(400).json({ message: 'Hóa đơn không có bắp nước để lấy' })
+      }
+
+      const daLaySanPham = hoaDon.hoaDonSanPhams.some(v => v.daLay === true) 
+      const daLayCombo   = hoaDon.hoaDonCombos.some(v => v.daLay === true)
+
+      if(daLaySanPham || daLayCombo) {
+        return res.status(400).json({ 
+          message: `Hóa đơn bắp nước đã được lấy trước đó rồi.`,
+          data: {
+            maHoaDon: hoaDon.maHoaDon,
+            tongTien: hoaDon.tongTien,
+            phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+            ngayThanhToan: hoaDon.ngayThanhToan,
+            hoaDonCombos: hoaDon.hoaDonCombos,
+            hoaDonSanPhams: hoaDon.hoaDonSanPhams,
+          }
+        })
+      }
+
+      await prisma.$transaction([
+        prisma.hOADON_COMBO.updateMany({
+          where: { maHoaDon: hoaDon.maHoaDon },
+          data: { daLay: true, thoiGianLay: new Date() }
+        }),
+        prisma.hOADON_SANPHAM.updateMany({
+          where: { maHoaDon: hoaDon.maHoaDon },
+          data: { daLay: true, thoiGianLay: new Date() }
+        })
+      ])
+
+      res.status(200).json({
+        message: 'Lấy bắp nước thành công',
+        data: {
+          maHoaDon: hoaDon.maHoaDon,
+          tongTien: hoaDon.tongTien,
+          phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+          ngayThanhToan: hoaDon.ngayThanhToan,
+          hoaDonCombos: hoaDon.hoaDonCombos,
+          hoaDonSanPhams: hoaDon.hoaDonSanPhams,
+        }
+      })
+      
     } catch (error) {
       console.error(error)
       return res.status(500).json({ message: 'Internal server error' })

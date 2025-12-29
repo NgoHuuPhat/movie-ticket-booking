@@ -177,7 +177,7 @@ export const ComboForm = ({
                         <SelectContent>
                           {availableProducts.map((prod) => (
                             <SelectItem key={prod.maSanPham} value={prod.maSanPham}>
-                              {prod.tenSanPham} ({prod.maSanPham}) - {prod.giaTien.toLocaleString()}đ
+                              {prod.tenSanPham} ({prod.maSanPham}) - {Number(prod.giaTien).toLocaleString()} VNĐ
                             </SelectItem>
                           ))}
                         </SelectContent>

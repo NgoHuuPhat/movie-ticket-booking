@@ -121,9 +121,11 @@ export default function CheckoutPage() {
   const calculateDiscount = () => {
     if (!appliedDiscount) return 0
     const baseTotal = getGrandTotal()
+    const giaTriGiam = Number(appliedDiscount.giaTriGiam) || 0
+    
     return appliedDiscount.loaiKhuyenMai === "GiamGiaTien" 
-      ? appliedDiscount.giaTriGiam 
-      : Math.round(baseTotal * appliedDiscount.giaTriGiam / 100)
+      ? giaTriGiam
+      : Math.round(baseTotal * giaTriGiam / 100)
   }
 
   const calculateFinalTotal = () => getGrandTotal() - calculateDiscount()
@@ -134,11 +136,14 @@ export default function CheckoutPage() {
       const payload = {
         maPhim: movie.maPhim,
         maSuatChieu: showtime.maSuatChieu,
-        selectedSeats: selectedSeats.map(s => ({ maGhe: s.maGhe, giaTien: s.giaTien })),
+        selectedSeats: selectedSeats.map(s => ({ 
+          maGhe: s.maGhe, 
+          giaTien: Number(s.giaTien) || 0 
+        })),
         selectedFoods: selectedFoods.map(f => ({
           maSanPham: f.maSanPham,
-          soLuong: f.soLuong,
-          donGia: f.donGia,
+          soLuong: Number(f.soLuong) || 0,
+          donGia: Number(f.donGia) || 0,
           loai: f.loai
         })),
         maCodeKhuyenMai: appliedDiscount?.maCode,
@@ -170,12 +175,12 @@ export default function CheckoutPage() {
     },
     seats: selectedSeats.map(seat => ({
       ghe: `${seat.hangGhe}${seat.soGhe}`,
-      donGia: seat.giaTien,
+      donGia: Number(seat.giaTien) || 0,  
       loai: seat.tenLoaiGhe
     })),
     foods: selectedFoods.map(food => ({
       tenSanPham: `${food.soLuong}x ${food.tenSanPham}`,
-      donGia: food.donGia * food.soLuong,
+      donGia: (Number(food.donGia) || 0) * (Number(food.soLuong) || 0), 
       loai: food.loai,
     })),
     total: getGrandTotal()

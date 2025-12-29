@@ -5,7 +5,7 @@ import { tr } from 'date-fns/locale'
 
 class VesController {
 
-  // [GET] /api/tickets
+  // [GET] /admin/tickets
   async getInvoicesWithDetails(req: Request, res: Response) {
     try {
       const { thanhToan, phim, date, hinhThuc, search, page = 1, sortField = 'maHoaDon', sortOrder = 'desc' } = req.query
@@ -66,6 +66,7 @@ class VesController {
           orderBy: { [sortFields]: sortOrder },
           include: {
             nguoiDung: true,
+            nhanVienBanVe: true,
             ves: {
               include: {
                 gheSuatChieu: { 
@@ -79,7 +80,6 @@ class VesController {
                     }
                   }
                 },
-                nhanVienSoat: true
               }
             },
             hoaDonCombos: {
@@ -102,15 +102,15 @@ class VesController {
         maHoaDon: hd.maHoaDon,
         maQR: hd.maQR,
         maNguoiDung: hd.maNguoiDung,
-        nhanVienSoat: hd.ves.length > 0 && hd.ves[0].nhanVienSoat ? {
-          hoTen: hd.ves[0].nhanVienSoat.hoTen,
-          email: hd.ves[0].nhanVienSoat.email,
-          soDienThoai: hd.ves[0].nhanVienSoat.soDienThoai,
-        } : null,
         nguoiDung: hd.nguoiDung ? {
           hoTen: hd.nguoiDung.hoTen,
           email: hd.nguoiDung.email,
           soDienThoai: hd.nguoiDung.soDienThoai,
+        } : null,
+        nhanVienBanVe: hd.nhanVienBanVe ? {
+          hoTen: hd.nhanVienBanVe.hoTen,
+          email: hd.nhanVienBanVe.email,
+          soDienThoai: hd.nhanVienBanVe.soDienThoai,
         } : null,
         tongTien: hd.tongTien,
         phuongThucThanhToan: hd.phuongThucThanhToan,
@@ -159,7 +159,7 @@ class VesController {
     }
   }
 
-  // [GET] /tickets/stats
+  // [GET] /admin/tickets/stats
   async getTicketStats(req: Request, res: Response) {
     try {
       const [totalTickets, checkedInTickets, onlineTickets, offlineTickets, totalRevenue] =

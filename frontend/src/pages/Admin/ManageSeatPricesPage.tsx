@@ -199,7 +199,7 @@ const ManageSeatPricesPage: React.FC = () => {
                     </tr>
                   ) : (
                     prices.map((item) => (
-                      <tr key={`${item.maLoaiPhong}-${item.maLoaiGhe}`} className="border-b hover:bg-gray-50/50">
+                      <tr key={`${item.maLoaiPhong}-${item.maLoaiGhe}`} className="text-sm border-b hover:bg-gray-50/50">
                         <td className="p-4">
                           <Badge variant="outline">{item.loaiPhongChieu.tenLoaiPhong}</Badge>
                         </td>
@@ -207,7 +207,7 @@ const ManageSeatPricesPage: React.FC = () => {
                           <Badge>{item.loaiGhe.tenLoaiGhe}</Badge>
                         </td>
                         <td className="p-4 text-right font-medium">
-                          {item.giaTien.toLocaleString()}
+                          {Number(item.giaTien).toLocaleString()} VNĐ
                         </td>
                         <td className="p-4 text-right">
                           <Button size="sm" variant="ghost" onClick={() => openEditModal(item)}>

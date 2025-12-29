@@ -355,14 +355,14 @@ const ManageCombosPage = () => {
                         </td>
                         <td className="p-4 font-medium max-w-48 truncate">{combo.tenCombo}</td>
                         <td className="p-4 text-sm text-gray-500 line-through">
-                          {combo.giaGoc.toLocaleString()} VNĐ
+                          {Number(combo.giaGoc).toLocaleString()} VNĐ
                         </td>
                         <td className="p-4 font-semibold text-green-600 text-sm">
-                          {combo.giaBan.toLocaleString()} VNĐ
+                          {Number(combo.giaBan).toLocaleString()} VNĐ
                         </td>
                         <td className="p-4">
                           <Badge variant="destructive" className="text-xs">
-                            -{calculateDiscount(combo.giaGoc, combo.giaBan)}%
+                            -{calculateDiscount(Number(combo.giaGoc), Number(combo.giaBan))}%
                           </Badge>
                         </td>
                         <td className="p-4 pt-6">
@@ -515,15 +515,15 @@ const ManageCombosPage = () => {
                 <div className="flex justify-between">
                   <div>
                     <p className="text-sm text-gray-500">Giá gốc</p>
-                    <p className="line-through text-gray-400">{selectedCombo.giaGoc.toLocaleString("vi-VN")} ₫</p>
+                    <p className="line-through text-gray-400">{Number(selectedCombo.giaGoc).toLocaleString()} VNĐ</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Giá bán</p>
-                    <p className="font-bold text-green-600">{selectedCombo.giaBan.toLocaleString("vi-VN")} ₫</p>
+                    <p className="font-bold text-green-600">{Number(selectedCombo.giaBan).toLocaleString()} VNĐ</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Tiết kiệm</p>
-                    <p className="font-bold text-red-600">{(selectedCombo.giaGoc - selectedCombo.giaBan).toLocaleString("vi-VN")} ₫</p>
+                    <p className="font-bold text-red-600">{(Number(selectedCombo.giaGoc) - Number(selectedCombo.giaBan)).toLocaleString()} VNĐ</p>
                   </div>
                 </div>
 
@@ -536,7 +536,7 @@ const ManageCombosPage = () => {
                           <span>{item.sanPham.tenSanPham || item.sanPham.maSanPham} ×{item.soLuong}</span>
                           {item.sanPham.giaTien && (
                             <span className="text-gray-700 font-medium">
-                              {(item.sanPham.giaTien * item.soLuong).toLocaleString("vi-VN")} ₫
+                              {(Number(item.sanPham.giaTien) * item.soLuong).toLocaleString()} VNĐ
                             </span>
                           )}
                         </li>
@@ -573,9 +573,9 @@ const ManageCombosPage = () => {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-lg truncate">{selectedCombo.tenCombo}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    <span className="line-through text-gray-500">{selectedCombo.giaGoc.toLocaleString('vi-VN')}đ</span>
+                    <span className="line-through text-gray-500">{Number(selectedCombo.giaGoc).toLocaleString()}VNĐ</span>
                     {' → '}
-                    <span className="text-green-600 font-semibold">{selectedCombo.giaBan.toLocaleString('vi-VN')}đ</span>
+                    <span className="text-green-600 font-semibold">{Number(selectedCombo.giaBan).toLocaleString()}VNĐ</span>
                   </p>
                   <p className="text-xs text-red-600 mt-1">
                     ({selectedCombo.chiTietCombos.length} sản phẩm sẽ bị xóa)

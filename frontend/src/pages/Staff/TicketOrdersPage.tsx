@@ -1,8 +1,9 @@
 import { useState, useEffect, Fragment } from "react"
 import {
-  Ticket, Search, Filter, MoreVertical, Eye, XCircle,
-  Download, ChevronDown, ChevronRight,
-  Package, ShoppingBag
+  Ticket, Search, Filter, MoreVertical, Eye,
+  ChevronDown, ChevronRight,
+  Package, ShoppingBag,
+  ScanLine
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,11 +19,13 @@ import { handleError } from "@/utils/handleError.utils"
 import { Label } from "@/components/ui/label"
 import { formatDate, formatTime } from "@/utils/formatDate"
 import StaffLayout from "@/components/layout/StaffLayout"
+import QRScannerModal from "@/components/Staff/QRScannerModal"
+import TicketDetailModal from "@/components/Staff/TicketDetailModal"
 
 interface ITicket {
   maVe: string
   giaVe: number
-  trangThai: "DaCheckIn" | "DaDat" | "DaHuy" | "DaHoanTien"
+  trangThai: "DaCheckIn" | "DaThanhToan"
   thoiGianCheckIn?: string
   suatChieu: {
     maSuatChieu: string
@@ -70,7 +73,6 @@ interface IInvoiceDisplay {
   } | null
   tongTien: number
   phuongThucThanhToan: "VNPAY" | "MOMO" | "TIENMAT"
-  trangThaiThanhToan: "DaThanhToan" | "ChuaThanhToan"
   ngayThanhToan: string
   hinhThuc: "Online" | "Offline"
   maKhuyenMai?: string
@@ -79,12 +81,16 @@ interface IInvoiceDisplay {
   sanPhams: ISanPham[]
 }
 
-const ManageTicketPage = () => {
+const TicketOrdersPage = () => {
   const [invoices, setInvoices] = useState<IInvoiceDisplay[]>([])
   const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string }>>([])
   const [expandedInvoiceIds, setExpandedInvoiceIds] = useState<string[]>([])
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<IInvoiceDisplay | null>(null)
+
+  const [showScanner, setShowScanner] = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
+  const [currentQRCode, setCurrentQRCode] = useState("")
 
   const [searchQuery, setSearchQuery] = useState("")
   const [movieFilter, setMovieFilter] = useState<"all" | string>("all")
@@ -98,7 +104,6 @@ const ManageTicketPage = () => {
   const [endIndex, setEndIndex] = useState(0)
 
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
 
   const toggleExpandInvoice = (maHoaDon: string) => {
     setExpandedInvoiceIds(prev =>
@@ -144,7 +149,6 @@ const ManageTicketPage = () => {
     }
     fetchInvoices()
   }, [currentPage, searchQuery, movieFilter, hinhThucFilter, dateFilter])
-  console.log({ invoices })
 
   const handleSelectInvoice = (invoiceId: string) => {
     setSelectedInvoiceIds(prev =>
@@ -172,11 +176,14 @@ const ManageTicketPage = () => {
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Danh sách Hóa Đơn Vé</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Hóa Đơn Vé</h1>
               <p className="mt-2 text-sm md:text-base text-gray-600">
-                Theo dõi danh sách hóa đơn vé đã được đặt.
+                Danh sách hóa đơn vé đã được đặt.
               </p>
             </div>
+            <Button onClick={() => setShowScanner(true)}>
+              <ScanLine className="mr-2 h-4 w-4" /> Quét vé
+            </Button>
           </div>
         </div>
 
@@ -259,7 +266,6 @@ const ManageTicketPage = () => {
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Khách hàng</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Nhân viên đặt</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Số vé</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-700">Tổng tiền</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Hình thức thanh toán</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Ngày mua</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Hành động</th>
@@ -274,8 +280,8 @@ const ManageTicketPage = () => {
                     </tr>
                   ) : (
                     invoices.map((invoice) => {
-                      const isExpanded = expandedInvoiceIds.includes(invoice.maHoaDon);
-                      const hasItems = invoice.combos.length > 0 || invoice.sanPhams.length > 0;
+                      const isExpanded = expandedInvoiceIds.includes(invoice.maHoaDon)
+                      const hasItems = invoice.combos.length > 0 || invoice.sanPhams.length > 0
 
                       return (
                         <Fragment key={invoice.maHoaDon}>
@@ -331,9 +337,6 @@ const ManageTicketPage = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="p-4 font-bold text-emerald-700">
-                              {invoice.tongTien.toLocaleString()} VNĐ
-                            </td>
                             <td className="p-4">
                               <Badge variant="outline">
                                 {invoice.phuongThucThanhToan} • {invoice.hinhThuc}
@@ -353,25 +356,13 @@ const ManageTicketPage = () => {
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuItem
                                     onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedInvoice(invoice);
-                                      setIsViewDialogOpen(true);
+                                      e.stopPropagation()
+                                      setSelectedInvoice(invoice)
+                                      setIsViewDialogOpen(true)
                                     }}
                                   >
                                     <Eye className="mr-2 h-4 w-4" /> Chi tiết
                                   </DropdownMenuItem>
-                                  {invoice.trangThaiThanhToan === "DaThanhToan" && (
-                                    <DropdownMenuItem
-                                      className="text-red-600 focus:text-red-600"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedInvoice(invoice);
-                                        setIsCancelDialogOpen(true);
-                                      }}
-                                    >
-                                      <XCircle className="mr-2 h-4 w-4" /> Hủy hóa đơn
-                                    </DropdownMenuItem>
-                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </td>
@@ -402,7 +393,7 @@ const ManageTicketPage = () => {
                                         </thead>
                                         <tbody className="divide-y divide-purple-100">
                                           {invoice.ves.map((ve) => {
-                                            const veStatus = getTrangThaiVeDisplay(ve.trangThai);
+                                            const veStatus = getTrangThaiVeDisplay(ve.trangThai)
                                             return (
                                               <tr key={ve.maVe} className="hover:bg-purple-50/50 transition-colors">
                                                 <td className="py-4 px-4 font-medium text-gray-800">{ve.maVe}</td>
@@ -430,7 +421,7 @@ const ManageTicketPage = () => {
                                                   </div>
                                                 </td>
                                                 <td className="py-4 px-4 font-medium text-emerald-700">
-                                                  {ve.giaVe.toLocaleString()} VNĐ
+                                                  {Number(ve.giaVe).toLocaleString()} VNĐ
                                                 </td>
                                                 <td className="py-4 px-4">
                                                   <Badge className={veStatus.color}>{veStatus.label}</Badge>
@@ -441,132 +432,18 @@ const ManageTicketPage = () => {
                                                   )}
                                                 </td>
                                               </tr>
-                                            );
+                                            )
                                           })}
                                         </tbody>
                                       </table>
                                     </div>
                                   </div>
-
-                                  {/* Combo */}
-                                  {invoice.combos.length > 0 && (
-                                    <div className="mb-8">
-                                      <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                                        <Package className="h-5 w-5 text-amber-600" />
-                                        Combo ({invoice.combos.length})
-                                      </h3>
-                                      <div className="overflow-x-auto rounded-lg border border-amber-100 shadow-sm">
-                                        <table className="w-full">
-                                          <thead className="bg-amber-50">
-                                            <tr>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-amber-900">Mã combo</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-amber-900">Tên combo</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-amber-900">Số lượng</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-amber-900">Đơn giá</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-amber-900">Tổng tiền</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-amber-900">Trạng thái</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody className="divide-y divide-amber-100">
-                                            {invoice.combos.map((combo) => (
-                                              <tr key={combo.maCombo} className="hover:bg-amber-50/50 transition-colors">
-                                                <td className="py-4 px-4 font-medium text-gray-800">{combo.maCombo}</td>
-                                                <td className="py-4 px-4 font-medium">{combo.tenCombo}</td>
-                                                <td className="py-4 px-4">
-                                                  <Badge variant="outline" className="border-amber-300 text-amber-700">
-                                                    x{combo.soLuong}
-                                                  </Badge>
-                                                </td>
-                                                <td className="py-4 px-4 text-gray-700">{combo.donGia.toLocaleString()} VNĐ</td>
-                                                <td className="py-4 px-4 font-medium text-emerald-700">
-                                                  {combo.tongTien.toLocaleString()} VNĐ
-                                                </td>
-                                                <td className="py-4 px-4">
-                                                  <Badge
-                                                    className={
-                                                      combo.daLay
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-orange-100 text-orange-800"
-                                                    }
-                                                  >
-                                                    {combo.daLay ? "Đã lấy" : "Chưa lấy"}
-                                                  </Badge>
-                                                  {combo.daLay && combo.thoiGianLay && (
-                                                    <div className="text-xs text-gray-500 mt-1">
-                                                      {formatTime(combo.thoiGianLay)} {formatDate(combo.thoiGianLay)}
-                                                    </div>
-                                                  )}
-                                                </td>
-                                              </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Sản phẩm */}
-                                  {invoice.sanPhams.length > 0 && (
-                                    <div>
-                                      <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                                        <ShoppingBag className="h-5 w-5 text-blue-600" />
-                                        Sản phẩm ({invoice.sanPhams.length})
-                                      </h3>
-                                      <div className="overflow-x-auto rounded-lg border border-blue-100 shadow-sm">
-                                        <table className="w-full">
-                                          <thead className="bg-blue-50">
-                                            <tr>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-blue-900">Mã sản phẩm</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-blue-900">Tên sản phẩm</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-blue-900">Số lượng</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-blue-900">Đơn giá</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-blue-900">Tổng tiền</th>
-                                              <th className="text-left py-3 px-4 text-sm font-semibold text-blue-900">Trạng thái</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody className="divide-y divide-blue-100">
-                                            {invoice.sanPhams.map((sp) => (
-                                              <tr key={sp.maSanPham} className="hover:bg-blue-50/50 transition-colors">
-                                                <td className="py-4 px-4 font-medium text-gray-800">{sp.maSanPham}</td>
-                                                <td className="py-4 px-4 font-medium">{sp.tenSanPham}</td>
-                                                <td className="py-4 px-4">
-                                                  <Badge variant="outline" className="border-blue-300 text-blue-700">
-                                                    x{sp.soLuong}
-                                                  </Badge>
-                                                </td>
-                                                <td className="py-4 px-4 text-gray-700">{sp.donGia.toLocaleString()} VNĐ</td>
-                                                <td className="py-4 px-4 font-medium text-emerald-700">
-                                                  {sp.tongTien.toLocaleString()} VNĐ
-                                                </td>
-                                                <td className="py-4 px-4">
-                                                  <Badge
-                                                    className={
-                                                      sp.daLay
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-orange-100 text-orange-800"
-                                                    }
-                                                  >
-                                                    {sp.daLay ? "Đã lấy" : "Chưa lấy"}
-                                                  </Badge>
-                                                  {sp.daLay && sp.thoiGianLay && (
-                                                    <div className="text-xs text-gray-500 mt-1">
-                                                      {formatTime(sp.thoiGianLay)} {formatDate(sp.thoiGianLay)}
-                                                    </div>
-                                                  )}
-                                                </td>
-                                              </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    </div>
-                                  )}
                                 </div>
                               </td>
                             </tr>
                           )}
                         </Fragment>
-                      );
+                      )
                     })
                   )}
                 </tbody>
@@ -684,7 +561,7 @@ const ManageTicketPage = () => {
                             </div>
                             <div>
                               <Label className="text-xs text-gray-500">Giá vé</Label>
-                              <p className="font-semibold text-emerald-700">{ve.giaVe.toLocaleString()} VNĐ</p>
+                              <p className="font-semibold text-emerald-700">{Number(ve.giaVe).toLocaleString()} VNĐ</p>
                             </div>
                           </div>
                           {ve.trangThai === "DaCheckIn" && ve.thoiGianCheckIn && (
@@ -705,24 +582,6 @@ const ManageTicketPage = () => {
                       <Package className="h-5 w-5 mr-2 text-amber-600" />
                       Combo đã mua ({selectedInvoice.combos.length})
                     </h3>
-                    <div className="space-y-2">
-                      {selectedInvoice.combos.map(combo => (
-                        <div key={combo.maCombo} className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium">{combo.tenCombo}</p>
-                            <p className="text-sm text-gray-600">
-                              Số lượng: {combo.soLuong} × {combo.donGia.toLocaleString()} VNĐ
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-emerald-700">{combo.tongTien.toLocaleString()} VNĐ</p>
-                            <Badge className={combo.daLay ? "bg-green-100 text-green-800 mt-1" : "bg-orange-100 text-orange-800 mt-1"}>
-                              {combo.daLay ? "Đã lấy" : "Chưa lấy"}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
 
@@ -733,41 +592,8 @@ const ManageTicketPage = () => {
                       <ShoppingBag className="h-5 w-5 mr-2 text-blue-600" />
                       Sản phẩm đã mua ({selectedInvoice.sanPhams.length})
                     </h3>
-                    <div className="space-y-2">
-                      {selectedInvoice.sanPhams.map(sp => (
-                        <div key={sp.maSanPham} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium">{sp.tenSanPham}</p>
-                            <p className="text-sm text-gray-600">
-                              Số lượng: {sp.soLuong} × {sp.donGia.toLocaleString()} VNĐ
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-emerald-700">{sp.tongTien.toLocaleString()} VNĐ</p>
-                            <Badge className={sp.daLay ? "bg-green-100 text-green-800 mt-1" : "bg-orange-100 text-orange-800 mt-1"}>
-                              {sp.daLay ? "Đã lấy" : "Chưa lấy"}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
-
-                {/* Tổng cộng */}
-                <div className="border-t-2 pt-4">
-                  <div className="flex justify-between items-center text-xl">
-                    <span className="font-bold">Tổng cộng:</span>
-                    <span className="font-bold text-emerald-600">
-                      {selectedInvoice.tongTien.toLocaleString()} VNĐ
-                    </span>
-                  </div>
-                  {selectedInvoice.maKhuyenMai && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      Đã áp dụng mã khuyến mãi: <Badge variant="outline">{selectedInvoice.maKhuyenMai}</Badge>
-                    </p>
-                  )}
-                </div>
               </div>
             )}
 
@@ -775,55 +601,29 @@ const ManageTicketPage = () => {
               <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
                 Đóng
               </Button>
-              <Button>
-                <Download className="mr-2 h-4 w-4" /> In hóa đơn
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Dialog Xác nhận hủy hóa đơn */}
-        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-          <DialogContent className="md:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-red-600">Hủy hóa đơn</DialogTitle>
-              <DialogDescription>
-                Bạn có chắc chắn muốn hủy hóa đơn này? Hành động này sẽ hủy tất cả vé trong hóa đơn và không thể hoàn tác.
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedInvoice && (
-              <div className="py-4 space-y-3">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="font-semibold mb-2">Thông tin hóa đơn</p>
-                  <p className="text-sm"><strong>Mã:</strong> {selectedInvoice.maHoaDon}</p>
-                  <p className="text-sm"><strong>Khách hàng:</strong> {selectedInvoice.nguoiDung.hoTen}</p>
-                  <p className="text-sm"><strong>Số vé:</strong> {selectedInvoice.ves.length} vé</p>
-                  <p className="text-sm font-semibold text-emerald-700 mt-2">
-                    Tổng tiền: {selectedInvoice.tongTien.toLocaleString()} VNĐ
-                  </p>
-                </div>
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ Hệ thống sẽ tự động hoàn tiền cho khách hàng theo phương thức thanh toán ban đầu.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCancelDialogOpen(false)}>
-                Hủy bỏ
-              </Button>
-              <Button variant="destructive">
-                <XCircle className="mr-2 h-4 w-4" /> Xác nhận hủy
-              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
+
+      { /* QR Scanner Modal */ }
+      <QRScannerModal 
+        open={showScanner}
+        onOpenChange={setShowScanner}
+        onScanSuccess={(text) => {
+          setCurrentQRCode(text)
+          setShowDetail(true)
+        }}
+      />
+      
+      { /* Ticket Detail Modal */ }
+      <TicketDetailModal
+        open={showDetail}
+        onOpenChange={setShowDetail}
+        ticketCode={currentQRCode}
+      />
     </StaffLayout>
   )
 }
 
-export default ManageTicketPage
+export default TicketOrdersPage

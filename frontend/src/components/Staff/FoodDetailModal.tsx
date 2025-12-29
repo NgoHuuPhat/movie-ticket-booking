@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react"
-import { scanTicketStaff } from "@/services/api"
+import { scanFoodStaff } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
 import axios from "axios"
 import { formatDate, formatTime } from "@/utils/formatDate"
@@ -56,12 +56,48 @@ export interface ITicket {
   gheSuatChieu: IGheSuatChieu
 }
 
+interface ICombo {
+  maCombo: string
+  tenCombo: string
+  anhCombo?: string
+}
+
+interface ISanPham {
+  maSanPham: string
+  tenSanPham: string
+  anhSanPham?: string
+}
+
+export interface IBillProduct {
+  maHoaDon: string
+  maSanPham: string
+  soLuong: number
+  donGia: number
+  tongTien: number
+  daLay: boolean
+  thoiGianLay: string | null
+  sanPham: ISanPham
+}
+
+export interface IBillCombo {
+  maHoaDon: string
+  maCombo: string
+  soLuong: number
+  donGia: number
+  tongTien: number
+  daLay: boolean
+  thoiGianLay: string | null
+  combo: ICombo
+}
+
 export interface ScanTicketResponse {
   maHoaDon: string
   tongTien: number
   phuongThucThanhToan: string
   ngayThanhToan: string
   ves: ITicket[]
+  hoaDonCombos: IBillCombo[]
+  hoaDonSanPhams: IBillProduct[]
 }
 
 const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModalProps) => {
@@ -80,7 +116,7 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
       setData(null)
 
       try {
-        const res = await scanTicketStaff(ticketCode)
+        const res = await scanFoodStaff(ticketCode)
         setSuccess(true)
         setData(res.data)
       } catch (err) {
@@ -100,24 +136,12 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
   const firstTicket = data?.ves?.[0]
   const show = firstTicket?.gheSuatChieu?.suatChieu
 
-  const checkedInSeats = data?.ves
-    ?.filter((ve: ITicket) => ve.trangThai === "DaCheckIn")
-    ?.map((ve: ITicket) => ve.gheSuatChieu.ghe.hangGhe + ve.gheSuatChieu.ghe.soGhe)
-    ?.join(", ") || ""
-
-  const notCheckedSeats = data?.ves
-  ?.filter(ve => ve.trangThai !== "DaCheckIn")
-  ?.map(ve => `${ve.gheSuatChieu?.ghe?.hangGhe || ''}${ve.gheSuatChieu?.ghe?.soGhe || ''}`)
-  ?.join(", ") ?? ""
-
-  const checkInTime = data?.ves?.find((ve: ITicket) => ve.thoiGianCheckIn)?.thoiGianCheckIn
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="md:max-w-2xl max-h-[90vh] flex flex-col p-0">
         {/* Header */}
         <DialogHeader className="px-6 py-5 border-b">
-          <DialogTitle className="text-2xl font-bold">Check-in vé</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Lấy bắp nước</DialogTitle>
         </DialogHeader>
 
         {/* Nội dung */}
@@ -125,10 +149,10 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
           {loading ? (
             <div className="flex flex-col items-center justify-center h-full gap-4">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-lg font-medium text-muted-foreground">Đang xử lý check-in...</p>
+              <p className="text-lg font-medium text-muted-foreground">Đang xử lý ...</p>
             </div>
           ) : data ? (
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Trạng thái nổi bật */}
               <div className={`p-6 rounded-xl border-2 shadow-sm ${
                 success 
@@ -147,11 +171,11 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
                   )}
                   <div className="flex-1">
                     <p className="text-xl font-bold leading-tight mb-2">
-                      {success ? "Check-in thành công!" : "Check-in thất bại"}
+                      {success ? "Quét thành công!" : "Quét thất bại"}
                     </p>
                     <p className="text-base leading-relaxed">
                       {success 
-                        ? "Vé đã được kích hoạt và sẵn sàng sử dụng" 
+                        ? "Bắp nước của quý khách đã được ghi nhận" 
                         : error || "Vui lòng kiểm tra lại mã vé hoặc liên hệ nhân viên"
                       }
                     </p>
@@ -172,32 +196,64 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
                 </div>
               )}
 
-              {/* Danh sách vé */}
-              {data.ves?.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xl font-bold">Vé ({data.ves.length})</p>
+              {/* Combo */}
+              {data.hoaDonCombos?.length > 0 && (
+                <div className="space-y-2 pt-4 border-t">
+                  <p className="text-xl font-bold">Combo ({data.hoaDonCombos.length})</p>
                   <div className="space-y-2 text-base">
-                    {checkedInSeats && (
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="font-semibold ">Ghế:</span>
-                        <Badge className="text-sm px-2 py-0.5">
-                          {checkedInSeats}
-                        </Badge>
+                    {data.hoaDonCombos.map((c: IBillCombo, i: number) => (
+                      <div key={i} className="flex justify-between items-center py-1">
+                        <span>{c.soLuong}x {c.combo.tenCombo}</span>
+                        
+                        {c.daLay ? (
+                          <div className="flex flex-col items-end gap-2">
+                            <Badge variant="default" className="text-xs">
+                              Đã lấy
+                            </Badge>
+                            {c.thoiGianLay && (
+                              <span className="text-xs text-muted-foreground">
+                                {formatDate(c.thoiGianLay)} {formatTime(c.thoiGianLay)}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">
+                            Chưa lấy
+                          </Badge>
+                        )}
                       </div>
-                    )}
-                    {notCheckedSeats && (
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="font-semibold ">Ghế:</span>
-                        <Badge className="text-sm px-2 py-0.5">
-                          {notCheckedSeats}
-                        </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Sản phẩm */}
+              {data.hoaDonSanPhams?.length > 0 && (
+                <div className="space-y-2 pt-4 border-t">
+                  <p className="text-xl font-bold">Sản phẩm ({data.hoaDonSanPhams.length})</p>
+                  <div className="space-y-2 text-base">
+                    {data.hoaDonSanPhams.map((p: IBillProduct, i: number) => (
+                      <div key={i} className="flex justify-between items-center py-1">
+                        <span>{p.soLuong}x {p.sanPham.tenSanPham}</span>
+                        
+                        {p.daLay ? (
+                          <div className="flex flex-col items-end gap-2">
+                            <Badge variant="default" className="text-xs">
+                              Đã lấy
+                            </Badge>
+                            {p.thoiGianLay && (
+                              <span className="text-xs text-muted-foreground">
+                                {formatDate(p.thoiGianLay)} {formatTime(p.thoiGianLay)}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">
+                            Chưa lấy
+                          </Badge>
+                        )}
                       </div>
-                    )}  
-                    {checkInTime && (
-                      <p className="text-base text-muted-foreground">
-                        Thời gian check-in: {formatTime(checkInTime)} {formatDate(checkInTime)}
-                      </p>
-                    )}
+                    ))}
                   </div>
                 </div>
               )}
@@ -206,7 +262,7 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
             <div className="flex flex-col items-center justify-center h-full gap-4 text-red-600">
               <AlertCircle className="h-12 w-12" />
               <p className="text-xl font-medium text-center">
-                {error || "Không thể đọc thông tin vé"}
+                {error}
               </p>
             </div>
           )}

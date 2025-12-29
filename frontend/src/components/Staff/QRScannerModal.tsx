@@ -40,7 +40,7 @@ const QRScannerModal = ({
 
     onScanSuccess(trimmed)
     setIsScanning(false)
-    setTimeout(() => onOpenChange(false), 1200)
+    onOpenChange(false)
   }
 
   const handleRetry = () => {
@@ -57,9 +57,9 @@ const QRScannerModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="md:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Quét hoặc nhập mã</DialogTitle>
+          <DialogTitle>Quét hoặc Nhập mã</DialogTitle>
           <DialogDescription>
-            Quét QR hoặc nhập mã tay để check-in / xác thực vé
+            Quét QR hoặc nhập mã tay để xác thực mã
           </DialogDescription>
         </DialogHeader>
 

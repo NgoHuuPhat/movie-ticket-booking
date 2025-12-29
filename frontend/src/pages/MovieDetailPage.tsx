@@ -90,13 +90,13 @@ export default function MovieDetailPage() {
     categoriesWithProducts.forEach(category => {
       category.sanPhams.forEach((product: IProduct) => {
         const qty = foodQuantities[product.maSanPham] || 0
-        total += product.giaTien * qty
+        total += Number(product.giaTien) * qty
       })
     })
 
     combos.forEach((combo: ICombo) => {
       const qty = foodQuantities[combo.maCombo] || 0
-      total += combo.giaBan * qty
+      total += Number(combo.giaBan) * qty
     })
     return total
   }
@@ -267,7 +267,7 @@ export default function MovieDetailPage() {
   const calculateSeatsTotal = () => {
     return selectedSeats.reduce((total, maGhe) => {
       const seat = seats.find(s => s.maGhe === maGhe)
-      return total + (seat?.giaTien || 0)
+      return total + (Number(seat?.giaTien) || 0)
     }, 0)
   }
 
@@ -763,7 +763,7 @@ export default function MovieDetailPage() {
                             {seat?.hangGhe}{seat?.soGhe}
                           </span>
                           <span className="text-yellow-200 text-sm">
-                            {seat?.giaTien.toLocaleString("vi-VN")}đ
+                            {Number(seat?.giaTien).toLocaleString()} VNĐ
                           </span>
 
                           <button
@@ -807,7 +807,7 @@ export default function MovieDetailPage() {
                   <div className="mb-4 flex gap-4 justify-between items-center">
                     <p className="text-white text-base">Tổng tiền</p>
                     <p className="text-yellow-300 text-3xl font-anton">
-                      {(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString('en-US')} VNĐ
+                      {(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString()} VNĐ
                     </p>
                   </div>
                   

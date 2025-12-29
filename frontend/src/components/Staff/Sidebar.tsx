@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, X, Ticket, Popcorn, ChevronDown } from 'lucide-react'
+import { Home, X, Ticket, ChevronDown, Monitor } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -11,15 +11,13 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
   const sidebarItems = [
     { icon: Home, label: 'Tổng quan', path: '/staff/dashboard' },
-    { icon: Ticket, label: 'Quản lý hóa đơn vé', path: '/staff/orders' },
+    { icon: Monitor, label: 'POS bán vé', path: '/staff/pos'},
     {
-      icon: Popcorn, 
-      label: 'Dịch vụ và ưu đãi',
+      icon: Ticket, 
+      label: 'Xử lý hóa đơn',
       children: [
-        { label: 'Danh mục sản phẩm', path: '/staff/food-categories' },
-        { label: 'Quản lý đồ ăn', path: '/staff/foods' },
-        { label: 'Quản lý combo', path: '/staff/combos' },
-        { label: 'Quản lý mã giảm giá', path: '/staff/discount-codes' },
+        { label: 'Soát vé', path: '/staff/orders/tickets' },
+        { label: 'Soát bắp nước', path: '/staff/orders/foods' },
       ]
     },
   ]

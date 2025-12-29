@@ -498,7 +498,12 @@ export const getAllTicketsStaff = async (params: { phim?: string; hinhThuc?: str
 }
 
 export const scanTicketStaff = async (maQR: string) => {
-  const res = await request.post("/staff/tickets/scan", { maQR })
+  const res = await request.post("/staff/tickets/scan-ticket", { maQR })
+  return res.data
+}
+
+export const scanFoodStaff = async (maQR: string) => {
+  const res = await request.post("/staff/tickets/scan-food", { maQR })
   return res.data
 }
 

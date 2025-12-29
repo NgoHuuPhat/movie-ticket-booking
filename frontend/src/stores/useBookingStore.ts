@@ -15,11 +15,15 @@ const useBookingStore = create<IBookingState>()(
       setMovie: (movie) => set({ movie }),
       setShowtime: (showtime) => set({ showtime }),
       setSeats: (seats) => {
-        const total = seats.reduce((sum, seat) => sum + seat.giaTien, 0)
+        const total = seats.reduce((sum, seat) => sum + (Number(seat.giaTien) || 0), 0)
         set({ selectedSeats: seats, seatsTotal: total })
       },
       setFoods: (foods) => {
-        const total = foods.reduce((sum, food) => sum + (food.donGia * food.soLuong), 0)
+        const total = foods.reduce((sum, food) => {
+          const donGia = Number(food.donGia) || 0
+          const soLuong = Number(food.soLuong) || 0
+          return sum + (donGia * soLuong)
+        }, 0)
         set({ selectedFoods: foods, foodsTotal: total })
       },
       clearBooking: () => set({
@@ -32,7 +36,7 @@ const useBookingStore = create<IBookingState>()(
       }),
       getGrandTotal: () => {
         const state = get()
-        return state.seatsTotal + state.foodsTotal
+        return Number(state.seatsTotal) + Number(state.foodsTotal)
       }
     }),
     {

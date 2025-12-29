@@ -394,7 +394,7 @@ const ManageProductsPage = () => {
                           </Badge>
                         </td>
                         <td className="p-4 font-medium text-emerald-600">
-                          {product.giaTien.toLocaleString()} VNĐ
+                          {Number(product.giaTien).toLocaleString()} VNĐ
                         </td>
                         <td className="p-4">
                           <Switch
@@ -510,7 +510,7 @@ const ManageProductsPage = () => {
                 <div>
                   <p className="font-semibold">{selectedProduct.tenSanPham}</p>
                   <p className="text-sm text-gray-600">
-                    {selectedProduct.danhMucSanPham.tenDanhMucSanPham} • {selectedProduct.giaTien.toLocaleString()} VNĐ
+                    {selectedProduct.danhMucSanPham.tenDanhMucSanPham} • {Number(selectedProduct.giaTien).toLocaleString()} VNĐ
                   </p>
                 </div>
               </div>
@@ -559,7 +559,7 @@ const ManageProductsPage = () => {
                       </Badge>
                     </div>
                     <p className="text-lg font-medium text-emerald-600">
-                      {selectedProduct.giaTien.toLocaleString()} VNĐ
+                      {Number(selectedProduct.giaTien).toLocaleString()} VNĐ
                     </p>
                     <p>
                       <span className="font-medium">Danh mục:</span>{" "}

@@ -36,10 +36,11 @@ import ManageCombosPage from "@/pages/Admin/ManageCombosPage"
 import ManageProductsPage from "@/pages/Admin/ManageProductsPage"
 import ManageUsersPage from "@/pages/Admin/ManageUsersPage"
 import ManageShiftsPage from "@/pages/Admin/ManageShiftsPage"
+import ManageWorkSchedulesPage from "@/pages/Admin/ManageWorkSchedulesPage"
 
 import DashboardStaffPage from "@/pages/Staff/DashboardPage"
-import ManageTicketStaffPage from "@/pages/Staff/ManageTicketPage"
-import ManageWorkSchedulesPage from "@/pages/Admin/ManageWorkSchedulesPage"
+import TicketOrdersPage from "@/pages/Staff/TicketOrdersPage"
+import FoodOrdersPage from "@/pages/Staff/FoodOrdersPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -110,8 +111,10 @@ function App(){
 
         <Route element={<StaffRoute />}>
           <Route path="/staff/dashboard" element={<DashboardStaffPage />} />
-          <Route path="/staff/orders" element={<ManageTicketStaffPage />} />
-            <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+          <Route path="/staff/orders/tickets" element={<TicketOrdersPage />} />
+          <Route path="/staff/orders/foods" element={<FoodOrdersPage />} />
+
+          <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
         </Route>
       </Routes>
     </>

@@ -13,7 +13,7 @@ const ProductCard = ({ product, quantity, onIncrease, onDecrease }: { product: I
       <div className="p-4">
         <h4 className="text-white font-semibold text-center mb-2">{product.tenSanPham}</h4>
         <p className="text-yellow-300 font-anton text-center text-base md:text-2xl">
-          {product.giaTien.toLocaleString("en-US")} VNĐ
+          {Number(product.giaTien).toLocaleString()} VNĐ
         </p>
         <div className="flex items-center mt-8 md:p-1 px-2 mx-auto w-fit bg-yellow-300 rounded">
           <button
@@ -76,11 +76,11 @@ const ComboCard = ({ combo, quantity, onIncrease, onDecrease }: {
           <div className="text-center space-y-1 mb-6">
             {combo.giaGoc && combo.giaGoc > combo.giaBan && (
               <p className="text-sm md:text-base font-anton text-white/60 line-through">
-                {combo.giaGoc.toLocaleString("en-US")} VNĐ
+                {Number(combo.giaGoc).toLocaleString()} VNĐ
               </p>
             )}
             <p className="text-xl md:text-3xl font-anton text-yellow-300">
-              {combo.giaBan.toLocaleString("en-US")} VNĐ
+              {Number(combo.giaBan).toLocaleString()} VNĐ
             </p>
           </div>
 

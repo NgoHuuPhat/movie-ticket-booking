@@ -259,19 +259,19 @@ class ThanhToansController {
       const suatChieu = firstVe.gheSuatChieu.suatChieu
       const phongChieu = suatChieu.phongChieu
 
-      const tienVe = fullHoaDon.ves.reduce((sum, ve) => sum + ve.giaVe, 0)
+      const tienVe = fullHoaDon.ves.reduce((sum, ve) => sum + Number(ve.giaVe), 0)
       const tienCombo =
-        (fullHoaDon.hoaDonCombos?.reduce((sum, c) => sum + c.tongTien, 0) || 0) +
-        (fullHoaDon.hoaDonSanPhams?.reduce((sum, s) => sum + s.tongTien, 0) || 0)
+        (fullHoaDon.hoaDonCombos?.reduce((sum, c) => sum + Number(c.tongTien), 0) || 0) +
+        (fullHoaDon.hoaDonSanPhams?.reduce((sum, s) => sum + Number(s.tongTien), 0) || 0)
 
       const tongTienTruocGiam = tienVe + tienCombo
 
       let soTienGiamGia = 0
       if (fullHoaDon.khuyenMai && fullHoaDon.maKhuyenMai) {
         if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamPhanTram') {
-          soTienGiamGia = Math.floor(tongTienTruocGiam * (fullHoaDon.khuyenMai.giaTriGiam / 100))
+          soTienGiamGia = Math.floor(tongTienTruocGiam * (Number(fullHoaDon.khuyenMai.giaTriGiam) / 100))
         } else if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamGiaTien') {
-          soTienGiamGia = fullHoaDon.khuyenMai.giaTriGiam
+          soTienGiamGia = Number(fullHoaDon.khuyenMai.giaTriGiam)
         }
       }
 
@@ -292,11 +292,11 @@ class ThanhToansController {
         tienComboBapNuoc: tienCombo,
         soTienGiamGia: fullHoaDon.maKhuyenMai ? soTienGiamGia : 0,
         tongTien: tongTienTruocGiam,
-        soTienThanhToan: fullHoaDon.tongTien,
+        soTienThanhToan: Number(fullHoaDon.tongTien),
       }
 
       const subject = `Thông tin đặt vé xem phim - ${phim.tenPhim} - Lê Độ Cinema`
-      await addTicketEmailToQueue(fullHoaDon.nguoiDung.email, subject, ticketData, qrBase64)
+      await addTicketEmailToQueue(fullHoaDon.nguoiDung!.email, subject, ticketData, qrBase64)
 
       return res.redirect(`${process.env.VNPAY_REDIRECT_NOTIFICATION_URL}?status=success`)
     } catch (error) {
