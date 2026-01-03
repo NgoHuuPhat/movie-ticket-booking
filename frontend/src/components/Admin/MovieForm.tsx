@@ -75,225 +75,227 @@ export const MovieForm = ({
       maTheLoais: defaultValues?.maTheLoais || []
     }
   })
+
+  console.log("Selected Movie for Edit:", defaultValues)
  
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 md:grid-cols-2 py-4" id="movie-form">
-      <div className="space-y-5">
-        <div>
-          <Label htmlFor="tenPhim">Tên phim <span className="text-red-600">*</span></Label>
-          <Input
-            id="tenPhim"
-            placeholder="Nhập tên phim"
-            {...register("tenPhim")}
-          />
-          {errors.tenPhim && <p className="text-sm text-red-600 mt-1">{errors.tenPhim.message}</p>}
+        <div className="space-y-5">
+          <div>
+            <Label htmlFor="tenPhim">Tên phim <span className="text-red-600">*</span></Label>
+            <Input
+              id="tenPhim"
+              placeholder="Nhập tên phim"
+              {...register("tenPhim")}
+            />
+            {errors.tenPhim && <p className="text-sm text-red-600 mt-1">{errors.tenPhim.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="daoDien">Đạo diễn <span className="text-red-600">*</span></Label>
+            <Input
+              id="daoDien"
+              placeholder="Nhập tên đạo diễn"
+              {...register("daoDien")}
+            />
+            {errors.daoDien && <p className="text-sm text-red-600 mt-1">{errors.daoDien.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="dienVien">Diễn viên <span className="text-red-600">*</span></Label>
+            <Input
+              id="dienVien"
+              placeholder="Nhập tên diễn viên (chia cách bởi dấu phẩy)"
+              {...register("dienVien")}
+            />
+            {errors.dienVien && <p className="text-sm text-red-600 mt-1">{errors.dienVien.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="ngayKhoiChieu">Ngày khởi chiếu <span className="text-red-600">*</span></Label>
+            <Input
+              id="ngayKhoiChieu"
+              type="date"
+              {...register("ngayKhoiChieu")}
+            />
+            {errors.ngayKhoiChieu && <p className="text-sm text-red-600 mt-1">{errors.ngayKhoiChieu.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="ngayKetThuc">Ngày kết thúc <span className="text-red-600">*</span></Label>
+            <Input
+              id="ngayKetThuc"
+              type="date"
+              {...register("ngayKetThuc")}
+            />
+            {errors.ngayKetThuc && <p className="text-sm text-red-600 mt-1">{errors.ngayKetThuc.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="thoiLuong">Thời lượng (phút) <span className="text-red-600">*</span></Label>
+            <Input
+              id="thoiLuong"
+              type="number"
+              {...register("thoiLuong", { valueAsNumber: true })}
+            />
+            {errors.thoiLuong && <p className="text-sm text-red-600 mt-1">{errors.thoiLuong.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="quocGia">Quốc gia <span className="text-red-600">*</span></Label>
+            <Input
+              id="quocGia"
+              placeholder="Nhập quốc gia"
+              {...register("quocGia")}
+            />
+            {errors.quocGia && <p className="text-sm text-red-600 mt-1">{errors.quocGia.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="moTa">Mô tả <span className="text-red-600">*</span></Label>
+            <Textarea
+              id="moTa"
+              placeholder="Nhập mô tả phim"
+              rows={4}
+              {...register("moTa")}
+            />
+            {errors.moTa && <p className="text-sm text-red-600 mt-1">{errors.moTa.message}</p>}
+          </div>
         </div>
 
-        <div>
-          <Label htmlFor="daoDien">Đạo diễn <span className="text-red-600">*</span></Label>
-          <Input
-            id="daoDien"
-            placeholder="Nhập tên đạo diễn"
-            {...register("daoDien")}
-          />
-          {errors.daoDien && <p className="text-sm text-red-600 mt-1">{errors.daoDien.message}</p>}
+        <div className="space-y-5">
+          <div>
+            <Label htmlFor="anhBia">Ảnh bìa <span className="text-red-600">*</span></Label>
+            <Input
+              id="anhBia"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setValue("anhBia", e.target.files?.[0] || null)}
+            />
+            {errors.anhBia && <p className="text-sm text-red-600 mt-1">{errors.anhBia.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="trailerPhim">Link trailer YouTube <span className="text-red-600">*</span></Label>
+            <Input
+              id="trailerPhim"
+              placeholder="Nhập ID trailer YouTube"
+              {...register("trailerPhim")}
+            />
+            {errors.trailerPhim && <p className="text-sm text-red-600 mt-1">{errors.trailerPhim.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="maPhanLoaiDoTuoi">Phân loại độ tuổi <span className="text-red-600">*</span></Label>
+            <Controller
+              name="maPhanLoaiDoTuoi"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn phân loại độ tuổi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ageRatings.map(r => (
+                      <SelectItem key={r.maPhanLoaiDoTuoi} value={r.maPhanLoaiDoTuoi}>
+                        {r.tenPhanLoaiDoTuoi}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.maPhanLoaiDoTuoi && <p className="text-sm text-red-600 mt-1">{errors.maPhanLoaiDoTuoi.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="phienBan">Phiên bản <span className="text-red-600">*</span></Label>
+            <Controller
+              name="phienBan"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn phiên bản" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(phienBan).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.phienBan && <p className="text-sm text-red-600 mt-1">{errors.phienBan.message}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="ngonNgu">Ngôn ngữ <span className="text-red-600">*</span></Label>
+            <Controller
+              name="ngonNgu"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn ngôn ngữ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ngonNgu).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.ngonNgu && <p className="text-sm text-red-600 mt-1">{errors.ngonNgu.message}</p>}
+          </div>
+
+          <div>
+            <Label>Thể loại phim <span className="text-red-600">*</span></Label>
+            <Controller
+              name="maTheLoais"
+              control={control}
+              render={({ field }) => (
+                <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                  {categories.map((cat) => {
+                    const checked = field.value?.includes(cat.maTheLoai)
+
+                    return (
+                      <div key={cat.maTheLoai} className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(isChecked) => {
+                            const nextValue = isChecked
+                              ? [...(field.value || []), cat.maTheLoai]
+                              : field.value.filter(
+                                  (id: string) => id !== cat.maTheLoai
+                                )
+
+                            field.onChange(nextValue)
+                          }}
+                        />
+                        <label className="text-sm">{cat.tenTheLoai}</label>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            />
+            {errors.maTheLoais && <p className="text-sm text-red-600 mt-1">{errors.maTheLoais.message}</p>}
+          </div>
         </div>
-
-        <div>
-          <Label htmlFor="dienVien">Diễn viên <span className="text-red-600">*</span></Label>
-          <Input
-            id="dienVien"
-            placeholder="Nhập tên diễn viên (chia cách bởi dấu phẩy)"
-            {...register("dienVien")}
-          />
-          {errors.dienVien && <p className="text-sm text-red-600 mt-1">{errors.dienVien.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="ngayKhoiChieu">Ngày khởi chiếu <span className="text-red-600">*</span></Label>
-          <Input
-            id="ngayKhoiChieu"
-            type="date"
-            {...register("ngayKhoiChieu")}
-          />
-          {errors.ngayKhoiChieu && <p className="text-sm text-red-600 mt-1">{errors.ngayKhoiChieu.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="ngayKetThuc">Ngày kết thúc <span className="text-red-600">*</span></Label>
-          <Input
-            id="ngayKetThuc"
-            type="date"
-            {...register("ngayKetThuc")}
-          />
-          {errors.ngayKetThuc && <p className="text-sm text-red-600 mt-1">{errors.ngayKetThuc.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="thoiLuong">Thời lượng (phút) <span className="text-red-600">*</span></Label>
-          <Input
-            id="thoiLuong"
-            type="number"
-            {...register("thoiLuong", { valueAsNumber: true })}
-          />
-          {errors.thoiLuong && <p className="text-sm text-red-600 mt-1">{errors.thoiLuong.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="quocGia">Quốc gia <span className="text-red-600">*</span></Label>
-          <Input
-            id="quocGia"
-            placeholder="Nhập quốc gia"
-            {...register("quocGia")}
-          />
-          {errors.quocGia && <p className="text-sm text-red-600 mt-1">{errors.quocGia.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="moTa">Mô tả <span className="text-red-600">*</span></Label>
-          <Textarea
-            id="moTa"
-            placeholder="Nhập mô tả phim"
-            rows={4}
-            {...register("moTa")}
-          />
-          {errors.moTa && <p className="text-sm text-red-600 mt-1">{errors.moTa.message}</p>}
-        </div>
-      </div>
-
-      <div className="space-y-5">
-        <div>
-          <Label htmlFor="anhBia">Ảnh bìa <span className="text-red-600">*</span></Label>
-          <Input
-            id="anhBia"
-            type="file"
-            accept="image/*"
-            onChange={(e) => setValue("anhBia", e.target.files?.[0] || null)}
-          />
-          {errors.anhBia && <p className="text-sm text-red-600 mt-1">{errors.anhBia.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="trailerPhim">Link trailer YouTube <span className="text-red-600">*</span></Label>
-          <Input
-            id="trailerPhim"
-            placeholder="Nhập ID trailer YouTube"
-            {...register("trailerPhim")}
-          />
-          {errors.trailerPhim && <p className="text-sm text-red-600 mt-1">{errors.trailerPhim.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="maPhanLoaiDoTuoi">Phân loại độ tuổi <span className="text-red-600">*</span></Label>
-          <Controller
-            name="maPhanLoaiDoTuoi"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn phân loại độ tuổi" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ageRatings.map(r => (
-                    <SelectItem key={r.maPhanLoaiDoTuoi} value={r.maPhanLoaiDoTuoi}>
-                      {r.tenPhanLoaiDoTuoi}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.maPhanLoaiDoTuoi && <p className="text-sm text-red-600 mt-1">{errors.maPhanLoaiDoTuoi.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="phienBan">Phiên bản <span className="text-red-600">*</span></Label>
-          <Controller
-            name="phienBan"
-            control={control}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Chọn phiên bản" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(phienBan).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.phienBan && <p className="text-sm text-red-600 mt-1">{errors.phienBan.message}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor="ngonNgu">Ngôn ngữ <span className="text-red-600">*</span></Label>
-          <Controller
-            name="ngonNgu"
-            control={control}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Chọn ngôn ngữ" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(ngonNgu).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.ngonNgu && <p className="text-sm text-red-600 mt-1">{errors.ngonNgu.message}</p>}
-        </div>
-
-        <div>
-          <Label>Thể loại phim <span className="text-red-600">*</span></Label>
-          <Controller
-            name="maTheLoais"
-            control={control}
-            render={({ field }) => (
-              <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
-                {categories.map((cat) => {
-                  const checked = field.value?.includes(cat.maTheLoai)
-
-                  return (
-                    <div key={cat.maTheLoai} className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(isChecked) => {
-                          const nextValue = isChecked
-                            ? [...(field.value || []), cat.maTheLoai]
-                            : field.value.filter(
-                                (id: string) => id !== cat.maTheLoai
-                              )
-
-                          field.onChange(nextValue)
-                        }}
-                      />
-                      <label className="text-sm">{cat.tenTheLoai}</label>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          />
-          {errors.maTheLoais && <p className="text-sm text-red-600 mt-1">{errors.maTheLoais.message}</p>}
-        </div>
-      </div>
-    </form>
-  </>
+      </form>
+    </>
   )
 }

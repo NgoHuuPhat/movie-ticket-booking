@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Checkbox } from "@/components/ui/checkbox"
 import PaginationBar from "@/components/Admin/PaginationBar"
 import { getAllTicketsStaff, getMoviesForSelect } from "@/services/api"
 import { toast } from "sonner"
@@ -65,7 +64,7 @@ interface IInvoiceDisplay {
     hoTen: string
     email: string
     soDienThoai: string
-  }
+  } | null
   nhanVienBanVe: {
     hoTen: string
     email: string
@@ -74,7 +73,7 @@ interface IInvoiceDisplay {
   tongTien: number
   phuongThucThanhToan: "VNPAY" | "MOMO" | "TIENMAT"
   ngayThanhToan: string
-  hinhThuc: "Online" | "Offline"
+  hinhThucDatVe: "Online" | "Offline"
   maKhuyenMai?: string
   ves: ITicket[]
   combos: ICombo[]
@@ -85,7 +84,6 @@ const TicketOrdersPage = () => {
   const [invoices, setInvoices] = useState<IInvoiceDisplay[]>([])
   const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string }>>([])
   const [expandedInvoiceIds, setExpandedInvoiceIds] = useState<string[]>([])
-  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<IInvoiceDisplay | null>(null)
 
   const [showScanner, setShowScanner] = useState(false)
@@ -124,41 +122,30 @@ const TicketOrdersPage = () => {
     fetchMovies()
   }, [])
 
+  // Load invoices
+  const fetchInvoices = async () => {
+    try {
 
-  // Load list bills
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
+      const res = await getAllTicketsStaff({
+        page: currentPage,
+        search: searchQuery || undefined,
+        phim: movieFilter === "all" ? undefined : movieFilter,
+        hinhThuc: hinhThucFilter === "all" ? undefined : hinhThucFilter,
+        date: dateFilter || undefined
+      })
 
-        const res = await getAllTicketsStaff({
-          page: currentPage,
-          search: searchQuery || undefined,
-          phim: movieFilter === "all" ? undefined : movieFilter,
-          hinhThuc: hinhThucFilter === "all" ? undefined : hinhThucFilter,
-          date: dateFilter || undefined
-        })
-
-        setInvoices(res.invoices)
-        setTotalInvoices(res.total)
-        setTotalPages(res.totalPages)
-        setStartIndex(res.startIndex)
-        setEndIndex(res.endIndex)
-      } catch (error) {
-        toast.error(handleError(error) || "Không thể tải danh sách hóa đơn")
-      }
+      setInvoices(res.invoices)
+      setTotalInvoices(res.total)
+      setTotalPages(res.totalPages)
+      setStartIndex(res.startIndex)
+      setEndIndex(res.endIndex)
+    } catch (error) {
+      toast.error(handleError(error) || "Không thể tải danh sách hóa đơn")
     }
+  }
+  useEffect(() => {
     fetchInvoices()
   }, [currentPage, searchQuery, movieFilter, hinhThucFilter, dateFilter])
-
-  const handleSelectInvoice = (invoiceId: string) => {
-    setSelectedInvoiceIds(prev =>
-      prev.includes(invoiceId) ? prev.filter(id => id !== invoiceId) : [...prev, invoiceId]
-    )
-  }
-
-  const handleSelectAll = (checked: boolean) => {
-    setSelectedInvoiceIds(checked ? invoices.map(i => i.maHoaDon) : [])
-  }
 
   const getTrangThaiVeDisplay = (status: string) => {
     switch (status) {
@@ -255,12 +242,6 @@ const TicketOrdersPage = () => {
               <table className="w-full">
                 <thead className="border-b bg-gray-100/60 sticky top-0 z-10">
                   <tr>
-                    <th className="text-left p-4 w-12">
-                      <Checkbox
-                        checked={selectedInvoiceIds.length === invoices.length && invoices.length > 0}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </th>
                     <th className="text-left p-4 w-12"></th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Mã hóa đơn</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Khách hàng</th>
@@ -290,12 +271,6 @@ const TicketOrdersPage = () => {
                             onClick={() => toggleExpandInvoice(invoice.maHoaDon)}
                           >
                             <td className="p-4" onClick={(e) => e.stopPropagation()}>
-                              <Checkbox
-                                checked={selectedInvoiceIds.includes(invoice.maHoaDon)}
-                                onCheckedChange={() => handleSelectInvoice(invoice.maHoaDon)}
-                              />
-                            </td>
-                            <td className="p-4" onClick={(e) => e.stopPropagation()}>
                               <Button variant="ghost" size="sm" onClick={() => toggleExpandInvoice(invoice.maHoaDon)}>
                                 {isExpanded ? (
                                   <ChevronDown className="h-5 w-5 text-purple-600" />
@@ -309,8 +284,8 @@ const TicketOrdersPage = () => {
                               <div className="text-xs text-gray-500 font-mono">{invoice.maQR}</div>
                             </td>
                             <td className="p-4">
-                              <div className="font-medium">{invoice.nguoiDung.hoTen}</div>
-                              <div className="text-xs text-gray-500">{invoice.nguoiDung.email}</div>
+                              <div className="font-medium">{invoice.nguoiDung?.hoTen}</div>
+                              <div className="text-xs text-gray-500">{invoice.nguoiDung?.email}</div>
                             </td>
                             <td className="p-4">
                               <div className="font-medium">{invoice.nhanVienBanVe ? invoice.nhanVienBanVe.hoTen : ""} </div>
@@ -324,13 +299,13 @@ const TicketOrdersPage = () => {
                                 <div className="flex gap-1 mt-1">
                                   {invoice.combos.length > 0 && (
                                     <Badge variant="outline" className="text-xs">
-                                      <Package className="h-3 w-3 mr-1" />
+                                      <Package className="mr-1" />
                                       {invoice.combos.length}
                                     </Badge>
                                   )}
                                   {invoice.sanPhams.length > 0 && (
                                     <Badge variant="outline" className="text-xs">
-                                      <ShoppingBag className="h-3 w-3 mr-1" />
+                                      <ShoppingBag className="mr-1" />
                                       {invoice.sanPhams.length}
                                     </Badge>
                                   )}
@@ -339,7 +314,7 @@ const TicketOrdersPage = () => {
                             </td>
                             <td className="p-4">
                               <Badge variant="outline">
-                                {invoice.phuongThucThanhToan} • {invoice.hinhThuc}
+                                {invoice.phuongThucThanhToan === "TIENMAT" ? "Tiền mặt" : invoice.phuongThucThanhToan} • {invoice.hinhThucDatVe}
                               </Badge>
                             </td>
                             <td className="p-4 text-sm">
@@ -438,6 +413,25 @@ const TicketOrdersPage = () => {
                                       </table>
                                     </div>
                                   </div>
+
+                                  {/* Số lượng combo */}
+                                  {invoice.combos.length > 0 && (
+                                    <div className="mb-8">
+                                      <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                        <Package className="h-5 w-5 text-blue-600" />
+                                        Combo ({invoice.combos.length})
+                                      </h3>
+                                    </div>
+                                  )}
+                                  {/* Số lượng sản phẩm */}
+                                  {invoice.sanPhams.length > 0 && (
+                                    <div className="mb-8">
+                                      <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                        <ShoppingBag className="h-5 w-5 text-blue-600" />
+                                        Sản phẩm ({invoice.sanPhams.length})
+                                      </h3>
+                                    </div>
+                                  )}
                                 </div>
                               </td>
                             </tr>
@@ -487,9 +481,9 @@ const TicketOrdersPage = () => {
                     </div>
                     <div>
                       <Label className="text-sm text-gray-600">Khách hàng</Label>
-                      <p className="font-medium">{selectedInvoice.nguoiDung.hoTen}</p>
-                      <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.email}</p>
-                      <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.soDienThoai}</p>
+                      <p className="font-medium">{selectedInvoice.nguoiDung?.hoTen}</p>
+                      <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung?.email}</p>
+                      <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung?.soDienThoai}</p>
                     </div>
                     {selectedInvoice.nhanVienBanVe && (
                       <div>
@@ -510,13 +504,13 @@ const TicketOrdersPage = () => {
                     <div>
                       <Label className="text-sm text-gray-600">Phương thức thanh toán</Label>
                       <Badge variant="outline" className="mt-1">
-                        {selectedInvoice.phuongThucThanhToan}
+                        {selectedInvoice.phuongThucThanhToan === "TIENMAT" ? "Tiền mặt" : selectedInvoice.phuongThucThanhToan}
                       </Badge>
                     </div>
                     <div>
                       <Label className="text-sm text-gray-600">Hình thức</Label>
                       <Badge variant="secondary" className="mt-1">
-                        {selectedInvoice.hinhThuc}
+                        {selectedInvoice.hinhThucDatVe}
                       </Badge>
                     </div>
                   </div>
@@ -613,6 +607,7 @@ const TicketOrdersPage = () => {
         onScanSuccess={(text) => {
           setCurrentQRCode(text)
           setShowDetail(true)
+          fetchInvoices()
         }}
       />
       

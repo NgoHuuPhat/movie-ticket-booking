@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import Header from "@/components/Staff/Header"
 import Sidebar from "@/components/Staff/Sidebar"
+import AlertModal from "../common/AlertModal"
 
 const StaffLayout = ({children}: {children: React.ReactNode}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -14,6 +15,7 @@ const StaffLayout = ({children}: {children: React.ReactNode}) => {
           {children}
         </main>
       </div>
+      <AlertModal />
     </div>
   )
 }

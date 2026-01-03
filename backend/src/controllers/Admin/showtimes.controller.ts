@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
 import { generateIncrementalId } from '@/utils/generateId.utils'
-import { toZonedTime  } from 'date-fns-tz'
 
 class SuatChieusController {
 
@@ -26,12 +25,11 @@ class SuatChieusController {
       }
 
       if(date) {
-        const VN_TZ = 'Asia/Ho_Chi_Minh'
-        const startOfDayUtc = toZonedTime(date as string, VN_TZ)
-        startOfDayUtc.setHours(0,0,0,0)
-        const endOfDayUtc = toZonedTime(date as string, VN_TZ)
-        endOfDayUtc.setHours(23,59,59,999)
-        filter.gioBatDau = { gte: startOfDayUtc, lt: endOfDayUtc }
+        const startOfDay = new Date(date as string)
+        startOfDay.setHours(0,0,0,0)
+        const endOfDay = new Date(date as string)
+        endOfDay.setHours(23,59,59,999)
+        filter.gioBatDau = { gte: startOfDay, lt: endOfDay }
       }
       
       if(search) {

@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { z } from "zod"
-import { ChevronRight, Armchair, X, Loader2 } from "lucide-react"
+import { ChevronRight, Armchair, X, Loader2, Users } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const roomSchema = z.object({
   tenPhong: z.string().min(1, "Tên phòng không được để trống"),
@@ -23,6 +24,7 @@ export interface SeatConfig {
   soGhe: number
   maLoaiGhe: string
   hoatDong: boolean
+  isCoupleSeat?: boolean
 }
 
 interface RoomFormProps {
@@ -55,7 +57,8 @@ export const RoomForm = ({
 }: RoomFormProps) => {
   const [step, setStep] = useState(mode === 'edit' ? 2 : 1)
   const [selectedSeatType, setSelectedSeatType] = useState<string>(seatTypes[0]?.maLoaiGhe || "")
-  const [seatLayout, setSeatLayout] = useState<Map<string, { maLoaiGhe: string; hoatDong: boolean }>>(new Map())
+  const [seatLayout, setSeatLayout] = useState<Map<string, { maLoaiGhe: string; hoatDong: boolean; isCoupleSeat: boolean }>>(new Map())
+  const [coupleRows, setCoupleRows] = useState<Set<number>>(new Set())
 
   const {
     register,
@@ -73,18 +76,71 @@ export const RoomForm = ({
 
   useEffect(() => {
     if (existingSeats.length > 0) {
-      const newLayout = new Map<string, { maLoaiGhe: string; hoatDong: boolean }>()
+      const newLayout = new Map<string, { maLoaiGhe: string; hoatDong: boolean; isCoupleSeat: boolean }>()
+      const newCoupleRows = new Set<number>()
+      
       existingSeats.forEach(seat => {
         const key = `${seat.hangGhe}-${seat.soGhe}`
-        newLayout.set(key, { maLoaiGhe: seat.maLoaiGhe, hoatDong: seat.hoatDong })
+        newLayout.set(key, { 
+          maLoaiGhe: seat.maLoaiGhe, 
+          hoatDong: seat.hoatDong,
+          isCoupleSeat: seat.isCoupleSeat || false
+        })
+        
+        if (seat.isCoupleSeat) {
+          const rowIndex = seat.hangGhe.charCodeAt(0) - 65
+          newCoupleRows.add(rowIndex)
+        }
       })
+      
       setSeatLayout(newLayout)
+      setCoupleRows(newCoupleRows)
     }
   }, [existingSeats])
 
   const getRowLabel = (index: number) => String.fromCharCode(65 + index)
 
   const getSeatKey = (row: number, col: number) => `${getRowLabel(row)}-${col + 1}`
+
+  const toggleCoupleRow = (rowIndex: number) => {
+    const newCoupleRows = new Set(coupleRows)
+    if (newCoupleRows.has(rowIndex)) {
+      newCoupleRows.delete(rowIndex)
+    } else {
+      newCoupleRows.add(rowIndex)
+    }
+    setCoupleRows(newCoupleRows)
+    
+    // Rebuild layout for this row
+    const newLayout = new Map(seatLayout)
+    const isCouple = newCoupleRows.has(rowIndex)
+    const maxSeats = isCouple ? Math.floor(soCot / 2) : soCot
+    
+    // Tìm loại ghế đôi (thường là loại ghế thứ 2 có tên chứa "đôi" hoặc "couple")
+    const coupleSeatType = seatTypes.find(t => 
+      t.tenLoaiGhe.toLowerCase().includes('đôi') || 
+      t.tenLoaiGhe.toLowerCase().includes('couple')
+    ) || seatTypes[1] || seatTypes[0]
+    
+    // Clear existing seats in this row
+    for (let col = 0; col < soCot; col++) {
+      const key = getSeatKey(rowIndex, col)
+      newLayout.delete(key)
+    }
+    
+    // Add new seats
+    for (let i = 0; i < maxSeats; i++) {
+      const seatNum = isCouple ? (i * 2 + 1) : (i + 1)
+      const key = getSeatKey(rowIndex, seatNum - 1)
+      newLayout.set(key, { 
+        maLoaiGhe: isCouple ? coupleSeatType.maLoaiGhe : (seatTypes[0]?.maLoaiGhe || ""), 
+        hoatDong: true,
+        isCoupleSeat: isCouple
+      })
+    }
+    
+    setSeatLayout(newLayout)
+  }
 
   const handleSeatClick = (row: number, col: number) => {
     const key = getSeatKey(row, col)
@@ -95,35 +151,59 @@ export const RoomForm = ({
       if (current.maLoaiGhe === selectedSeatType) {
         newLayout.set(key, { ...current, hoatDong: !current.hoatDong })
       } else {
-        newLayout.set(key, { maLoaiGhe: selectedSeatType, hoatDong: true })
+        newLayout.set(key, { ...current, maLoaiGhe: selectedSeatType, hoatDong: true })
       }
     } else {
-      newLayout.set(key, { maLoaiGhe: selectedSeatType, hoatDong: true })
+      const isCouple = coupleRows.has(row)
+      newLayout.set(key, { 
+        maLoaiGhe: selectedSeatType, 
+        hoatDong: true,
+        isCoupleSeat: isCouple
+      })
     }
     
     setSeatLayout(newLayout)
   }
 
+  // Get color classes based on seat type
   const getSeatColor = (maLoaiGhe: string) => {
-    const index = seatTypes.findIndex(t => t.maLoaiGhe === maLoaiGhe)
-    const colors = [
-      "bg-blue-500 hover:bg-blue-600",
-      "bg-purple-500 hover:bg-purple-600", 
-      "bg-pink-500 hover:bg-pink-600",
-      "bg-orange-500 hover:bg-orange-600",
-      "bg-green-500 hover:bg-green-600"
-    ]
-    return colors[index % colors.length] || "bg-gray-500 hover:bg-gray-600"
+    const seatType = seatTypes.find(t => t.maLoaiGhe === maLoaiGhe)
+    if (!seatType) return "bg-gray-400 hover:bg-gray-500"
+
+    if (seatType.tenLoaiGhe.includes("Couple")) {
+      return "bg-pink-500 hover:bg-pink-600"
+    }
+    if (seatType.tenLoaiGhe.includes("VIP")) {
+      return "bg-rose-500 hover:bg-rose-600"
+    } else {
+      return "bg-blue-500 hover:bg-blue-600"
+    }
   }
 
   const handleStepOneSubmit = (data: RoomFormData) => {
-    const newLayout = new Map<string, { maLoaiGhe: string; hoatDong: boolean }>()
+    const newLayout = new Map<string, { maLoaiGhe: string; hoatDong: boolean; isCoupleSeat: boolean }>()
+    
+    // Tìm loại ghế đôi (thường là loại ghế thứ 2 có tên chứa "đôi" hoặc "couple")
+    const coupleSeatType = seatTypes.find(t => 
+      t.tenLoaiGhe.toLowerCase().includes('đôi') || 
+      t.tenLoaiGhe.toLowerCase().includes('couple')
+    ) || seatTypes[1] || seatTypes[0]
+    
     for (let row = 0; row < data.soHang; row++) {
-      for (let col = 0; col < data.soCot; col++) {
-        const key = getSeatKey(row, col)
-        newLayout.set(key, { maLoaiGhe: seatTypes[0]?.maLoaiGhe || "", hoatDong: true })
+      const isCouple = coupleRows.has(row)
+      const maxSeats = isCouple ? Math.floor(data.soCot / 2) : data.soCot
+      
+      for (let i = 0; i < maxSeats; i++) {
+        const seatNum = isCouple ? (i * 2 + 1) : (i + 1)
+        const key = getSeatKey(row, seatNum - 1)
+        newLayout.set(key, { 
+          maLoaiGhe: isCouple ? coupleSeatType.maLoaiGhe : (seatTypes[0]?.maLoaiGhe || ""), 
+          hoatDong: true,
+          isCoupleSeat: isCouple
+        })
       }
     }
+    
     setSeatLayout(newLayout)
     setStep(2)
   }
@@ -143,6 +223,7 @@ export const RoomForm = ({
         soGhe: parseInt(soGheStr),
         maLoaiGhe: value.maLoaiGhe,
         hoatDong: value.hoatDong,
+        isCoupleSeat: value.isCoupleSeat,
       }
     })
     
@@ -181,6 +262,33 @@ export const RoomForm = ({
           </div>
         </div>
 
+        {/* Chọn hàng ghế đôi */}
+        <Card className="bg-purple-50 border-purple-200">
+          <CardContent>
+            <div className="flex gap-2">
+              <Users className="h-5 w-5 text-purple-600" />
+              <p className="font-semibold text-purple-900">Cấu hình hàng ghế đôi (Chọn các hàng ghế sẽ là ghế đôi)</p>
+            </div>
+            <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-13 gap-2 mt-4">
+              {Array.from({ length: soHang }).map((_, rowIndex) => (
+                <div key={rowIndex} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`row-${rowIndex}`}
+                    checked={coupleRows.has(rowIndex)}
+                    onCheckedChange={() => toggleCoupleRow(rowIndex)}
+                  />
+                  <label
+                    htmlFor={`row-${rowIndex}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    {getRowLabel(rowIndex)}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
             <strong>Lưu ý:</strong> Sau khi nhập thông tin phòng, bạn sẽ được chuyển sang bước cấu hình sơ đồ ghế. 
@@ -212,18 +320,20 @@ export const RoomForm = ({
           <div>
             <p className="mb-3 text-sm text-center font-medium">Chọn loại ghế để áp dụng</p>
             <div className="flex flex-wrap justify-center gap-3">
-              {seatTypes.map((type) => (
-                <Button
-                  key={type.maLoaiGhe}
-                  type="button"
-                  size="sm"
-                  variant={selectedSeatType === type.maLoaiGhe ? "default" : "outline"}
-                  onClick={() => setSelectedSeatType(type.maLoaiGhe)}
-                  className={selectedSeatType === type.maLoaiGhe ? getSeatColor(type.maLoaiGhe) : ""}
-                >
-                  <Armchair className="h-4 w-4 mr-2" />
-                  {type.tenLoaiGhe}
-                </Button>
+              {seatTypes
+                .filter(type => type.tenLoaiGhe !== "Couple")
+                .map((type) => (
+                  <Button
+                    key={type.maLoaiGhe}
+                    type="button"
+                    size="sm"
+                    variant={selectedSeatType === type.maLoaiGhe ? "default" : "outline"}
+                    onClick={() => setSelectedSeatType(type.maLoaiGhe)}
+                    className={selectedSeatType === type.maLoaiGhe ? getSeatColor(type.maLoaiGhe) : ""}
+                  >
+                    <Armchair className="h-4 w-4 mr-2" />
+                    {type.tenLoaiGhe}
+                  </Button>
               ))}
             </div>
           </div>
@@ -235,55 +345,71 @@ export const RoomForm = ({
                 <p className="text-sm font-semibold">MÀN HÌNH</p>
               </div>
 
-              <div className="flex flex-col gap-2 items-center">
-                <div className="flex items-center gap-6 mb-2">
-                  <div className="flex gap-1.5">
-                    {Array.from({ length: soCot }).map((_, colIndex) => (
-                      <div
-                        key={colIndex}
-                        className="w-9 text-center text-sm font-semibold text-gray-600"
-                      >
-                        {colIndex + 1}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {Array.from({ length: soHang }).map((_, rowIndex) => (
-                  <div key={rowIndex} className="flex items-center gap-6">
-                    <div className="w-8 text-center font-semibold text-gray-700">
-                      {getRowLabel(rowIndex)}
-                    </div>
-                    <div className="flex gap-1.5">
-                      {Array.from({ length: soCot }).map((_, colIndex) => {
-                        const key = getSeatKey(rowIndex, colIndex)
-                        const seat = seatLayout.get(key)
-                        if (!seat) return null
-
-                        return (
-                          <button
-                            key={colIndex}
-                            type="button"
-                            onClick={() => handleSeatClick(rowIndex, colIndex)}
-                            className={`
-                              w-9 h-9 rounded-lg flex items-center justify-center
-                              transition-all hover:scale-110 cursor-pointer
-                              ${seat.hoatDong 
-                                ? getSeatColor(seat.maLoaiGhe) + " text-white shadow-md" 
-                                : "bg-gray-200 text-gray-400"
-                              }
-                            `}
-                            title={`${key} - ${seatTypes.find(t => t.maLoaiGhe === seat.maLoaiGhe)?.tenLoaiGhe || 'Ghế ẩn'}`}
-                          >
-                            {seat.hoatDong ? <Armchair className="h-5 w-5" /> : <X className="h-4 w-4" />}
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <div className="w-8 text-center text-gray-500 text-sm">
-                      {getRowLabel(rowIndex)}
-                    </div>
+              <div className="flex justify-center mb-2 gap-1.5">
+                {Array.from({ length: soCot }).map((_, colIndex) => (
+                  <div key={colIndex} className={`w-9 text-center text-gray-700`}>
+                    {colIndex + 1}
                   </div>
                 ))}
+              </div>
+
+              <div className="flex flex-col gap-2 items-center">
+                {Array.from({ length: soHang }).map((_, rowIndex) => {
+                  const isCouple = coupleRows.has(rowIndex)
+                  const maxSeats = isCouple ? Math.floor(soCot / 2) : soCot
+                  
+                  return (
+                    <div key={rowIndex} className="flex items-center gap-4">
+                      <div className="w-12 text-center">
+                        <div className="font-semibold text-gray-700">{getRowLabel(rowIndex)}</div>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {Array.from({ length: maxSeats }).map((_, i) => {
+                          const seatNum = isCouple ? (i * 2 + 1) : (i + 1)
+                          const colIndex = seatNum - 1
+                          const key = getSeatKey(rowIndex, colIndex)
+                          const seat = seatLayout.get(key)
+                          
+                          if (!seat) return null
+
+                          return (
+                            <button
+                              key={i}
+                              type="button"
+                              disabled={isCouple}
+                              onClick={() => handleSeatClick(rowIndex, colIndex)}
+                              className={`
+                                ${isCouple ? 'w-19.5' : 'w-9'} h-9 rounded flex items-center justify-center
+                                transition-all hover:scale-105 cursor-pointer
+                                ${seat.hoatDong 
+                                  ? getSeatColor(seat.maLoaiGhe) + " text-white shadow-md" 
+                                  : "bg-gray-200 text-gray-400"
+                                }
+                              `}
+                              title={`${key} - ${seatTypes.find(t => t.maLoaiGhe === seat.maLoaiGhe)?.tenLoaiGhe || 'Ghế ẩn'}${isCouple ? ' (Ghế đôi)' : ''}`}
+                            >
+                              {seat.hoatDong ? (
+                                isCouple ? (
+                                  <div className="flex gap-1 cursor-not-allowed">
+                                    <Armchair className="h-5 w-5" />
+                                    <Armchair className="h-5 w-5" />
+                                  </div>
+                                ) : (
+                                  <Armchair className="h-5 w-5" />
+                                )
+                              ) : (
+                                <X className="h-4 w-4" />
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <div className="w-12 text-center">
+                        <div className="text-gray-700">{getRowLabel(rowIndex)}</div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -292,15 +418,27 @@ export const RoomForm = ({
           <Card>
             <CardContent>
               <p className="text-sm font-semibold mb-3 text-center">Chú thích:</p>
-              <div className="flex flex-wrap justify-center gap-10">
-                {seatTypes.map((type) => (
-                  <div key={type.maLoaiGhe} className="flex items-center gap-2">
-                    <div className={`w-6 h-6 rounded ${getSeatColor(type.maLoaiGhe).split(" ")[0]} flex items-center justify-center`}>
-                      <Armchair className="h-4 w-4 text-white" />
+              <div className="flex flex-wrap justify-center gap-6">
+                {seatTypes.map((type) => {
+                  const isCouple = type.tenLoaiGhe === "Couple"
+                  const seatWidth = isCouple ? "w-14" : "w-6"
+
+                  return (
+                    <div key={type.maLoaiGhe} className="flex items-center gap-2">
+                      <div className={`rounded ${getSeatColor(type.maLoaiGhe)} flex items-center justify-center h-full ${seatWidth}`}>
+                        {isCouple ? (
+                          <div className="flex gap-0.5">
+                            <Armchair className="h-4 w-4 text-white" />
+                            <Armchair className="h-4 w-4 text-white" />
+                          </div>
+                        ) : (
+                          <Armchair className="h-4 w-4 text-white" />
+                        )}
+                      </div>
+                      <span className="text-sm">{type.tenLoaiGhe}</span>
                     </div>
-                    <span className="text-sm">{type.tenLoaiGhe}</span>
-                  </div>
-                ))}
+                  )
+                })}
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded bg-gray-200 flex items-center justify-center">
                     <X className="h-4 w-4 text-gray-400" />
@@ -312,8 +450,13 @@ export const RoomForm = ({
           </Card>
 
           {/* Hoàn thành / Lưu */}
-          <div className="flex justify-end pt-4 border-t">
-            <Button type="button" onClick={handleFinalSubmit}>
+          <div className="flex justify-between pt-4 border-t">
+            {mode === 'create' && (
+              <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                Quay lại
+              </Button>
+            )}
+            <Button type="button" onClick={handleFinalSubmit} className="ml-auto">
               {mode === 'edit' ? 'Lưu thay đổi' : 'Hoàn thành'}
             </Button>
           </div>

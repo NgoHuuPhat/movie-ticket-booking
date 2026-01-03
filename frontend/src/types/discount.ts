@@ -3,5 +3,7 @@ export interface IDiscount {
   maCode: string
   moTa: string
   giaTriGiam: number
-  loaiKhuyenMai: "GiamPhanTram" | "GiamGiaTien"
+  giamToiDa?: number
+  donHangToiThieu: number
+  loaiKhuyenMai: "GiamPhanTram" | "GiamTien"
 }

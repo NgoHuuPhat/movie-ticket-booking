@@ -125,7 +125,7 @@ const ticketTemplate = (data: ITicketData) => {
         ${data.maQR}
       </p>
       
-      <div style="text-align:center; margin:20px 0;">
+      <div style="text-align:center;">
         <img src="cid:qrcode@ledocinema" alt="QR Code" style="width:180px; height:180px; display:inline-block;">
       </div>
       

@@ -9,14 +9,18 @@ class GhesController {
   async getAllCategories(req: Request, res: Response) {
     try {
       const { search } = req.query
+      const filter: any = {}
+      if(search !== undefined) {
+        filter.OR = [
+          { tenLoaiGhe: { contains: search as string, mode: "insensitive" } },
+          { moTa: { contains: search as string, mode: "insensitive" } },
+        ]
+      }
+
       const categories = await prisma.lOAIGHE.findMany({
-        where: {
-          tenLoaiGhe: {
-            contains: search as string || undefined,
-            mode: "insensitive",
-          },
-        },
+        where: filter,
       })
+      
       res.status(200).json(categories)
     } catch (error) {
       console.error(error)

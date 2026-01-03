@@ -50,7 +50,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { label: 'Danh mục sản phẩm', path: '/admin/food-categories' },
         { label: 'Quản lý đồ ăn', path: '/admin/foods' },
         { label: 'Quản lý combo', path: '/admin/combos' },
-        { label: 'Quản lý mã giảm giá', path: '/admin/discount-codes' },
+        { label: 'Quản lý mã khuyến mãi', path: '/admin/discount-codes' },
       ]
     },
 

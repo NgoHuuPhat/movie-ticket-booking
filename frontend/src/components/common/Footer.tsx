@@ -1,7 +1,31 @@
-import { Facebook, Instagram, Youtube, Twitter, MapPin, Phone, Mail } from "lucide-react";
+import { useEffect, useState } from "react"
+import { Facebook, Instagram, Youtube, Twitter, MapPin, Phone, Mail } from "lucide-react"
 import logo from "@/assets/logo.png"
+import { handleError } from "@/utils/handleError.utils"
+import { getCinemaInfo } from "@/services/api"
+
+interface CinemaInfo {
+  tenRap: string
+  diaChi: string
+  soDienThoai: string
+  email: string
+}
 
 const Footer = () => {
+  const [ cinemaInfo, setCinemaInfo ] = useState<CinemaInfo | null>(null)
+
+  useEffect(() => {
+    try {
+      const fetchCinemaInfo = async () => {
+        const cinemaInfo = await getCinemaInfo()
+        setCinemaInfo(cinemaInfo)
+      }
+      fetchCinemaInfo()
+    } catch (error) {
+      console.error(handleError(error))
+    }
+  }, [])
+
   return (
     <div>
       <footer className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
@@ -122,18 +146,18 @@ const Footer = () => {
               <ul className="space-y-3">
                 <li className="flex items-start gap-3 text-gray-300">
                   <MapPin className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">46 Trần Phú, Hải Châu, Đà Nẵng, Việt Nam</span>
+                  <span className="text-sm">{cinemaInfo?.diaChi}</span>
                 </li>
                 <li className="flex items-center gap-3 text-gray-300">
                   <Phone className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                  <a href="tel:02363822574" className="text-sm hover:text-yellow-300 transition-colors">
-                    02363822574
+                  <a href={`tel:${cinemaInfo?.soDienThoai}`} className="text-sm hover:text-yellow-300 transition-colors">
+                    {cinemaInfo?.soDienThoai}
                   </a>
                 </li>
                 <li className="flex items-center gap-3 text-gray-300">
                   <Mail className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                  <a href="mailto:ttphpcbdn@gmail.com" className="text-sm hover:text-yellow-300 transition-colors">
-                    ttphpcbdn@gmail.com
+                  <a href={`mailto:${cinemaInfo?.email}`} className="text-sm hover:text-yellow-300 transition-colors">
+                    {cinemaInfo?.email}
                   </a>
                 </li>
               </ul>
@@ -149,7 +173,7 @@ const Footer = () => {
         </div>
       </footer>
     </div>
-  );
+  )
 }
 
-export default Footer;
+export default Footer

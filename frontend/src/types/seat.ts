@@ -2,7 +2,7 @@ export interface ISeatData {
   maGhe: string
   hangGhe: string
   soGhe: number
-  tenLoaiGhe: "Standard" | "Couple"
+  tenLoaiGhe: "Standard" | "Couple" | "VIP"
   giaTien: number
-  trangThai: "DangTrong" | "DaDat" | "TamGiu" | "KhongSuDung"
+  trangThai: "DangTrong" | "DaDat" | "KhongSuDung"
 }

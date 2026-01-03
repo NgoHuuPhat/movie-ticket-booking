@@ -5,11 +5,11 @@ export interface IProduct {
   loai: 'combo' | 'sanpham'
 }
 
-export interface IVNPayRequestBody {
-  maPhim: string
+export interface IPaymentRequestBody {
   maSuatChieu: string
   selectedSeats: { maGhe: string; giaTien: number }[]
   selectedFoods: IProduct[]
   maCodeKhuyenMai?: string
   tongTien: number
+  soDienThoaiNguoiDung?: string
 }

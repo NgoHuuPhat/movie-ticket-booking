@@ -14,10 +14,10 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     { icon: Monitor, label: 'POS bán vé', path: '/staff/pos'},
     {
       icon: Ticket, 
-      label: 'Xử lý hóa đơn',
+      label: 'Soát vé',
       children: [
-        { label: 'Soát vé', path: '/staff/orders/tickets' },
-        { label: 'Soát bắp nước', path: '/staff/orders/foods' },
+        { label: 'Vé xem phim', path: '/staff/orders/tickets' },
+        { label: 'Vé bắp nước', path: '/staff/orders/foods' },
       ]
     },
   ]

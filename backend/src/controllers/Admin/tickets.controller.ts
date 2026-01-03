@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
-import { toZonedTime } from 'date-fns-tz'
 import { tr } from 'date-fns/locale'
 
 class VesController {
@@ -23,9 +22,9 @@ class VesController {
       }
 
       if (hinhThuc === 'online') {
-        where.phuongThucThanhToan = { in: ['VNPAY', 'MOMO'] }
+        where.hinhThucDatVe = 'Online'
       } else if (hinhThuc === 'offline') {
-        where.phuongThucThanhToan = 'TIENMAT'
+        where.hinhThucDatVe = 'Offline'
       }
 
       if(phim){
@@ -41,13 +40,11 @@ class VesController {
       }
 
       if(date) {
-        console.log("date filter in backend:", date)
-        const VN_TZ = 'Asia/Ho_Chi_Minh'
-        const startOfDayUtc = toZonedTime(date as string, VN_TZ)
-        startOfDayUtc.setHours(0,0,0,0)
-        const endOfDayUtc = toZonedTime(date as string, VN_TZ)
-        endOfDayUtc.setHours(23,59,59,999)
-        where.ngayThanhToan = { gte: startOfDayUtc, lt: endOfDayUtc }
+        const startOfDay = new Date(date as string)
+        startOfDay.setHours(0,0,0,0)
+        const endOfDay = new Date(date as string)
+        endOfDay.setHours(23,59,59,999)
+        where.ngayThanhToan = { gte: startOfDay, lt: endOfDay }
       }
 
       if (search) {
@@ -80,16 +77,19 @@ class VesController {
                     }
                   }
                 },
+                nhanVienSoatVe: true
               }
             },
             hoaDonCombos: {
               include: {
-                combo: true
+                combo: true,
+                nhanVienSoatBapNuoc: true
               }
             },
             hoaDonSanPhams: {
               include: {
-                sanPham: true
+                sanPham: true,
+                nhanVienSoatBapNuoc: true
               }
             }
           }
@@ -112,16 +112,26 @@ class VesController {
           email: hd.nhanVienBanVe.email,
           soDienThoai: hd.nhanVienBanVe.soDienThoai,
         } : null,
+        nhanVienSoatVe: hd.ves.map(v => v.nhanVienSoatVe ? {
+          hoTen: v.nhanVienSoatVe.hoTen,
+          email: v.nhanVienSoatVe.email,
+          soDienThoai: v.nhanVienSoatVe.soDienThoai,
+        } : null),
         tongTien: hd.tongTien,
         phuongThucThanhToan: hd.phuongThucThanhToan,
         ngayThanhToan: hd.ngayThanhToan,
-        hinhThuc: hd.phuongThucThanhToan === 'TIENMAT' ? 'Offline' : 'Online',
+        hinhThuc: hd.hinhThucDatVe,
         maKhuyenMai: hd.maKhuyenMai,
         ves: hd.ves.map(v => ({
           maVe: v.maVe,
           giaVe: v.giaVe,
           trangThai: v.trangThai,
           thoiGianCheckIn: v.thoiGianCheckIn,
+          nhanVienSoatVe: v.nhanVienSoatVe ? {
+            hoTen: v.nhanVienSoatVe.hoTen,
+            email: v.nhanVienSoatVe.email,
+            soDienThoai: v.nhanVienSoatVe.soDienThoai,
+          } : null,
           suatChieu: {
             maSuatChieu: v.gheSuatChieu.suatChieu.maSuatChieu,
             gioBatDau: v.gheSuatChieu.suatChieu.gioBatDau,
@@ -137,7 +147,12 @@ class VesController {
           donGia: hc.donGia,
           tongTien: hc.tongTien,
           daLay: hc.daLay,
-          thoiGianLay: hc.thoiGianLay
+          thoiGianLay: hc.thoiGianLay,
+          nhanVienSoatBapNuoc: hc.nhanVienSoatBapNuoc ? {
+            hoTen: hc.nhanVienSoatBapNuoc.hoTen,
+            email: hc.nhanVienSoatBapNuoc.email,
+            soDienThoai: hc.nhanVienSoatBapNuoc.soDienThoai,
+          } : null
         })),
         sanPhams: hd.hoaDonSanPhams.map(hs => ({
           maSanPham: hs.maSanPham,
@@ -146,7 +161,12 @@ class VesController {
           donGia: hs.donGia,
           tongTien: hs.tongTien,
           daLay: hs.daLay,
-          thoiGianLay: hs.thoiGianLay
+          thoiGianLay: hs.thoiGianLay,
+          nhanVienSoatBapNuoc: hs.nhanVienSoatBapNuoc ? {
+            hoTen: hs.nhanVienSoatBapNuoc.hoTen,
+            email: hs.nhanVienSoatBapNuoc.email,
+            soDienThoai: hs.nhanVienSoatBapNuoc.soDienThoai,
+          } : null
         }))
       }))
       const startIndex = skip + 1

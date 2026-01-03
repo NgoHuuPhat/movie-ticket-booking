@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
-import { toZonedTime } from 'date-fns-tz'
 import { IUserRequest } from '@/types/user'
 
 class VesController {
@@ -23,9 +22,9 @@ class VesController {
       }
 
       if (hinhThuc === 'online') {
-        where.phuongThucThanhToan = { in: ['VNPAY', 'MOMO'] }
+        where.hinhThucDatVe = 'Online'
       } else if (hinhThuc === 'offline') {
-        where.phuongThucThanhToan = 'TIENMAT'
+        where.hinhThucDatVe = 'Offline'
       }
 
       if(phim){
@@ -41,12 +40,11 @@ class VesController {
       }
 
       if(date) {
-        const VN_TZ = 'Asia/Ho_Chi_Minh'
-        const startOfDayUtc = toZonedTime(date as string, VN_TZ)
-        startOfDayUtc.setHours(0,0,0,0)
-        const endOfDayUtc = toZonedTime(date as string, VN_TZ)
-        endOfDayUtc.setHours(23,59,59,999)
-        where.ngayThanhToan = { gte: startOfDayUtc, lt: endOfDayUtc }
+        const startOfDay = new Date(date as string)
+        startOfDay.setHours(0,0,0,0)
+        const endOfDay = new Date(date as string)
+        endOfDay.setHours(23,59,59,999)
+        where.ngayThanhToan = { gte: startOfDay, lt: endOfDay }
       }
 
       if (search) {
@@ -126,7 +124,7 @@ class VesController {
         tongTien: hd.tongTien,
         phuongThucThanhToan: hd.phuongThucThanhToan,
         ngayThanhToan: hd.ngayThanhToan,
-        hinhThuc: hd.phuongThucThanhToan === 'TIENMAT' ? 'Offline' : 'Online',
+        hinhThucDatVe: hd.hinhThucDatVe,
         maKhuyenMai: hd.maKhuyenMai,
         ves: hd.ves.map(v => ({
           maVe: v.maVe,
@@ -180,45 +178,147 @@ class VesController {
   async scanTicket(req: IUserRequest, res: Response) {
     try {
       const { maQR } = req.body
-      const hoaDon = await prisma.hOADON.findUnique({
-        where: { maQR },
-        include: {
-          ves: {
-            include: {
-              gheSuatChieu: {
-                include: {
-                  ghe: true,  
-                  suatChieu: {
-                    include: {
-                      phim: true,
-                      phongChieu: true
+
+      // Check if QR contains "-" (maHoaDon-maVe format for paper ticket)
+      const isPaperTicket = maQR.includes('-')
+      if (isPaperTicket) {
+        const [maQRHoaDon, maVe] = maQR.split('-')
+        
+        const hoaDon = await prisma.hOADON.findUnique({
+          where: { maQR: maQRHoaDon },
+          include: {
+            ves: {
+              include: {
+                gheSuatChieu: {
+                  include: {
+                    ghe: true,  
+                    suatChieu: {
+                      include: {
+                        phim: true,
+                        phongChieu: true
+                      }
                     }
                   }
                 }
               }
             }
-          },
-          hoaDonCombos: {
-            include: {
-              combo: true 
-            }
-          },
-          hoaDonSanPhams: {
-            include: {
-              sanPham: true  
+          }
+        })
+        
+        if (!hoaDon) {
+          return res.status(404).json({ message: 'Mã QR không hợp lệ' })
+        }
+
+        // Find specific ticket
+        const ve = await prisma.vE.findUnique({
+          where: { maVe },
+          include: {
+            hoaDon: true,
+            gheSuatChieu: {
+              include: {
+                ghe: true,
+                suatChieu: {
+                  include: {
+                    phim: true,
+                    phongChieu: true
+                  }
+                }
+              }
             }
           }
-        }
-      })
-      
-      if (!hoaDon) {
-        return res.status(404).json({ message: 'Mã QR không hợp lệ' })
-      }
+        })
 
-      const daCheckInVe = hoaDon.ves.find(v => v.trangThai === 'DaCheckIn')
-      if(daCheckInVe) {
-        return res.status(400).json({ 
-          message: `Vé đã được check-in trước đó.`, 
+        if (!ve) {
+          return res.status(404).json({ message: 'Vé không tồn tại' })
+        }
+
+        if (ve.trangThai === 'DaCheckIn') {
+          return res.status(400).json({ 
+            message: 'Vé này đã được check-in trước đó',
+            data: {
+              maHoaDon: hoaDon.maHoaDon,
+              tongTien: hoaDon.tongTien,
+              phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+              ngayThanhToan: hoaDon.ngayThanhToan,
+              ves: hoaDon.ves,
+            }
+          })
+        }
+
+        // Update only this ticket
+        await prisma.vE.update({
+          where: { maVe },
+          data: {
+            trangThai: 'DaCheckIn',
+            maNhanVienSoatVe: req.user?.maNguoiDung,
+            thoiGianCheckIn: new Date()
+          }
+        })
+
+        return res.status(200).json({
+          message: 'Check-in vé thành công',
+          type: 'paper_ticket',
+          data: {
+            maHoaDon: hoaDon.maHoaDon,
+            tongTien: hoaDon.tongTien,
+            phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+            ngayThanhToan: hoaDon.ngayThanhToan,
+            ves: hoaDon.ves,
+          }
+        })
+      } else {
+        // Online ticket: maHoaDon only - check all tickets in invoice
+        const hoaDon = await prisma.hOADON.findUnique({
+          where: { maQR },
+          include: {
+            ves: {
+              include: {
+                gheSuatChieu: {
+                  include: {
+                    ghe: true,  
+                    suatChieu: {
+                      include: {
+                        phim: true,
+                        phongChieu: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        })
+        
+        if (!hoaDon) {
+          return res.status(404).json({ message: 'Mã QR không hợp lệ' })
+        }
+
+        const daCheckInVe = hoaDon.ves.find(v => v.trangThai === 'DaCheckIn')
+        if (daCheckInVe) {
+          return res.status(400).json({ 
+            message: 'Các vé trong hóa đơn này đã được check-in trước đó',
+            data: {
+              maHoaDon: hoaDon.maHoaDon,
+              tongTien: hoaDon.tongTien,
+              phuongThucThanhToan: hoaDon.phuongThucThanhToan,
+              ngayThanhToan: hoaDon.ngayThanhToan,
+              ves: hoaDon.ves,
+            }
+          })
+        }
+
+        // Update all tickets in invoice
+        await prisma.vE.updateMany({
+          where: { maHoaDon: hoaDon.maHoaDon },
+          data: {
+            trangThai: 'DaCheckIn',
+            maNhanVienSoatVe: req.user?.maNguoiDung,
+            thoiGianCheckIn: new Date()
+          }
+        })
+
+        return res.status(200).json({
+          message: 'Check-in toàn bộ vé thành công',
           data: {
             maHoaDon: hoaDon.maHoaDon,
             tongTien: hoaDon.tongTien,
@@ -228,25 +328,6 @@ class VesController {
           }
         })
       }
-
-      await prisma.vE.updateMany({
-        where: { maHoaDon: hoaDon.maHoaDon },
-        data: {
-          trangThai: 'DaCheckIn',
-          thoiGianCheckIn: new Date(),
-        }
-      })
-
-      res.status(200).json({
-        message: 'Check-in vé thành công',
-        data: {
-          maHoaDon: hoaDon.maHoaDon,
-          tongTien: hoaDon.tongTien,
-          phuongThucThanhToan: hoaDon.phuongThucThanhToan,
-          ngayThanhToan: hoaDon.ngayThanhToan,
-          ves: hoaDon.ves,
-        }
-      })
     } catch (error) {
       console.error(error)
       return res.status(500).json({ message: 'Internal server error' })
@@ -257,6 +338,8 @@ class VesController {
   async scanFood(req: IUserRequest, res: Response) {
     try {
       const { maQR } = req.body
+      
+      // Food QR 
       const hoaDon = await prisma.hOADON.findUnique({
         where: { maQR },
         include: {
@@ -280,6 +363,7 @@ class VesController {
           }
         }
       })
+
       if (!hoaDon) {
         return res.status(404).json({ message: 'Mã QR không hợp lệ' })
       }
@@ -292,9 +376,9 @@ class VesController {
       const daLaySanPham = hoaDon.hoaDonSanPhams.some(v => v.daLay === true) 
       const daLayCombo   = hoaDon.hoaDonCombos.some(v => v.daLay === true)
 
-      if(daLaySanPham || daLayCombo) {
+      if (daLaySanPham || daLayCombo) {
         return res.status(400).json({ 
-          message: `Hóa đơn bắp nước đã được lấy trước đó rồi.`,
+          message: 'Bắp nước & combo đã được lấy trước đó',
           data: {
             maHoaDon: hoaDon.maHoaDon,
             tongTien: hoaDon.tongTien,
@@ -309,16 +393,16 @@ class VesController {
       await prisma.$transaction([
         prisma.hOADON_COMBO.updateMany({
           where: { maHoaDon: hoaDon.maHoaDon },
-          data: { daLay: true, thoiGianLay: new Date() }
+          data: { daLay: true, thoiGianLay: new Date(), maNhanVienSoatBapNuoc: req.user?.maNguoiDung }
         }),
         prisma.hOADON_SANPHAM.updateMany({
           where: { maHoaDon: hoaDon.maHoaDon },
-          data: { daLay: true, thoiGianLay: new Date() }
+          data: { daLay: true, thoiGianLay: new Date(), maNhanVienSoatBapNuoc: req.user?.maNguoiDung }
         })
       ])
 
       res.status(200).json({
-        message: 'Lấy bắp nước thành công',
+        message: 'Lấy bắp nước & combo thành công',
         data: {
           maHoaDon: hoaDon.maHoaDon,
           tongTien: hoaDon.tongTien,

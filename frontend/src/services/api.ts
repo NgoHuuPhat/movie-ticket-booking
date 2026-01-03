@@ -1,4 +1,4 @@
-import type { IVNPayRequestBody } from "@/types/payment"
+import type { IPaymentRequestBody } from "@/types/payment"
 import axios from "axios"
 
 const request = axios.create({
@@ -42,6 +42,11 @@ export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => 
   return res.data
 }
 
+export const getCinemaInfo = async () => {
+  const res = await request.get("/cinema")
+  return res.data
+}
+
 export const listMoviesShowing = async () => {
   const res = await request.get("/movies/showing")
   return res.data
@@ -77,12 +82,12 @@ export const getAllCombos = async () => {
   return res.data
 }
 
-export const getDiscountsForUser = async () => {
-  const res = await request.get("/discounts")
+export const checkDiscountCode = async (maCode: string, tongTien: number) => {
+  const res = await request.post("/discounts/check", { maCode, tongTien })
   return res.data
 }
 
-export const createVNPayPayment = async (paymentData: IVNPayRequestBody) => {
+export const createVNPayPayment = async (paymentData: IPaymentRequestBody) => {
   const res = await request.post("/payments/vnpay-create", paymentData)
   return res.data
 }
@@ -492,21 +497,6 @@ export const deleteUserAdmin = async (id: string) => {
   return res.data
 }
 
-export const getAllTicketsStaff = async (params: { phim?: string; hinhThuc?: string; search?: string; page?: number;  date?: string; sortField?: string; sortOrder?: string }) => {
-  const res = await request.get("/staff/tickets", { params })
-  return res.data
-}
-
-export const scanTicketStaff = async (maQR: string) => {
-  const res = await request.post("/staff/tickets/scan-ticket", { maQR })
-  return res.data
-}
-
-export const scanFoodStaff = async (maQR: string) => {
-  const res = await request.post("/staff/tickets/scan-food", { maQR })
-  return res.data
-}
-
 export const getAllShiftsAdmin = async (search?: string) => {
   const res = await request.get("/admin/shifts", { params: { search } })
   return res.data
@@ -547,3 +537,75 @@ export const deleteWorkScheduleAdmin = async (maNhanVien: string, maCaLam: strin
   return res.data
 }
 
+export const getDiscountsForAdmin = async (params: { page?: number; search?: string; hoatDong?: boolean; trangThai?: string; loaiKhuyenMai?: string; doiTuongKhuyenMai?: string; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/discounts", { params })
+  return res.data
+}
+
+export const getDiscountStatsAdmin = async () => {
+  const res = await request.get("/admin/discounts/stats")
+  return res.data
+}
+
+export const createDiscountAdmin = async (tenKhuyenMai: string, loaiKhuyenMai: string, giaTriGiam: number, ngayBatDau: string, ngayKetThuc: string, donHangToiThieu: number, giamToiDa?: number, maLoaiNguoiDung?: string, soLuong?: number, moTa?: string) => {
+  const res = await request.post("/admin/discounts", { tenKhuyenMai, loaiKhuyenMai, giaTriGiam, giamToiDa, donHangToiThieu, maLoaiNguoiDung, soLuong, ngayBatDau, ngayKetThuc, moTa })
+  return res.data
+}
+
+export const bulkActionDiscountsAdmin = async (discountIds: string[], action: string) => {
+  const res = await request.post("/admin/discounts/bulk-action", { discountIds, action })
+  return res.data
+}
+
+export const updateDiscountAdmin = async (id: string, tenKhuyenMai: string, loaiKhuyenMai: string, giaTriGiam: number, ngayBatDau: string, ngayKetThuc: string, donHangToiThieu: number, giamToiDa?: number, maLoaiNguoiDung?: string, soLuong?: number, moTa?: string) => {
+  const res = await request.patch(`/admin/discounts/${id}`, { tenKhuyenMai, loaiKhuyenMai, giaTriGiam, giamToiDa, donHangToiThieu, maLoaiNguoiDung, soLuong, ngayBatDau, ngayKetThuc, moTa })
+  return res.data
+}
+
+export const toggleDiscountActivationAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/discounts/${id}/toggle`)
+  return res.data
+}
+
+export const deleteDiscountAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/discounts/${id}`)
+  return res.data
+}
+
+// Staff APIs
+export const getAllTicketsStaff = async (params: { phim?: string; hinhThuc?: string; search?: string; page?: number;  date?: string; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/staff/tickets", { params })
+  return res.data
+}
+
+export const scanTicketStaff = async (maQR: string) => {
+  const res = await request.post("/staff/tickets/scan-ticket", { maQR })
+  return res.data
+}
+
+export const scanFoodStaff = async (maQR: string) => {
+  const res = await request.post("/staff/tickets/scan-food", { maQR })
+  return res.data
+}
+
+export const checkCustomerExistsStaff = async (soDienThoai: string) => {
+  const res = await request.get("/staff/customers/check-phone", { params: { soDienThoai } })
+  return res.data
+}
+
+export const createVNPayPaymentStaff = async (paymentData: IPaymentRequestBody) => {
+  const res = await request.post("/staff/payments/vnpay-create", paymentData)
+  return res.data
+}
+
+export const cashPaymentStaff = async (paymentData: IPaymentRequestBody) => {
+  const res = await request.post("/staff/payments/cash", paymentData)
+  return res.data
+}
+
+export const dowloadTicketStaff = async (maHoaDon: string) => {
+  const res = await request.get(`/staff/payments/ticket/${maHoaDon}`, {
+    responseType: 'blob'
+  })
+  return res.data
+}

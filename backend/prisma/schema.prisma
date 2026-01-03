@@ -14,7 +14,7 @@ model LOAINGUOIDUNG {
   moTa             String?  
   
   nguoiDungs       NGUOIDUNG[]
-  dieuKienKhuyenMais DIEUKIENKHUYENMAI[]
+  khuyenMais       KHUYENMAI[]
 }
 
 enum GIOITINH {
@@ -37,9 +37,13 @@ model NGUOIDUNG {
 
   hoaDonNguoiMuas    HOADON[]   @relation("HoaDonNguoiMua")
   hoaDonNhanVienBans HOADON[] @relation("HoaDonNhanVienBanVe")
-  lichLamViecs      LICHLAMVIEC[]
 
-  loaiNguoiDung LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
+  hoaDonVeNhanVienSoatVes VE[]
+  hoaDonCombosNhanVienSoatBapNuocs HOADON_COMBO[]
+  hoaDonSanPhamsNhanVienSoatBapNuocs HOADON_SANPHAM[]
+
+  lichLamViecs      LICHLAMVIEC[]
+  loaiNguoiDung     LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
 }
 
 model CALAM {
@@ -268,43 +272,37 @@ model COMBO {
   hoaDonCombos  HOADON_COMBO[]
 }
 
-model DIEUKIENKHUYENMAI {
-  maDieuKien      String  @id
-  tenLoaiDieuKien String 
-  maLoaiNguoiDung String?
-  moTa            String?
-
-  loaiNguoiDung   LOAINGUOIDUNG? @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
-  khuyenMais      KHUYENMAI[]
-}
-
 enum LOAIKHUYENMAI {
-  GiamGiaTien
+  GiamTien
   GiamPhanTram
 }
 
 model KHUYENMAI {
-  maKhuyenMai              String   @id
+  maKhuyenMai              String     @id
   tenKhuyenMai             String
-  maCode                   String   @unique
-  maDieuKien               String
+  maCode                   String     @unique
+
   loaiKhuyenMai            LOAIKHUYENMAI
   giaTriGiam               Int
+  giamToiDa                Decimal?   @db.Decimal(10, 2)
+
+  donHangToiThieu          Decimal    @db.Decimal(10, 2)
+  maLoaiNguoiDung          String?   
+
   soLuong                  Int?
-  soLuongDaDung            Int      @default(0)
-  thangApDung              Int?
-  ngayApDung               Int?
-  ngayBatDau               DateTime
-  ngayKetThuc              DateTime
-  hoatDong                 Boolean   @default(true)
+  soLuongDaDung            Int        @default(0)
+ 
+  ngayBatDau               DateTime   @db.Date
+  ngayKetThuc              DateTime   @db.Date
+
+  hoatDong                 Boolean    @default(true)
   moTa                     String?
 
   hoaDons                  HOADON[]
-
-  dieuKienKhuyenMai        DIEUKIENKHUYENMAI @relation(fields: [maDieuKien], references: [maDieuKien])
+  loaiKhachHangApDung      LOAINGUOIDUNG?   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
 }
 
-enum HINHTHUCVE {
+enum HINHTHUCDATVE {
   Offline
   Online
 }
@@ -326,6 +324,7 @@ model HOADON {
 
   maNguoiDung         String?
   maNhanVienBanVe     String?
+  hinhThucDatVe       HINHTHUCDATVE
   
   maGiaoDich          String?      @unique
   maKhuyenMai         String?
@@ -346,28 +345,31 @@ model VE {
   maVe                String   @id
   maGheSuatChieu      String   @unique
   maHoaDon            String
-
   giaVe               Decimal      @db.Decimal(10, 2)   
+
   thoiGianCheckIn     DateTime?
-  
+  maNhanVienSoatVe    String?
   trangThai           TRANGTHAIVE  @default(DaThanhToan)
 
+  nhanVienSoatVe      NGUOIDUNG?   @relation(fields: [maNhanVienSoatVe], references: [maNguoiDung])
   hoaDon              HOADON       @relation(fields: [maHoaDon], references: [maHoaDon])
   gheSuatChieu        GHE_SUATCHIEU @relation(fields: [maGheSuatChieu], references: [maGheSuatChieu])
 }
 
 model HOADON_COMBO {
-  maHoaDon              String
-  maCombo               String
-  soLuong               Int
-  donGia                Decimal      @db.Decimal(10, 2)
-  tongTien              Decimal      @db.Decimal(10, 2)
-          
-  daLay                 Boolean      @default(false)
-  thoiGianLay           DateTime?
+  maHoaDon                      String
+  maCombo                       String
+  soLuong                       Int
+  donGia                        Decimal      @db.Decimal(10, 2)
+  tongTien                      Decimal      @db.Decimal(10, 2)
+                  
+  daLay                         Boolean      @default(false)
+  thoiGianLay                   DateTime?
+  maNhanVienSoatBapNuoc         String?
 
   @@id([maHoaDon, maCombo])
 
+  nhanVienSoatBapNuoc NGUOIDUNG? @relation(fields: [maNhanVienSoatBapNuoc], references: [maNguoiDung])
   hoaDon              HOADON  @relation(fields: [maHoaDon], references: [maHoaDon], onDelete: Cascade)
   combo               COMBO  @relation(fields: [maCombo], references: [maCombo], onDelete: Cascade)
 }
@@ -381,9 +383,11 @@ model HOADON_SANPHAM {
           
   daLay                 Boolean  @default(false)
   thoiGianLay           DateTime?
+  maNhanVienSoatBapNuoc String?
 
   @@id([maHoaDon, maSanPham])
 
-  hoaDon              HOADON  @relation(fields: [maHoaDon], references: [maHoaDon], onDelete: Cascade)
-  sanPham             SANPHAM @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade)
+  nhanVienSoatBapNuoc   NGUOIDUNG? @relation(fields: [maNhanVienSoatBapNuoc], references: [maNguoiDung])
+  hoaDon                HOADON  @relation(fields: [maHoaDon], references: [maHoaDon], onDelete: Cascade)
+  sanPham               SANPHAM @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade)
 }

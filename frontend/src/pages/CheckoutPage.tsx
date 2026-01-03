@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { CreditCard, QrCode, AlertCircle, X, Tag } from "lucide-react"
+import { CreditCard, QrCode, X, Tag } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
 import { Button } from "@/components/ui/button"
-import { createVNPayPayment, getDiscountsForUser, getHoldSeatTTL } from "@/services/api"
+import { createVNPayPayment, checkDiscountCode, getHoldSeatTTL } from "@/services/api"
 import type { IDiscount } from "@/types/discount"
 import useBookingStore from "@/stores/useBookingStore"
 import { formatDate, formatTime } from "@/utils/formatDate"
 import { BeatLoader } from "react-spinners"
 import { handleError } from "@/utils/handleError.utils"
 import { useAlert } from "@/stores/useAlert"
+import { toast } from "sonner"
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
@@ -22,7 +23,6 @@ export default function CheckoutPage() {
   const [selectedDiscount, setSelectedDiscount] = useState("")
   const [customCode, setCustomCode] = useState("")
   const [appliedDiscount, setAppliedDiscount] = useState<IDiscount | null>(null)
-  const [availableDiscounts, setAvailableDiscounts] = useState<IDiscount[]>([])
 
   useEffect(() => {
     if (!movie || !showtime || selectedSeats.length === 0) {
@@ -45,20 +45,6 @@ export default function CheckoutPage() {
     }
     fetchHoldTTLs()
   }, [])
-
-  useEffect(() => {
-    const fetchDiscounts = async () => {
-      try {
-        const discounts = await getDiscountsForUser()
-        setAvailableDiscounts(discounts)
-      } catch (error) {
-        console.error("Lỗi khi lấy mã giảm giá:", handleError(error))
-      }
-    }
-    fetchDiscounts()
-  }, [])
-
-  console.log("Available Discounts:", countdown)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -95,20 +81,21 @@ export default function CheckoutPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const handleApplyDiscount = (codeFromClick?: string) => {
+  const handleApplyDiscount = async (codeFromClick?: string) => {
     const maCode = codeFromClick || selectedDiscount || customCode.trim().toUpperCase()
     if (!maCode) {
       alert("Vui lòng chọn hoặc nhập mã giảm giá")
       return
     }
 
-    const found = availableDiscounts.find(d => d.maCode === maCode)
-    if (found) {
-      setAppliedDiscount(found)
+    try {
+      const res = await checkDiscountCode(maCode, getGrandTotal())
+      setAppliedDiscount(res.discount)
+      setSelectedDiscount(maCode)
       setCustomCode("")
-      setSelectedDiscount("")
-    } else {
-      alert("Mã giảm giá không hợp lệ")
+      toast.success(res.message)
+    } catch (error) {
+      showToast(handleError(error))
     }
   }
 
@@ -120,12 +107,22 @@ export default function CheckoutPage() {
 
   const calculateDiscount = () => {
     if (!appliedDiscount) return 0
+
     const baseTotal = getGrandTotal()
     const giaTriGiam = Number(appliedDiscount.giaTriGiam) || 0
+    let soTienGiam = 0
     
-    return appliedDiscount.loaiKhuyenMai === "GiamGiaTien" 
-      ? giaTriGiam
-      : Math.round(baseTotal * giaTriGiam / 100)
+
+    if (appliedDiscount.loaiKhuyenMai === "GiamTien") {
+      soTienGiam = giaTriGiam
+    } else if (appliedDiscount.loaiKhuyenMai === "GiamPhanTram") {
+      soTienGiam = Math.floor(baseTotal * (giaTriGiam / 100))
+      if (appliedDiscount.giamToiDa) {
+        soTienGiam = Math.min(soTienGiam, appliedDiscount.giamToiDa)
+      }
+    } 
+
+    return soTienGiam
   }
 
   const calculateFinalTotal = () => getGrandTotal() - calculateDiscount()
@@ -274,30 +271,33 @@ export default function CheckoutPage() {
                 disabled={!!appliedDiscount}
                 className="w-full mb-6 bg-white border border-white/30 rounded px-5 py-2 text-black placeholder-gray-400 focus:border-yellow-300 focus:outline-none disabled:opacity-50"
               />
-              
-              <div className="space-y-4">
-                {availableDiscounts.map((discount) => (
-                  <div
-                    key={discount.maCode}
-                    onClick={() => {
-                      if (!appliedDiscount) {
-                        setSelectedDiscount(discount.maCode) 
-                        handleApplyDiscount(discount.maCode)
-                      }
-                    }}
-                    className={`p-4 rounded border-1 transition-all ${
-                      selectedDiscount === discount.maCode
-                        ? "border-yellow-300 bg-yellow-300/10"
-                        : appliedDiscount
-                        ? "border-white/20 bg-white/5 opacity-50"
-                        : "border-white/30 bg-white/5 hover:border-yellow-300/50"
-                    } ${appliedDiscount ? "cursor-not-allowed" : "cursor-pointer"}`}
-                  >
-                    <h3 className="text-white font-bold text-lg mb-2">{discount.maCode}: {discount.tenKhuyenMai}</h3>
-                    <p className="text-gray-300 text-sm">{discount.moTa}</p>
-                  </div>
-                ))}
-              </div>
+            </div>
+            <div className="hidden md:flex gap-4">
+              <Button
+                onClick={() => navigate(-1)}
+                variant="yellowToPinkPurple"
+                className="flex-1 h-12 text-xl font-anton uppercase"
+              >
+                <span>Quay lại</span>
+              </Button>
+
+              <Button
+                onClick={handlePayment}
+                variant="yellowToPinkPurple"
+                disabled={processing || countdown === 0}
+                className="flex-1 h-12 text-xl font-anton uppercase"
+              >
+                {processing ? (
+                  <>
+                    <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin mr-3"></div>
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <span>Thanh toán</span>
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
@@ -308,12 +308,6 @@ export default function CheckoutPage() {
               <p className="text-base font-anton text-purple-900 px-2 rounded bg-yellow-300">{formatTimeCountdown(countdown)}</p>
             </div>
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 my-6">
-              <img
-                src={bookingData.movie.anhBia}
-                alt={bookingData.movie.tenPhim}
-                className="aspect-[2/3] w-48 rounded overflow-hidden object-cover border-2 border-yellow-300/30 shadow-2xl bg-gray-800"
-              />
-
               <div>
                 <h3 className="text-white font-bold text-2xl mb-2">{bookingData.movie.tenPhim}</h3>
                 <span className="px-3 py-2 text-black bg-yellow-300 rounded font-semibold text-sm">
@@ -344,13 +338,29 @@ export default function CheckoutPage() {
             </div>
 
             <div className="pb-4 border-b border-white/20 mb-4 space-y-3">
-              <p className="text-yellow-300 mb-4">Ghế đã chọn</p>
-              {bookingData.seats.map((seat, idx) => (
-                <div key={idx} className="flex justify-between text-white">
-                  <span>Ghế {seat.ghe} ({seat.loai})</span>
-                  <span className="text-white font-semibold">{seat.donGia.toLocaleString()} VNĐ</span>
-                </div>
-              ))}
+              {(() => {
+                const groupedSeats = bookingData.seats.reduce((acc, seat) => {
+                  if (!acc[seat.loai]) {
+                    acc[seat.loai] = { seats: [] }
+                  }
+                  acc[seat.loai].seats.push(seat.ghe)
+                  return acc
+                }, {} as Record<string, { seats: string[] }>)
+
+                return Object.entries(groupedSeats).map(([loai, data]) => (
+                  <div key={loai} className="flex  gap-10">
+                    <div className="w-40">
+                      <p className="text-yellow-300 mb-1">Loại ghế</p>
+                      <p className="text-white font-semibold">{loai}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-yellow-300 mb-1">Số ghế</p>
+                      <p className="text-white">{data.seats.join(", ")}</p>
+                    </div>
+                  </div>
+                ))
+              })()}
             </div>
 
             {bookingData.foods.length > 0 && (
@@ -386,7 +396,7 @@ export default function CheckoutPage() {
               onClick={handlePayment}
               variant="yellowToPinkPurple"
               disabled={processing || countdown === 0}
-              className="w-full mt-8 h-12 text-xl font-anton"
+              className="md:hidden w-full mt-8 h-12 text-xl font-anton"
             >
               {processing ? (
                 <>
@@ -399,13 +409,6 @@ export default function CheckoutPage() {
                 </>
               )}
             </Button>
-
-            {countdown === 0 && (
-              <div className="mt-6 p-5 bg-red-500/20 border border-red-500 rounded flex items-center gap-4">
-                <AlertCircle className="w-7 h-7 text-red-400 flex-shrink-0" />
-                <p className="text-red-300 text-base">Hết thời gian giữ vé. Vui lòng đặt lại.</p>
-              </div>
-            )}
           </div>
         </div>
       </div>

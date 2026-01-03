@@ -14,6 +14,7 @@ import usersRouter from '@/routes/Admin/users.routes'
 import productCategoriesRouter from '@/routes/Admin/productcategories.routes'
 import shiftsRouter from '@/routes/Admin/shifts.routes'
 import workschedulesRouter from '@/routes/Admin/workschedules.routes'
+import discountsRouter from '@/routes/Admin/discounts.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 import { checkAdmin } from '@/middlewares/role.middleware'
 
@@ -34,5 +35,6 @@ router.use('/usertypes', authenticateToken, checkAdmin, usertypesRouter)
 router.use('/users', authenticateToken, checkAdmin, usersRouter)
 router.use('/shifts', authenticateToken, checkAdmin, shiftsRouter)
 router.use('/workschedules', authenticateToken, checkAdmin, workschedulesRouter)
+router.use('/discounts', authenticateToken, checkAdmin, discountsRouter)
 
 export default router

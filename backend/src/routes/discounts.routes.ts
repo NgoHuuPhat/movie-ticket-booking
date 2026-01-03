@@ -3,5 +3,6 @@ import discountsController from '@/controllers/discounts.controller'
 
 const router = Router()
 
-router.get('/', discountsController.getDiscountsForUser)
+router.post('/check', discountsController.checkDiscountCode)
+
 export default router

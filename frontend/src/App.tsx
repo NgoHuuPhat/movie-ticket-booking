@@ -37,10 +37,12 @@ import ManageProductsPage from "@/pages/Admin/ManageProductsPage"
 import ManageUsersPage from "@/pages/Admin/ManageUsersPage"
 import ManageShiftsPage from "@/pages/Admin/ManageShiftsPage"
 import ManageWorkSchedulesPage from "@/pages/Admin/ManageWorkSchedulesPage"
+import ManageDiscountPage from "@/pages/Admin/ManageDiscountPage"
 
 import DashboardStaffPage from "@/pages/Staff/DashboardPage"
 import TicketOrdersPage from "@/pages/Staff/TicketOrdersPage"
 import FoodOrdersPage from "@/pages/Staff/FoodOrdersPage"
+import POSPage from "@/pages/Staff/POSPage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -99,7 +101,7 @@ function App(){
           <Route path="/admin/food-categories" element={<ManageProductCategoriesPage />} />
           <Route path="/admin/foods" element={<ManageProductsPage />} />
           <Route path="/admin/combos" element={<ManageCombosPage />} />
-          <Route path="/admin/discount-codes" element={<div>Manage Discount Codes Page</div>} />
+          <Route path="/admin/discount-codes" element={<ManageDiscountPage />} />
 
           <Route path="/admin/users" element={<ManageUsersPage />} />
 
@@ -113,6 +115,7 @@ function App(){
           <Route path="/staff/dashboard" element={<DashboardStaffPage />} />
           <Route path="/staff/orders/tickets" element={<TicketOrdersPage />} />
           <Route path="/staff/orders/foods" element={<FoodOrdersPage />} />
+          <Route path="/staff/pos" element={<POSPage />} />
 
           <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
         </Route>

@@ -2,7 +2,8 @@ import { useState, useEffect, Fragment } from "react"
 import {
   Ticket, Search, Filter, MoreVertical, Eye, XCircle,
   Download, DollarSign, Users, ChevronDown, ChevronRight,
-  Package, ShoppingBag
+  Package, ShoppingBag,
+  UserCheck
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +11,6 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Checkbox } from "@/components/ui/checkbox"
 import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
 import { getAllTicketsAdmin, getMoviesForSelect, getTicketStatsAdmin } from "@/services/api"
@@ -24,6 +24,7 @@ interface ITicket {
   giaVe: number
   trangThai: "DaCheckIn" | "DaDat" | "DaHuy" | "DaHoanTien"
   thoiGianCheckIn?: string
+  nhanVienSoatVe?: IStaff | null
   suatChieu: {
     maSuatChieu: string
     gioBatDau: string
@@ -31,6 +32,12 @@ interface ITicket {
     phim: { tenPhim: string }
   }
   ghe: string[]
+}
+
+interface IStaff {
+  hoTen: string
+  email: string
+  soDienThoai: string
 }
 
 interface ICombo {
@@ -41,6 +48,7 @@ interface ICombo {
   tongTien: number
   daLay: boolean
   thoiGianLay?: string
+  nhanVienSoatBapNuoc?: IStaff | null
 }
 
 interface ISanPham {
@@ -51,6 +59,7 @@ interface ISanPham {
   tongTien: number
   daLay: boolean
   thoiGianLay?: string
+  nhanVienSoatBapNuoc?: IStaff | null
 }
 
 interface IInvoiceDisplay {
@@ -61,7 +70,7 @@ interface IInvoiceDisplay {
     hoTen: string
     email: string
     soDienThoai: string
-  }
+  } | null
   nhanVienBanVe: {
     hoTen: string
     email: string
@@ -82,7 +91,6 @@ const ManageTicketPage = () => {
   const [invoices, setInvoices] = useState<IInvoiceDisplay[]>([])
   const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string }>>([])
   const [expandedInvoiceIds, setExpandedInvoiceIds] = useState<string[]>([])
-  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<IInvoiceDisplay | null>(null)
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -169,16 +177,6 @@ const ManageTicketPage = () => {
     fetchInvoices()
   }, [currentPage, searchQuery, movieFilter, hinhThucFilter, dateFilter])
 
-  const handleSelectInvoice = (invoiceId: string) => {
-    setSelectedInvoiceIds(prev =>
-      prev.includes(invoiceId) ? prev.filter(id => id !== invoiceId) : [...prev, invoiceId]
-    )
-  }
-
-  const handleSelectAll = (checked: boolean) => {
-    setSelectedInvoiceIds(checked ? invoices.map(i => i.maHoaDon) : [])
-  }
-
   const getTrangThaiVeDisplay = (status: string) => {
     switch (status) {
       case "DaCheckIn": return { label: "Đã check-in", color: "bg-emerald-100 text-emerald-800" }
@@ -207,16 +205,16 @@ const ManageTicketPage = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { title: "Tổng vé", value: stats.total, icon: <Ticket />, color: "bg-purple-500" },
-              { title: "Doanh thu", value: stats.doanhThu.toLocaleString() + ' VNĐ', icon: <DollarSign />, color: "bg-amber-500" },
-              { title: "Online", value: stats.online, icon: <Ticket />, color: "bg-purple-500" },
-              { title: "Offline", value: stats.offline, icon: <Users />, color: "bg-gray-500" },
+              { title: "Tổng số vé", value: stats.total, icon: <Ticket />, color: "bg-purple-500" },
+              { title: "Doanh thu", value: Number(stats.doanhThu).toLocaleString() + ' VNĐ', icon: <DollarSign />, color: "bg-amber-500" },
+              { title: "Vé Online", value: stats.online, icon: <Ticket />, color: "bg-purple-500" },
+              { title: "Vé Offline", value: stats.offline, icon: <Users />, color: "bg-gray-500" },
             ].map((card, i) => (
               <Card key={i} className="bg-white/60 shadow-sm hover:shadow-md transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-medium text-gray-600">{card.title}</p>
+                      <p className="text font-medium text-gray-600">{card.title}</p>
                       <p className="text-xl font-bold mt-1">{card.value}</p>
                     </div>
                     <div className={`${card.color} p-3 rounded-lg text-white`}>{card.icon}</div>
@@ -295,16 +293,10 @@ const ManageTicketPage = () => {
               <table className="w-full">
                 <thead className="border-b bg-gray-100/60 sticky top-0 z-10">
                   <tr>
-                    <th className="text-left p-4 w-12">
-                      <Checkbox
-                        checked={selectedInvoiceIds.length === invoices.length && invoices.length > 0}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </th>
                     <th className="text-left p-4 w-12"></th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Mã hóa đơn</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Khách hàng</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-700">Nhân viên đặt</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-700">Nhân viên bán vé</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Số vé</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Tổng tiền</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-700">Hình thức thanh toán</th>
@@ -331,12 +323,6 @@ const ManageTicketPage = () => {
                             onClick={() => toggleExpandInvoice(invoice.maHoaDon)}
                           >
                             <td className="p-4" onClick={(e) => e.stopPropagation()}>
-                              <Checkbox
-                                checked={selectedInvoiceIds.includes(invoice.maHoaDon)}
-                                onCheckedChange={() => handleSelectInvoice(invoice.maHoaDon)}
-                              />
-                            </td>
-                            <td className="p-4" onClick={(e) => e.stopPropagation()}>
                               <Button variant="ghost" size="sm" onClick={() => toggleExpandInvoice(invoice.maHoaDon)}>
                                 {isExpanded ? (
                                   <ChevronDown className="h-5 w-5 text-purple-600" />
@@ -350,8 +336,8 @@ const ManageTicketPage = () => {
                               <div className="text-xs text-gray-500 font-mono">{invoice.maQR}</div>
                             </td>
                             <td className="p-4">
-                              <div className="font-medium">{invoice.nguoiDung.hoTen}</div>
-                              <div className="text-xs text-gray-500">{invoice.nguoiDung.email}</div>
+                              <div className="font-medium">{invoice.nguoiDung ? invoice.nguoiDung.hoTen : ""}</div>
+                              <div className="text-xs text-gray-500">{invoice.nguoiDung ? invoice.nguoiDung.email : ""}</div>
                             </td>
                             <td className="p-4">
                               <div className="font-medium">{invoice.nhanVienBanVe ? invoice.nhanVienBanVe.hoTen : ""} </div>
@@ -383,7 +369,7 @@ const ManageTicketPage = () => {
                             </td>
                             <td className="p-4">
                               <Badge variant="outline">
-                                {invoice.phuongThucThanhToan} • {invoice.hinhThuc}
+                                {invoice.phuongThucThanhToan === "TIENMAT" ? "Tiền mặt" : invoice.phuongThucThanhToan} • {invoice.hinhThuc}
                               </Badge>
                             </td>
                             <td className="p-4 text-sm">
@@ -653,15 +639,20 @@ const ManageTicketPage = () => {
                       <Label className="text-sm text-gray-600">Mã QR</Label>
                       <p className="font-mono text-sm bg-white p-2 rounded border">{selectedInvoice.maQR}</p>
                     </div>
-                    <div className="flex mt-5">
-                      <div className="flex-1">
-                        <Label className="text-sm text-gray-600">Khách hàng</Label>
-                        <p className="font-medium">{selectedInvoice.nguoiDung.hoTen}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.email}</p>
-                        <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung.soDienThoai}</p>
-                      </div>
+                    <div>
+                      <Label className="text-sm text-gray-600">Khách hàng</Label>
+                      <p className="font-medium">{selectedInvoice?.nguoiDung?.hoTen}</p>
+                      <p className="text-sm text-gray-600">{selectedInvoice?.nguoiDung?.email}</p>
+                      <p className="text-sm text-gray-600">{selectedInvoice?.nguoiDung?.soDienThoai}</p>
                     </div>
-                    
+                    {selectedInvoice.nhanVienBanVe && (
+                      <div>
+                        <Label className="text-sm text-gray-600">Nhân viên bán vé</Label>
+                        <p className="font-medium">{selectedInvoice.nhanVienBanVe.hoTen}</p>
+                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienBanVe.email}</p>
+                        <p className="text-sm text-gray-600">{selectedInvoice.nhanVienBanVe.soDienThoai}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -674,7 +665,7 @@ const ManageTicketPage = () => {
                     <div>
                       <Label className="text-sm text-gray-600">Phương thức thanh toán</Label>
                       <Badge variant="outline" className="mt-1">
-                        {selectedInvoice.phuongThucThanhToan}
+                        {selectedInvoice.phuongThucThanhToan === "TIENMAT" ? "Tiền mặt" : selectedInvoice.phuongThucThanhToan}
                       </Badge>
                     </div>
                     <div>
@@ -729,8 +720,21 @@ const ManageTicketPage = () => {
                             </div>
                           </div>
                           {ve.trangThai === "DaCheckIn" && ve.thoiGianCheckIn && (
-                            <div className="mt-3 pt-3 border-t text-sm text-gray-600">
-                              Check-in: {formatTime(ve.thoiGianCheckIn)} {formatDate(ve.thoiGianCheckIn)}
+                            <div className="mt-3 pt-3 border-t">
+                              <div className="flex items-start gap-2">
+                                <UserCheck className="h-4 w-4 text-emerald-600 mt-0.5" />
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium text-gray-700">
+                                    Check-in: {formatTime(ve.thoiGianCheckIn)} {formatDate(ve.thoiGianCheckIn)}
+                                  </div>
+                                  {ve.nhanVienSoatVe && (
+                                    <div className="text-sm text-gray-600 mt-1">
+                                      <span className="font-medium">NV Soát vé:</span> {ve.nhanVienSoatVe.hoTen}
+                                      <span className="text-xs text-gray-500 ml-1">({ve.nhanVienSoatVe.email})</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -748,19 +752,39 @@ const ManageTicketPage = () => {
                     </h3>
                     <div className="space-y-2">
                       {selectedInvoice.combos.map(combo => (
-                        <div key={combo.maCombo} className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium">{combo.tenCombo}</p>
-                            <p className="text-sm text-gray-600">
-                              Số lượng: {combo.soLuong} × {Number(combo.donGia).toLocaleString()} VNĐ
-                            </p>
+                        <div key={combo.maCombo} className="border rounded-lg p-3 bg-amber-50/30">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium">{combo.tenCombo}</p>
+                              <p className="text-sm text-gray-600">
+                                Số lượng: {combo.soLuong} × {Number(combo.donGia).toLocaleString()} VNĐ
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-emerald-700">{Number(combo.tongTien).toLocaleString()} VNĐ</p>
+                              <Badge className={combo.daLay ? "bg-green-100 text-green-800 mt-1" : "bg-orange-100 text-orange-800 mt-1"}>
+                                {combo.daLay ? "Đã lấy" : "Chưa lấy"}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-emerald-700">{Number(combo.tongTien).toLocaleString()} VNĐ</p>
-                            <Badge className={combo.daLay ? "bg-green-100 text-green-800 mt-1" : "bg-orange-100 text-orange-800 mt-1"}>
-                              {combo.daLay ? "Đã lấy" : "Chưa lấy"}
-                            </Badge>
-                          </div>
+                          {combo.daLay && combo.thoiGianLay && (
+                            <div className="mt-2 pt-2 border-t border-amber-200">
+                              <div className="flex items-start gap-2">
+                                <UserCheck className="h-4 w-4 text-green-600 mt-0.5" />
+                                <div className="text-sm">
+                                  <div className="text-gray-700">
+                                    Đã lấy: {formatTime(combo.thoiGianLay)} {formatDate(combo.thoiGianLay)}
+                                  </div>
+                                  {combo.nhanVienSoatBapNuoc && (
+                                    <div className="text-gray-600 mt-1">
+                                      <span className="font-medium">NV Soát:</span> {combo.nhanVienSoatBapNuoc.hoTen}
+                                      <span className="text-xs text-gray-500 ml-1">({combo.nhanVienSoatBapNuoc.email})</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -776,19 +800,39 @@ const ManageTicketPage = () => {
                     </h3>
                     <div className="space-y-2">
                       {selectedInvoice.sanPhams.map(sp => (
-                        <div key={sp.maSanPham} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium">{sp.tenSanPham}</p>
-                            <p className="text-sm text-gray-600">
-                              Số lượng: {sp.soLuong} × {Number(sp.donGia).toLocaleString()} VNĐ
-                            </p>
+                        <div key={sp.maSanPham} className="border rounded-lg p-3 bg-blue-50/30">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium">{sp.tenSanPham}</p>
+                              <p className="text-sm text-gray-600">
+                                Số lượng: {sp.soLuong} × {Number(sp.donGia).toLocaleString()} VNĐ
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-emerald-700">{Number(sp.tongTien).toLocaleString()} VNĐ</p>
+                              <Badge className={sp.daLay ? "bg-green-100 text-green-800 mt-1" : "bg-orange-100 text-orange-800 mt-1"}>
+                                {sp.daLay ? "Đã lấy" : "Chưa lấy"}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-emerald-700">{Number(sp.tongTien).toLocaleString()} VNĐ</p>
-                            <Badge className={sp.daLay ? "bg-green-100 text-green-800 mt-1" : "bg-orange-100 text-orange-800 mt-1"}>
-                              {sp.daLay ? "Đã lấy" : "Chưa lấy"}
-                            </Badge>
-                          </div>
+                          {sp.daLay && sp.thoiGianLay && (
+                            <div className="mt-2 pt-2 border-t border-blue-200">
+                              <div className="flex items-start gap-2">
+                                <UserCheck className="h-4 w-4 text-green-600 mt-0.5" />
+                                <div className="text-sm">
+                                  <div className="text-gray-700">
+                                    Đã lấy: {formatTime(sp.thoiGianLay)} {formatDate(sp.thoiGianLay)}
+                                  </div>
+                                  {sp.nhanVienSoatBapNuoc && (
+                                    <div className="text-gray-600 mt-1">
+                                      <span className="font-medium">NV Soát:</span> {sp.nhanVienSoatBapNuoc.hoTen}
+                                      <span className="text-xs text-gray-500 ml-1">({sp.nhanVienSoatBapNuoc.email})</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -838,7 +882,7 @@ const ManageTicketPage = () => {
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="font-semibold mb-2">Thông tin hóa đơn</p>
                   <p className="text-sm"><strong>Mã:</strong> {selectedInvoice.maHoaDon}</p>
-                  <p className="text-sm"><strong>Khách hàng:</strong> {selectedInvoice.nguoiDung.hoTen}</p>
+                  <p className="text-sm"><strong>Khách hàng:</strong> {selectedInvoice.nguoiDung?.hoTen}</p>
                   <p className="text-sm"><strong>Số vé:</strong> {selectedInvoice.ves.length} vé</p>
                   <p className="text-sm font-semibold text-emerald-700 mt-2">
                     Tổng tiền: {Number(selectedInvoice.tongTien).toLocaleString()} VNĐ

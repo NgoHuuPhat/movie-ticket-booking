@@ -4,7 +4,7 @@ import { VNPay, ignoreLogger, HashAlgorithm, ProductCode, VnpLocale, dateFormat 
 import { generateIncrementalId } from '@/utils/generateId.utils'
 import { IUserRequest } from '@/types/user'
 import { customAlphabet } from 'nanoid'
-import { IVNPayRequestBody } from '@/types/payment'
+import { IPaymentRequestBody } from '@/types/payment'
 import QRCode from 'qrcode'
 import { addTicketEmailToQueue } from '@/queues/email.queue'
 import { redisClient } from '@/services/redis.service'
@@ -12,7 +12,7 @@ import { redisClient } from '@/services/redis.service'
 class ThanhToansController {
   // [POST] /payments/create-vnpay
   async createVNPay(req: IUserRequest, res: Response) {
-    const { maSuatChieu, selectedSeats, selectedFoods, maCodeKhuyenMai, tongTien }: IVNPayRequestBody = req.body
+    const { maSuatChieu, selectedSeats, selectedFoods, maCodeKhuyenMai, tongTien }: IPaymentRequestBody = req.body
     const maNguoiDung = req.user?.maNguoiDung
     if (!maSuatChieu || !selectedSeats?.length || !tongTien || !maNguoiDung) {
       return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo đơn hàng.' })
@@ -142,7 +142,7 @@ class ThanhToansController {
             maKhuyenMai,
             tongTien: pending.tongTien,
             phuongThucThanhToan: 'VNPAY',
-            ngayThanhToan,
+            hinhThucDatVe: 'Online',
           },
         })
 
@@ -212,10 +212,30 @@ class ThanhToansController {
           })
         }
 
-        await tx.nGUOIDUNG.update({
+        if (pending.maCodeKhuyenMai) {
+          const khuyenMai = await tx.kHUYENMAI.findUnique({
+            where: { maCode: pending.maCodeKhuyenMai },
+          })
+          if (khuyenMai) {
+            await tx.kHUYENMAI.update({
+              where: { maCode: pending.maCodeKhuyenMai },
+              data: { soLuongDaDung: { increment: 1 } },
+            })
+          }
+        }
+
+        const updatedUser = await tx.nGUOIDUNG.update({
           where: { maNguoiDung: pending.maNguoiDung },
           data: { diemTichLuy: { increment: Math.floor(pending.tongTien / 1000) } },
         })
+        if(updatedUser.diemTichLuy >= Number(process.env.VIP_THRESHOLD_POINTS) && updatedUser.maLoaiNguoiDung !== process.env.DEFAULT_USER_ROLE_VIP) {
+          await tx.nGUOIDUNG.update({
+            where: { maNguoiDung: pending.maNguoiDung },
+            data: { loaiNguoiDung: {
+              connect: { maLoaiNguoiDung: process.env.DEFAULT_USER_ROLE_VIP}
+            }},
+          })
+        }
 
         return createdHoaDon
       })
@@ -270,7 +290,10 @@ class ThanhToansController {
       if (fullHoaDon.khuyenMai && fullHoaDon.maKhuyenMai) {
         if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamPhanTram') {
           soTienGiamGia = Math.floor(tongTienTruocGiam * (Number(fullHoaDon.khuyenMai.giaTriGiam) / 100))
-        } else if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamGiaTien') {
+          if(fullHoaDon.khuyenMai.giamToiDa && soTienGiamGia > Number(fullHoaDon.khuyenMai.giamToiDa)) {
+            soTienGiamGia = Number(fullHoaDon.khuyenMai.giamToiDa)
+          }
+        } else if (fullHoaDon.khuyenMai.loaiKhuyenMai === 'GiamTien') {
           soTienGiamGia = Number(fullHoaDon.khuyenMai.giaTriGiam)
         }
       }
@@ -279,7 +302,11 @@ class ThanhToansController {
         maQR: fullHoaDon.maQR,
         tenPhim: phim.tenPhim,
         phongChieu: phongChieu.tenPhong,
-        ngayChieu: new Date(suatChieu.gioBatDau).toLocaleDateString('vi-VN'),
+        ngayChieu: new Date(suatChieu.gioBatDau).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }),
         gioChieu: new Date(suatChieu.gioBatDau).toLocaleTimeString('vi-VN', {
           hour: '2-digit',
           minute: '2-digit',
@@ -288,7 +315,14 @@ class ThanhToansController {
           const ghe = ve.gheSuatChieu.ghe
           return `${ghe.hangGhe}${ghe.soGhe}`
         }),
-        thoiGianThanhToan: ngayThanhToan.toLocaleString('vi-VN'),
+        thoiGianThanhToan: ngayThanhToan.toLocaleString('vi-VN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }),
         tienComboBapNuoc: tienCombo,
         soTienGiamGia: fullHoaDon.maKhuyenMai ? soTienGiamGia : 0,
         tongTien: tongTienTruocGiam,

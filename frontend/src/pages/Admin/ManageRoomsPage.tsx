@@ -171,32 +171,77 @@ const ManageRoomsPage = () => {
   }
 
   const handleViewSeats = async (room: IRoom) => {
-  setSelectedRoom(room)
-  setRoomSeats(null)
-  setIsSeatViewDialogOpen(true)
-  setLoadingSeats(true)
+    setSelectedRoom(room)
+    setRoomSeats(null)
+    setIsSeatViewDialogOpen(true)
+    setLoadingSeats(true)
 
-  try {
-    const res = await getRoomSeatsAdmin(room.maPhong)
+    try {
+      const res = await getRoomSeatsAdmin(room.maPhong)
       if (!res.room || res.room.ghes.length === 0) {
         setRoomSeats({ soHang: 0, soCot: 0, seats: [] })
         return
       }
 
-      const hangGhes = [...new Set(res.room.ghes.map((g: ISeat) => g.hangGhe))]
-      const soGhes = [...new Set(res.room.ghes.map((g: ISeat) => g.soGhe))] as number[]
+      const allGhes: ISeat[] = res.room.ghes
 
-      const seats = res.room.ghes.map((seat: ISeat) => ({
-        hangGhe: seat.hangGhe,
-        soGhe: seat.soGhe,
-        maLoaiGhe: seat.maLoaiGhe,
-        hoatDong: seat.hoatDong
-      }))
+      // 1. Xác định các hàng là couple (dựa vào maLoaiGhe chứa couple/đôi)
+      const coupleSeatTypeIds = seatTypes
+        .filter(t => t.tenLoaiGhe.toLowerCase().includes('couple') || t.tenLoaiGhe.toLowerCase().includes('đôi'))
+        .map(t => t.maLoaiGhe)
+
+      const coupleRows = new Set<number>()
+      allGhes.forEach(ghe => {
+        if (coupleSeatTypeIds.includes(ghe.maLoaiGhe)) {
+          const rowIndex = ghe.hangGhe.charCodeAt(0) - 65
+          coupleRows.add(rowIndex)
+        }
+      })
+
+      // 2. Chuẩn hóa danh sách seats cho RoomForm (chỉ giữ ghế đại diện của couple)
+      const normalizedSeats: SeatConfig[] = []
+
+      allGhes.forEach(ghe => {
+        const rowIndex = ghe.hangGhe.charCodeAt(0) - 65
+        const isCouple = coupleRows.has(rowIndex)
+
+        // Nếu là hàng couple → chỉ thêm ghế nếu soGhe là số lẻ (ghế đầu tiên của cặp)
+        if (isCouple) {
+          if (ghe.soGhe % 2 === 1) {  // 1,3,5,...
+            normalizedSeats.push({
+              hangGhe: ghe.hangGhe,
+              soGhe: ghe.soGhe,
+              maLoaiGhe: ghe.maLoaiGhe,
+              hoatDong: ghe.hoatDong,
+              isCoupleSeat: true
+            })
+          }
+          // Ghế chẵn (phần 2 của couple) sẽ bị bỏ qua ở đây → RoomForm sẽ tự render 2 icon
+        } else {
+          // Hàng thường → thêm bình thường
+          normalizedSeats.push({
+            hangGhe: ghe.hangGhe,
+            soGhe: ghe.soGhe,
+            maLoaiGhe: ghe.maLoaiGhe,
+            hoatDong: ghe.hoatDong,
+            isCoupleSeat: false
+          })
+        }
+      })
+
+      // 3. Tính soHang và soCot chính xác
+      const uniqueRows = [...new Set(normalizedSeats.map(s => s.hangGhe))]
+      const maxColInNormalRow = Math.max(
+        ...allGhes
+          .filter(g => !coupleRows.has(g.hangGhe.charCodeAt(0) - 65))
+          .map(g => g.soGhe),
+        0
+      )
 
       setRoomSeats({
-        soHang: hangGhes.length,
-        soCot: soGhes.length > 0 ? Math.max(...soGhes) : 0,
-        seats
+        soHang: uniqueRows.length,
+        soCot: maxColInNormalRow, // soCot của hàng thường (sẽ dùng để tính ghế đôi = floor(soCot/2))
+        seats: normalizedSeats
       })
     } catch (error) {
       toast.error(handleError(error))

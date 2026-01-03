@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type JSX } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Clock, Play, Tags, UserRoundCheck, X } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
@@ -164,12 +164,6 @@ export default function MovieDetailPage() {
     }
   }
 
-  const isSeatFilled = (seat: ISeatData | null, selected: string[]) => {
-    if (!seat) return true
-    if (seat.trangThai === "DaDat") return true
-    if (selected.includes(seat.maGhe)) return true
-    return false
-  }
   const checkForSeatGaps = (selected: string[]): { hasGap: boolean; message: string } => {
     const selectedSeatsData = selected.map(id => seats.find(s => s.maGhe === id)) as ISeatData[]
     const rows = [...new Set(selectedSeatsData.map(s => s.hangGhe))]
@@ -182,6 +176,7 @@ export default function MovieDetailPage() {
       for (let i = 0; i < rowSeats.length; i++) {
         const seat = rowSeats[i]
 
+        // Skip couple seats and already booked seats
         if (seat.tenLoaiGhe === "Couple") continue
         if (seat.trangThai === "DaDat") continue
 
@@ -191,8 +186,17 @@ export default function MovieDetailPage() {
         const leftSeat = rowSeats[i - 1] || null
         const rightSeat = rowSeats[i + 1] || null
 
-        const leftFilled = isSeatFilled(leftSeat, selected)
-        const rightFilled = isSeatFilled(rightSeat, selected)
+        // Helper function to determine if a seat is blocked
+        const isSeatBlocked = (s: ISeatData | null) => {
+          if (!s) return true
+          if (s.trangThai === "DaDat") return true
+          if (selected.includes(s.maGhe)) return true
+          if (s.tenLoaiGhe === "Couple") return true
+          return false
+        }
+
+        const leftFilled = isSeatBlocked(leftSeat)
+        const rightFilled = isSeatBlocked(rightSeat)
 
         if (leftFilled && rightFilled) {
           return {
@@ -214,62 +218,29 @@ export default function MovieDetailPage() {
       return
     }
 
-    if (seat.tenLoaiGhe === 'Couple') {
-      const rowSeats = seats
-        .filter(s => s.hangGhe === seat.hangGhe && s.tenLoaiGhe === 'Couple')
-        .sort((a, b) => a.soGhe - b.soGhe)
-      
-      const currentIndex = rowSeats.findIndex(s => s.maGhe === maGhe)
-      
-      let pairSeat: ISeatData | undefined
-      
-      // Kiểm tra xem đây là ghế đầu hay ghế thứ 2 trong cặp
-      if (currentIndex % 2 === 0) {
-        pairSeat = rowSeats[currentIndex + 1]
-      } else {
-        pairSeat = rowSeats[currentIndex - 1]
+    // Toggle seat selection
+    setSelectedSeats(prev => {
+      if (prev.includes(maGhe)) {
+        return prev.filter(id => id !== maGhe)
       }
 
-      if (pairSeat && pairSeat.trangThai !== 'DaDat') {
-        setSelectedSeats(prev => {
-          const hasFirst = prev.includes(seat.maGhe)
-          const hasSecond = prev.includes(pairSeat!.maGhe)
-          
-          if (hasFirst || hasSecond) {
-            // Bỏ chọn cả 2 ghế
-            return prev.filter(id => id !== seat.maGhe && id !== pairSeat!.maGhe)
-          } else {
-            if (prev.length + 2 > 8) {
-              showToast("Bạn chỉ có thể chọn tối đa 8 ghế!")
-              return prev
-            }
-            // Chọn cả 2 ghế
-            return [...prev, seat.maGhe, pairSeat!.maGhe]
-          }
-        })
+      if (prev.length >= 8) {
+        showToast("Bạn chỉ có thể chọn tối đa 8 ghế!")
+        return prev
       }
-    } else {
-      setSelectedSeats(prev => {
-        if (prev.includes(maGhe)) {
-          return prev.filter(id => id !== maGhe)
-        }
 
-        if (prev.length >= 8) {
-          showToast("Bạn chỉ có thể chọn tối đa 8 ghế!")
-          return prev
-        }
-
-        return [...prev, maGhe]
-      })
-    }
+      return [...prev, maGhe]
+    })
   }
 
   const calculateSeatsTotal = () => {
-    return selectedSeats.reduce((total, maGhe) => {
-      const seat = seats.find(s => s.maGhe === maGhe)
-      return total + (Number(seat?.giaTien) || 0)
-    }, 0)
-  }
+  return selectedSeats.reduce((total, maGhe) => {
+    const seat = seats.find(s => s.maGhe === maGhe)
+    if (!seat) return total
+    return total + (Number(seat.giaTien) || 0)
+  }, 0)
+}
+
 
   const handleCheckout = async() => {
     try {
@@ -287,7 +258,7 @@ export default function MovieDetailPage() {
       const seatsData = selectedSeats.map(maGhe => {
         const seat = seats.find(s => s.maGhe === maGhe)
         return seat!
-      }).filter(Boolean)
+      })
 
       const foodsData: ISelectedFood[] = []
       
@@ -334,70 +305,35 @@ export default function MovieDetailPage() {
 
   const renderRowSeats = (row: string) => {
     const rowSeats = seats.filter(seat => seat.hangGhe === row).sort((a, b) => a.soGhe - b.soGhe)
-    const renderedSeats: JSX.Element[] = []
-    const processedIndices = new Set<number>()
 
-    rowSeats.forEach((seat, index) => {
-      if (processedIndices.has(index)) return
-
-      const isCouple = seat.tenLoaiGhe === 'Couple'
+    return rowSeats.map((seat) => {
+      let seatType: "Standard" | "Couple" | "VIP" = "Standard"
       
-      if (isCouple) {
-        const nextSeat = rowSeats[index + 1]
-        const isCouplePair = nextSeat && nextSeat.tenLoaiGhe === 'Couple' && nextSeat.soGhe === seat.soGhe + 1
+      if (seat.tenLoaiGhe === "Couple") seatType = "Couple"
+      else if (seat.tenLoaiGhe === "VIP") seatType = "VIP"   
 
-        if (isCouplePair) {
-          processedIndices.add(index)
-          processedIndices.add(index + 1)
+      const isSelected = selectedSeats.includes(seat.maGhe)
+      const isDisabled = seat.trangThai === "KhongSuDung"
+      const isOccupied = seat.trangThai === "DaDat"
 
-
-          const isDisabled = seat.trangThai === 'KhongSuDung' || nextSeat.trangThai === 'KhongSuDung'
-          const isSelected = selectedSeats.includes(seat.maGhe)
-          const isOccupied = seat.trangThai === 'DaDat'
-          
-          renderedSeats.push(
-            <Seat
-              key={seat.maGhe}
-              type="Couple"
-              number={`${seat.hangGhe}${seat.soGhe}-${seat.hangGhe}${nextSeat.soGhe}`}
-              status={
-                isDisabled ? "KhongSuDung" :
-                isOccupied ? "DaDat" : 
-                isSelected ? "DangDuocChon" 
-                          : "DangTrong"
-              }
-              onClick={() => handleSeatClick(seat.maGhe)}
-            />
-          )
-        }
-      } else {
-        processedIndices.add(index)
-        const isSelected = selectedSeats.includes(seat.maGhe)
-        const isDisabled = seat.trangThai === 'KhongSuDung'
-        const isOccupied = seat.trangThai === 'DaDat'
-
-        renderedSeats.push(
-          <Seat
-            key={seat.maGhe}
-            type="Standard"
-            number={`${seat.hangGhe}${seat.soGhe}`}
-            status={
-              isDisabled ? "KhongSuDung" :
-              isOccupied ? "DaDat" : 
-              isSelected ? "DangDuocChon" 
-                        : "DangTrong"
-            }
-            onClick={() => handleSeatClick(seat.maGhe)}
-          />
-        )
-      }
+      return (
+        <Seat
+          key={seat.maGhe}
+          type={seatType}
+          number={`${seat.hangGhe}${seat.soGhe}`}
+          status={
+            isDisabled ? "KhongSuDung" :
+            isOccupied ? "DaDat" :
+            isSelected ? "DangDuocChon" : "DangTrong"
+          }
+          onClick={() => handleSeatClick(seat.maGhe)}
+        />
+      )
     })
-
-    return renderedSeats
   }
 
   const uniqueRows = Array.from(new Set(seats.map(s => s.hangGhe))).sort()
-
+  const seatTypes = Array.from(new Set(seats.map(seat => seat.tenLoaiGhe)))
   return (
     <UserLayout>
       <section className="relative max-w-7xl mx-auto mt-10">
@@ -602,7 +538,7 @@ export default function MovieDetailPage() {
               <>
                 <div className="w-full flex justify-center overflow-x-auto">
                   <div className="inline-block min-w-min">
-                    <div className="mb-6 md:mb-12">
+                    <div className="mb-6 md:mb-10">
                       <div className="bg-gradient-to-b from-yellow-300/50 to-transparent h-2 rounded-t-full"></div>
                       <p className="text-center text-yellow-300 text-base font-semibold mt-3">
                         MÀN HÌNH
@@ -612,12 +548,15 @@ export default function MovieDetailPage() {
                     <div className="flex flex-col gap-[2px]">
                       {uniqueRows.map((row) => {
                         return (
-                          <div key={row} className="flex items-center gap-[1px] md:gap-4">
+                          <div key={row} className="flex items-center gap-[1px] md:gap-8">
                             <div className="w-8 md:h-14 flex items-center justify-center text-yellow-300 font-bold text-xs md:text-lg">
                               {row}
                             </div>
-                            <div className="flex gap-[1px] md:gap-2">
+                            <div className="flex gap-[1px] md:gap-4">
                               {renderRowSeats(row)}
+                            </div>
+                            <div className="w-8 md:h-14 flex items-center justify-center text-yellow-300 font-bold text-xs md:text-lg">
+                              {row}
                             </div>
                           </div>
                         )
@@ -627,21 +566,29 @@ export default function MovieDetailPage() {
                 </div>
 
                 {/* Color Status Seat  */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center my-8 text-sm">
+                <div
+                  className="
+                    flex flex-wrap justify-center gap-14 my-8 md:my-12 text-sm
+                    md:grid md:grid-flow-col md:auto-cols-max md:justify-center md:items-center
+                  "
+                >
+                  {seatTypes.map((tenLoaiGhe) => {
+                    return (
+                      <div key={tenLoaiGhe} className="flex items-center gap-3">
+                        <Seat type={tenLoaiGhe} className={tenLoaiGhe === "Couple" ? "md:w-20" : "w-8"} />
+                        <span className="text-gray-300">Ghế {tenLoaiGhe}</span>
+                      </div>
+                    )
+                  })}
+
+                  {/* Trạng thái */}
                   <div className="flex items-center gap-3">
-                    <Seat type="Standard" className="w-8 h-4" />
-                    <span className="text-gray-300">Ghế thường</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Seat type="Couple" className="w-10 h-4" />
-                    <span className="text-gray-300">Ghế đôi</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Seat type="Standard" status="DangDuocChon" className="w-8 h-4" />
+                    <Seat type="Standard" status="DangDuocChon" className="w-8" />
                     <span className="text-gray-300">Ghế đang chọn</span>
                   </div>
+
                   <div className="flex items-center gap-3">
-                    <Seat type="Standard" status="DaDat" className="w-8 h-4" />
+                    <Seat type="Standard" status="DaDat" className="w-8" />
                     <span className="text-gray-300">Ghế đã đặt</span>
                   </div>
                 </div>
