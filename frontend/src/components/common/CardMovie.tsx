@@ -6,7 +6,7 @@ import { phienBan } from "@/constants/version"
 export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }: IPhimCardProps) {
   return (
     <div className="group relative bg-black/40 rounded overflow-hidden shadow-2xl border border-white/20 
-      flex flex-col h-full hover:border-yellow-400/60 transition-all duration-300">
+      flex flex-col h-full hover:border-yellow-400/60 transition-all duration-300 group">
       {/* Poster */}
       <div className="relative aspect-[3/3] overflow-hidden bg-black">
         {movie.anhBia ? (
@@ -39,7 +39,7 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
       {/* Content */}
       <div className="p-5 flex flex-col flex-1 justify-between">
         <div>
-          <h3 className="text-lg lg:text-xl text-white uppercase font-semibold mb-3 line-clamp-2">
+          <h3 className="text-lg lg:text-xl text-white uppercase font-semibold mb-3 line-clamp-2 group-hover:text-yellow-300 transition-colors duration-300">
             {movie.tenPhim}
           </h3>
 

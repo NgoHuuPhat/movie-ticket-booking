@@ -322,7 +322,7 @@ const ManageDiscountPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto">
+      <div className="max-w-8xl mx-auto pb-10">
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>

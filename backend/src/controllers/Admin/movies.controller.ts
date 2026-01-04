@@ -265,7 +265,7 @@ class PhimsController {
       const { id } = req.params
       const existingMovie = await prisma.pHIM.findUnique({
         where: { maPhim: id },
-        select: { anhBia: true }
+        select: { anhBia: true, tenPhim: true }
       })
       if (!existingMovie) {
         return res.status(404).json({ message: 'Phim không tồn tại' })
@@ -285,8 +285,10 @@ class PhimsController {
         return res.status(400).json({ message: 'Ngày kết thúc phải sau ngày khởi chiếu' })
       } 
 
-      const slug = slugify(tenPhim, { lower: true, strict: true, locale: 'vi' })
-      
+      if(tenPhim && tenPhim !== existingMovie.tenPhim) {
+        req.body.slug = slugify(tenPhim, { lower: true, strict: true, locale: 'vi' })
+      }
+
       const updatedMovie = await prisma.pHIM.update({
         where: { maPhim: id },
         data: {
@@ -303,7 +305,7 @@ class PhimsController {
           quocGia,
           phienBan,
           ngonNgu,
-          slug,
+          slug: req.body.slug,
           phimTheLoais: {
             deleteMany: {},
             create: maTheLoais.map((maTheLoai: string) => ({ maTheLoai }))

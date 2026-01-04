@@ -7,7 +7,9 @@ import combosRouter from '@/routes/combos.routes'
 import paymentsRouter from '@/routes/payments.routes'
 import discountsRouter from '@/routes/discounts.routes'
 import seatsRouter from '@/routes/seats.routes'
-import cinemaController from '@/routes/cinema.routes'
+import cinemaRouter from '@/routes/cinema.routes'
+import newsRouter from '@/routes/news.routes'
+import bannersRouter from '@/routes/banners.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 
 const router = Router()
@@ -19,7 +21,9 @@ router.use('/products', authenticateToken, productsRouter)
 router.use('/combos', authenticateToken, combosRouter)
 router.use('/discounts', authenticateToken, discountsRouter)
 router.use('/seats', authenticateToken, seatsRouter)
-router.use('/cinema', authenticateToken, cinemaController)
+router.use('/cinema', authenticateToken, cinemaRouter)
+router.use('/news', authenticateToken, newsRouter)
+router.use('/banners', authenticateToken, bannersRouter)
 router.use('/payments', paymentsRouter)
 
 

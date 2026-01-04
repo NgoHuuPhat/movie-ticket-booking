@@ -1,8 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Settings, Users, X, Ticket, Film, ChevronDown, MapPin, Armchair, Calendar, Popcorn } from 'lucide-react'
+import { Home, Settings, Users, X, Ticket, Film, ChevronDown, MapPin, Armchair, Calendar, Popcorn, Newspaper } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
@@ -64,6 +63,14 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     },
 
     { icon: Users, label: 'Quản lý người dùng', path: '/admin/users' },
+    { 
+      icon: Newspaper, 
+      label: 'Nội dung truyền thông',
+      children: [
+        { label: 'Quản lý tin tức', path: '/admin/news' },
+        { label: 'Banner quảng cáo', path: '/admin/banners' },
+      ]
+    },
 
     { icon: Settings, label: 'Cài đặt hệ thống', path: '/admin/settings' },
   ]
@@ -157,18 +164,6 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             )
           })}
         </nav>
-
-        <div className="p-4 border-t border-gray-200">
-          <Card className="rounded-xl bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 border border-blue-100/50 shadow-none gap-1">
-            <div className="flex items-center">
-              <h4 className="font-semibold text-sm text-gray-800">Need help?</h4>
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed mb-2">
-              Check our documentation for guides and tutorials
-            </p>
-            <Button size="sm" className="w-full">View Docs</Button>
-          </Card>
-        </div>
       </aside>
     </>
   )

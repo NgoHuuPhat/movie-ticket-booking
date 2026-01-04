@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import logo from "@/assets/logo.png"
 import useAuthStore from "@/stores/useAuthStore"
+import { Link } from "react-router-dom"
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
@@ -26,7 +27,7 @@ const Header = () => {
               />
             </div>
 
-            <a href="/" className="group">
+            <Link to="/" className="group">
               <div className="transition-all duration-500">
                 <h1 className="text-2xl font-sans font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-gray-900">
                   LÊ ĐỘ 
@@ -35,16 +36,16 @@ const Header = () => {
                   Đặt vé xem phim
                 </p>
               </div>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8">
-            <a href="#" className="hover:text-yellow-300 font-medium transition-colors">Trang chủ</a>
-            <a href="#" className="hover:text-yellow-300 font-medium transition-colors">Phim đang chiếu</a>
-            <a href="#" className="hover:text-yellow-300 font-medium transition-colors">Phim sắp chiếu</a>
-            <a href="#" className="hover:text-yellow-300 font-medium transition-colors">Khuyến mãi</a>
-            <a href="#" className="hover:text-yellow-300 font-medium transition-colors">Giới thiệu</a>
+            <Link to="/" className="hover:text-yellow-300 font-medium transition-colors">Trang chủ</Link>
+            <Link to="/movies/showing" className="hover:text-yellow-300 font-medium transition-colors">Phim đang chiếu</Link>
+            <Link to="/movies/upcoming" className="hover:text-yellow-300 font-medium transition-colors">Phim sắp chiếu</Link>
+            <Link to="/news" className="hover:text-yellow-300 font-medium transition-colors">Tin tức & Sự kiện</Link>
+            <Link to="/about" className="hover:text-yellow-300 font-medium transition-colors">Giới thiệu</Link>
           </nav>
 
           {/* Right actions */}
@@ -139,12 +140,11 @@ const Header = () => {
               </div>
             )}
 
-            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Trang chủ</a>
-            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim đang chiếu</a>
-            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim sắp chiếu</a>
-            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Rạp chiếu</a>
-            <a href="#" className="block py-2 active:text-yellow-300 font-medium transition-colors">Khuyến mãi</a>
-            
+            <Link to="/" className="block py-2 active:text-yellow-300 font-medium transition-colors">Trang chủ</Link>
+            <Link to="/movies/showing" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim đang chiếu</Link>
+            <Link to="/movies/upcoming" className="block py-2 active:text-yellow-300 font-medium transition-colors">Phim sắp chiếu</Link>
+            <Link to="/news" className="block py-2 active:text-yellow-300 font-medium transition-colors">Tin tức & Sự kiện</Link>
+            <Link to="/about" className="block py-2 active:text-yellow-300 font-medium transition-colors">Giới thiệu</Link>
             {user ? (
               <Button 
                 onClick={signOut}

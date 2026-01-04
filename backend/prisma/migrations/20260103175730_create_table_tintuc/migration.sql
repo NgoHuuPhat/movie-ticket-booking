@@ -1,0 +1,15 @@
+-- CreateTable
+CREATE TABLE "TINTUC" (
+    "maTinTuc" TEXT NOT NULL,
+    "tieuDe" TEXT NOT NULL,
+    "noiDung" TEXT NOT NULL,
+    "anhDaiDien" TEXT NOT NULL,
+    "ngayDang" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "hienThi" BOOLEAN NOT NULL DEFAULT true,
+    "maNguoiDung" TEXT NOT NULL,
+
+    CONSTRAINT "TINTUC_pkey" PRIMARY KEY ("maTinTuc")
+);
+
+-- AddForeignKey
+ALTER TABLE "TINTUC" ADD CONSTRAINT "TINTUC_maNguoiDung_fkey" FOREIGN KEY ("maNguoiDung") REFERENCES "NGUOIDUNG"("maNguoiDung") ON DELETE RESTRICT ON UPDATE CASCADE;

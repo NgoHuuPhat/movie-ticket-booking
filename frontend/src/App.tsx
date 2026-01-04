@@ -19,6 +19,7 @@ import ResetPasswordPage from "@/pages/ResetPasswordPage"
 import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
 import CheckoutResultPage from "@/pages/CheckoutResultPage"
+import NewsPage from "@/pages/NewsPage"
 
 import DashboardPage from "@/pages/Admin/DashboardPage"
 import ManageMoviePage from "@/pages/Admin/ManageMoviePage"
@@ -38,6 +39,9 @@ import ManageUsersPage from "@/pages/Admin/ManageUsersPage"
 import ManageShiftsPage from "@/pages/Admin/ManageShiftsPage"
 import ManageWorkSchedulesPage from "@/pages/Admin/ManageWorkSchedulesPage"
 import ManageDiscountPage from "@/pages/Admin/ManageDiscountPage"
+import ManageNewsPage from "@/pages/Admin/ManageNewsPage"
+import ManageBannersPage from "@/pages/Admin/ManageBannersPage"
+import NewsDetailPage from "@/pages/NewsDetailPage"
 
 import DashboardStaffPage from "@/pages/Staff/DashboardPage"
 import TicketOrdersPage from "@/pages/Staff/TicketOrdersPage"
@@ -80,6 +84,8 @@ function App(){
           <Route path="/movies/:slug" element={<MovieDetailPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/checkout-result" element={<CheckoutResultPage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:slug" element={<NewsDetailPage />} />
         </Route>
 
         <Route element={<AdminRoute />}>
@@ -107,6 +113,9 @@ function App(){
 
           <Route path="/admin/shifts" element={<ManageShiftsPage />} />
           <Route path="/admin/assign-shifts" element={<ManageWorkSchedulesPage />} />
+
+          <Route path="/admin/news" element={<ManageNewsPage />} />
+          <Route path="/admin/banners" element={<ManageBannersPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>

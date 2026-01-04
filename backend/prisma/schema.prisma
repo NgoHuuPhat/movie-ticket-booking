@@ -42,7 +42,10 @@ model NGUOIDUNG {
   hoaDonCombosNhanVienSoatBapNuocs HOADON_COMBO[]
   hoaDonSanPhamsNhanVienSoatBapNuocs HOADON_SANPHAM[]
 
+  tinTucs          TINTUC[]
+  bannerQuangCaos   BANNERQUANGCAO[]
   lichLamViecs      LICHLAMVIEC[]
+
   loaiNguoiDung     LOAINGUOIDUNG   @relation(fields: [maLoaiNguoiDung], references: [maLoaiNguoiDung])
 }
 
@@ -390,4 +393,29 @@ model HOADON_SANPHAM {
   nhanVienSoatBapNuoc   NGUOIDUNG? @relation(fields: [maNhanVienSoatBapNuoc], references: [maNguoiDung])
   hoaDon                HOADON  @relation(fields: [maHoaDon], references: [maHoaDon], onDelete: Cascade)
   sanPham               SANPHAM @relation(fields: [maSanPham], references: [maSanPham], onDelete: Cascade)
+}
+
+model TINTUC {
+  maTinTuc     String    @id
+  tieuDe       String
+  noiDung      String
+  anhDaiDien   String
+  ngayDang     DateTime  @default(now())
+  hienThi      Boolean   @default(true)
+  slug         String    @unique
+  maNguoiDang  String
+
+  nguoiDang    NGUOIDUNG  @relation(fields: [maNguoiDang], references: [maNguoiDung])
+}
+
+model BANNERQUANGCAO {
+  maBanner        String   @id
+  anhBanner       String
+  duongDanLienKet String
+  viTriHienThi    Int      @unique
+  hienThi         Boolean  @default(true)
+  ngayTao         DateTime @default(now())
+  maNguoiTao      String
+
+  nguoiTao        NGUOIDUNG  @relation(fields: [maNguoiTao], references: [maNguoiDung])
 }

@@ -47,6 +47,21 @@ export const getCinemaInfo = async () => {
   return res.data
 }
 
+export const getNews = async () => {
+  const res = await request.get("/news")
+  return res.data
+}
+
+export const getNewsBySlug = async (slug: string) => {
+  const res = await request.get(`/news/${slug}`)
+  return res.data
+}
+
+export const getBanners = async () => {
+  const res = await request.get("/banners")
+  return res.data
+}
+
 export const listMoviesShowing = async () => {
   const res = await request.get("/movies/showing")
   return res.data
@@ -569,6 +584,74 @@ export const toggleDiscountActivationAdmin = async (id: string) => {
 
 export const deleteDiscountAdmin = async (id: string) => {
   const res = await request.delete(`/admin/discounts/${id}`)
+  return res.data
+}
+
+export const getNewsAdmin = async (params: { page?: number; search?: string; hienThi?: boolean; sortField?: string; sortOrder?: string }) => {
+  const res = await request.get("/admin/news", { params })
+  return res.data
+}
+
+export const createNewsAdmin = async (newsData: FormData) => {
+  const res = await request.post("/admin/news", newsData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const updateNewsAdmin = async (id: string, newsData: FormData) => {
+  const res = await request.patch(`/admin/news/${id}`, newsData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const bulkActionNewsAdmin = async (newsIds: string[], action: string) => {
+  const res = await request.post("/admin/news/bulk-action", { newsIds, action })
+  return res.data
+}
+
+export const toggleShowNewsAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/news/${id}/show`)
+  return res.data
+}
+
+export const deleteNewsAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/news/${id}`)
+  return res.data
+}
+
+export const getBannersAdmin = async () => {
+  const res = await request.get("/admin/banners")
+  return res.data
+}
+
+export const createBannerAdmin = async (bannerData: FormData) => {
+  const res = await request.post("/admin/banners", bannerData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const toggleShowBannerAdmin = async (id: string) => {
+  const res = await request.patch(`/admin/banners/${id}/show`)
+  return res.data
+}
+
+export const deleteBannerAdmin = async (id: string) => {
+  const res = await request.delete(`/admin/banners/${id}`)
+  return res.data
+}
+
+export const bulkActionBannersAdmin = async (bannerIds: string[], action: string) => {
+  const res = await request.post("/admin/banners/bulk-action", { bannerIds, action })
+  return res.data
+}
+
+export const updateBannerAdmin = async (id: string, bannerData: FormData) => {
+  const res = await request.patch(`/admin/banners/${id}`, bannerData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
   return res.data
 }
 
