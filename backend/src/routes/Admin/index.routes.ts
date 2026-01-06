@@ -1,4 +1,6 @@
 import { Router } from 'express'
+import authenticateToken from '@/middlewares/auth.middleware'
+import { checkAdmin } from '@/middlewares/role.middleware'
 import moviesRouter from '@/routes/Admin/movies.routes'
 import categoriesRouter from '@/routes/Admin/categories.routes'
 import ageRatingsRouter from '@/routes/Admin/ageratings.routes'
@@ -17,8 +19,9 @@ import workschedulesRouter from '@/routes/Admin/workschedules.routes'
 import discountsRouter from '@/routes/Admin/discounts.routes'
 import newRouter from '@/routes/Admin/news.routes'
 import bannersRouter from '@/routes/Admin/banners.routes'
-import authenticateToken from '@/middlewares/auth.middleware'
-import { checkAdmin } from '@/middlewares/role.middleware'
+import dashboardRouter from '@/routes/Admin/dashboard.routes'
+import reportRouter from '@/routes/Admin/report.routes'
+
 
 const router = Router()
 
@@ -40,5 +43,7 @@ router.use('/workschedules', authenticateToken, checkAdmin, workschedulesRouter)
 router.use('/discounts', authenticateToken, checkAdmin, discountsRouter)
 router.use('/news', authenticateToken, checkAdmin, newRouter)
 router.use('/banners', authenticateToken, checkAdmin, bannersRouter)
+router.use('/dashboard', authenticateToken, checkAdmin, dashboardRouter)
+router.use('/report', authenticateToken, checkAdmin, reportRouter)
 
 export default router

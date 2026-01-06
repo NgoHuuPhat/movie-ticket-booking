@@ -13,6 +13,7 @@ class ThanhToansController {
   // [POST] /staff/payments/create-vnpay
   async createVNPay(req: IUserRequest, res: Response) {
     const { maSuatChieu, selectedSeats, selectedFoods, tongTien, soDienThoaiNguoiDung }: IPaymentRequestBody = req.body
+    console.log('Yêu cầu tạo thanh toán VNPAY:', req.body)
     const maNhanVienBanVe = req.user?.maNguoiDung
     let nguoiDung = null
 
@@ -20,8 +21,11 @@ class ThanhToansController {
       nguoiDung = await prisma.nGUOIDUNG.findUnique({
         where: { soDienThoai: soDienThoaiNguoiDung },
       })
-    }
-   
+      if(!nguoiDung){
+        return res.status(404).json({ message: 'Khách hàng không tồn tại' })
+      }  
+    } 
+
     if (!maSuatChieu || !selectedSeats?.length || !tongTien || !maNhanVienBanVe) {
       return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo đơn hàng.' })
     }
@@ -107,7 +111,7 @@ class ThanhToansController {
         }
 
         await redisClient.del(`pending_order:${orderId}`)
-        return res.status(400).json({ message: 'Thanh toán không thành công hoặc đã bị hủy bỏ.' })
+        return res.redirect(`${process.env.VNPAY_STAFF_REDIRECT_NOTIFICATION_URL}?status=failed`)
       }
 
       if (!pending) {

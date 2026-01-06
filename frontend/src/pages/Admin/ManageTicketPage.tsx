@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
-import { getAllTicketsAdmin, getMoviesForSelect, getTicketStatsAdmin } from "@/services/api"
+import { getAllTicketsAdmin, getMoviesForSelect, getTicketStatsAdmin, exportRevenueReportAdmin } from "@/services/api"
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { Label } from "@/components/ui/label"
@@ -92,6 +92,8 @@ const ManageTicketPage = () => {
   const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string }>>([])
   const [expandedInvoiceIds, setExpandedInvoiceIds] = useState<string[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<IInvoiceDisplay | null>(null)
+
+  const [loading, setLoading] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState("")
   const [movieFilter, setMovieFilter] = useState<"all" | string>("all")
@@ -186,6 +188,25 @@ const ManageTicketPage = () => {
     }
   }
 
+  const handleExportReport = async () => {
+    try {
+      setLoading(true)
+      const blob = await exportRevenueReportAdmin()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+
+      window.open(url, "_blank")
+
+      link.href = url
+      link.download = `Bao_cao_doanh_thu_thang_${formatDate(new Date().toISOString(), "MM/yyyy")}.pdf`
+      link.click()
+    } catch (error) {
+      toast.error(handleError(error) || "Không thể xuất báo cáo doanh thu")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <AdminLayout>
       <div className="max-w-8xl mx-auto pb-10">
@@ -193,22 +214,24 @@ const ManageTicketPage = () => {
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Hóa Đơn & Vé</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản Lý Hóa Đơn Vé</h1>
               <p className="mt-2 text-sm md:text-base text-gray-600">
                 Theo dõi và quản lý toàn bộ hóa đơn, vé trong hệ thống
               </p>
             </div>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" /> Export Excel
+            <Button variant="outline" onClick={handleExportReport} disabled={loading}>
+              {loading ? "Đang xuất báo cáo..." : (
+                <><Download className="mr-2 h-4 w-4" /> Xuất báo cáo doanh thu</>
+              )}
             </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { title: "Tổng số vé", value: stats.total, icon: <Ticket />, color: "bg-purple-500" },
-              { title: "Doanh thu", value: Number(stats.doanhThu).toLocaleString() + ' VNĐ', icon: <DollarSign />, color: "bg-amber-500" },
-              { title: "Vé Online", value: stats.online, icon: <Ticket />, color: "bg-purple-500" },
-              { title: "Vé Offline", value: stats.offline, icon: <Users />, color: "bg-gray-500" },
+              { title: "Tổng số hóa đơn", value: stats.total, icon: <Ticket />, color: "bg-purple-500" },
+              { title: "Tổng doanh thu", value: Number(stats.doanhThu).toLocaleString() + ' VNĐ', icon: <DollarSign />, color: "bg-amber-500" },
+              { title: "Mua Online", value: stats.online, icon: <Ticket />, color: "bg-purple-500" },
+              { title: "Mua Offline", value: stats.offline, icon: <Users />, color: "bg-gray-500" },
             ].map((card, i) => (
               <Card key={i} className="bg-white/60 shadow-sm hover:shadow-md transition-all">
                 <CardContent className="p-4">

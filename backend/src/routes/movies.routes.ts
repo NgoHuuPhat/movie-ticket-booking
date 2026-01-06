@@ -5,6 +5,7 @@ const router = Router()
 
 router.get('/showing', movieController.getPhimDangChieu)
 router.get('/upcoming', movieController.getPhimSapChieu)
+router.get('/', movieController.searchPhim)
 router.get('/:id/showtimes', movieController.getSuatChieuByPhimId)
 
 router.get('/:slug', movieController.getPhimBySlug)

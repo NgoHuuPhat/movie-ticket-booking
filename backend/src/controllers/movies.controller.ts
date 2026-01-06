@@ -100,6 +100,34 @@ async getPhimSapChieu(req: Request, res: Response) {
     }
   }
 
+  // [GET] /movies
+  async searchPhim(req: Request, res: Response) {
+    try {
+      const { search } = req.query
+      const resultMovies = (await prisma.pHIM.findMany({
+        include: {
+          phanLoaiDoTuoi: { select: { tenPhanLoaiDoTuoi: true } }, 
+          phimTheLoais: {
+            include: { theLoai: { select: { tenTheLoai: true } } }
+          }
+        },
+        where: { 
+          hienThi: true,
+          tenPhim: search ? { contains: (search as string), mode: 'insensitive' } : undefined,
+        },
+        orderBy: { ngayKhoiChieu: 'desc' }
+      })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
+        ...phim,
+        theLoais: phimTheLoais.map(ptl => ptl.theLoai.tenTheLoai),
+        tenPhanLoaiDoTuoi: phanLoaiDoTuoi.tenPhanLoaiDoTuoi,
+      })) 
+
+      return res.status(200).json(resultMovies)
+    } catch (error) {
+      
+    }
+  }
+
   // [GET] /movies/:id/showtimes
   async getSuatChieuByPhimId(req: Request, res: Response) {
     try {

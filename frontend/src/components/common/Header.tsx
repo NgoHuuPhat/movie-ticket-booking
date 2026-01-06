@@ -4,12 +4,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import logo from "@/assets/logo.png"
 import useAuthStore from "@/stores/useAuthStore"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const { user, signOut } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/movies?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery("")
+      setIsMenuOpen(false)
+    }
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 text-white backdrop-blur-lg border-b border-white/40">
@@ -19,7 +29,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-2 group cursor-pointer">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl blur-md opacity-0 group-hover:opacity-90 transition-all duration-500"></div>
+              <div className="absolute inset-0 bg-yellow-300/30 rounded-xl blur-md opacity-0 group-hover:opacity-90 transition-all duration-500"></div>
               <img
                 src={logo}
                 alt="Logo"
@@ -53,9 +63,14 @@ const Header = () => {
             <div className="hidden md:flex items-center relative group">
               <Input
                 type="text"
-                placeholder="Tìm phim, rạp"
+                placeholder="Tìm kiếm phim theo tên..."
                 value={searchQuery}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') {
+                    handleSearch(e)
+                  }
+                }}
                 className="pl-4 pr-10 py-2 w-64 bg-white rounded-full placeholder:text-gray-400 text-gray-900"
               />
               <Search className="absolute right-3 w-4 h-4 text-gray-600" />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, Loader2, Plus, Printer } from 'lucide-react'
+import { Check, Loader2, Plus, Printer, X } from 'lucide-react'
 import StaffLayout from '@/components/layout/StaffLayout'
 import {
   listMoviesShowing,
@@ -50,7 +50,7 @@ const CinemaPOS = () => {
   const [holdInterval, setHoldInterval] = useState<NodeJS.Timeout | null>(null)
 
   const { showToast } = useAlert()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const paymentStatus = searchParams.get('status')
   const maHoaDon = searchParams.get('maHoaDon')
 
@@ -93,7 +93,7 @@ const CinemaPOS = () => {
       }
     }
     fetchShowtimes()
-  }, [selectedMovie])
+  }, [selectedMovie, showToast])
 
   // Load seats when showtime selected
   useEffect(() => {
@@ -110,7 +110,7 @@ const CinemaPOS = () => {
       }
     }
     fetchSeats()
-  }, [selectedShowtime])
+  }, [selectedShowtime, showToast])
 
   // Group showtimes by date
   const groupedShowtimes = showtimes.reduce((acc: { [date: string]: IMovieShowtime[] }, show) => {
@@ -130,13 +130,13 @@ const CinemaPOS = () => {
       return
     }
 
-    // Ghế đôi và ghế thường giờ xử lý giống nhau vì chỉ là 1 record
+    // Xử lý chọn / bỏ chọn ghế
     setSelectedSeats(prev => {
       if (prev.includes(maGhe)) {
         return prev.filter(id => id !== maGhe)
       }
 
-      // Check limit - Ghế đôi tính là 2 người
+      // Check limit 8 seats
       const currentCount = prev.reduce((count, id) => {
         const s = seats.find(seat => seat.maGhe === id)
         return count + (s?.tenLoaiGhe === 'Couple' ? 2 : 1)
@@ -276,11 +276,14 @@ const CinemaPOS = () => {
         }
       }
       downloadTicket()
+    } else if (paymentStatus === 'failed') {
+      setStep(5)
     }
   }, [paymentStatus, maHoaDon])
 
   const reset = () => {
     if (holdInterval) clearInterval(holdInterval)
+    setSearchParams("", { replace: true })
     setHoldTimeRemaining(null)
     setStep(1)
     setSelectedMovie(null)
@@ -411,7 +414,7 @@ const CinemaPOS = () => {
         </div>
 
         <div className="p-4">
-          {/* Step 1: Chọn phim + ngày dưới là ngày & suất chiếu */}
+          {/* Step 1: Chọn phim - suất chiếu */}
           {step === 1 && (
             <div className="space-y-8">
               {/* Danh sách phim */}
@@ -484,7 +487,7 @@ const CinemaPOS = () => {
             </div>
           )}
 
-          {/* Step 2: Ghế - Đã fix hiển thị ghế đôi */}
+          {/* Step 2: Ghế */}
           {step === 2 && selectedShowtime && (
             <div className="space-y-6">
               <div className="text-center">
@@ -805,7 +808,7 @@ const CinemaPOS = () => {
           )}
 
           {/* Step 5: Success */}
-          {step === 5 && !isLoadingPDF && (
+          {step === 5 && !isLoadingPDF && paymentStatus === 'success' && (
             <div className="text-center py-12">
               <div className="flex justify-center mb-6">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -818,6 +821,34 @@ const CinemaPOS = () => {
               </h2>
               <p className="text-gray-600 mb-8">
                 Giao dịch của bạn đã được xử lý thành công
+              </p>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
+                <button
+                  onClick={reset}
+                  className="flex items-center justify-center gap-2 px-8 py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  Bán vé mới
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Step 5: Failed  */}
+          {step === 5 && !isLoadingPDF && paymentStatus === 'failed' && (
+            <div className="text-center py-12">
+              <div className="flex justify-center mb-6">
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
+                  <X className="text-red-600" size={48} />
+                </div>
+              </div>
+
+              <h2 className="text-3xl font-bold text-gray-800 mb-3">
+                Thanh toán thất bại!
+              </h2>
+              <p className="text-gray-600 mb-8">
+                Giao dịch của bạn không thành công hoặc đã bị hủy bỏ.
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">

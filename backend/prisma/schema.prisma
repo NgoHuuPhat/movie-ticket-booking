@@ -29,7 +29,7 @@ model NGUOIDUNG {
   matKhau       String           
   soDienThoai   String  @unique
   maLoaiNguoiDung String         
-  ngaySinh      DateTime 
+  ngaySinh      DateTime  @db.Date
   gioiTinh      GIOITINH        
   hoatDong      Boolean   @default(true)      
   ngayTao       DateTime  @default(now())
@@ -97,6 +97,7 @@ model PHANLOAIDOTUOI {
   maPhanLoaiDoTuoi String @id
   tenPhanLoaiDoTuoi String
   moTa              String
+
   phims             PHIM[] 
 }
 
@@ -143,10 +144,10 @@ model RAP {
 
 model PHONGCHIEU {
   maPhong         String   @id
-  tenPhong        String
+  tenPhong        String   @unique
   maLoaiPhong     String
   maRap           String
-  hoatDong         Boolean  @default(true)
+  hoatDong        Boolean  @default(true)
 
   loaiPhongChieu  LOAIPHONGCHIEU @relation(fields: [maLoaiPhong], references: [maLoaiPhong])
   rap             RAP            @relation(fields: [maRap], references: [maRap])

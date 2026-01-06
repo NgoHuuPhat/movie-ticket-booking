@@ -47,6 +47,7 @@ import DashboardStaffPage from "@/pages/Staff/DashboardPage"
 import TicketOrdersPage from "@/pages/Staff/TicketOrdersPage"
 import FoodOrdersPage from "@/pages/Staff/FoodOrdersPage"
 import POSPage from "@/pages/Staff/POSPage"
+import SearchPage from "@/pages/SeachMoviePage"
 
 function App(){
   const { user, fetchMe, isCheckingAuth } = useAuthStore()
@@ -81,6 +82,7 @@ function App(){
           <Route path="/" element={<HomePage />} />
           <Route path="/movies/showing" element={<MovieShowing />} />
           <Route path="/movies/upcoming" element={<MovieUpcoming />} />
+          <Route path="/movies" element={<SearchPage />} />
           <Route path="/movies/:slug" element={<MovieDetailPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/checkout-result" element={<CheckoutResultPage />} />

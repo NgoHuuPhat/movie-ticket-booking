@@ -72,6 +72,11 @@ export const listMoviesUpcoming = async () => {
   return res.data
 }
 
+export const searchMoviesByName = async (tenPhim: string) => {
+  const res = await request.get("/movies", { params: { search: tenPhim } })
+  return res.data
+}
+
 export const getMovieDetails = async (slug: string) => {
   const res = await request.get(`/movies/${slug}`)
   return res.data
@@ -651,6 +656,58 @@ export const bulkActionBannersAdmin = async (bannerIds: string[], action: string
 export const updateBannerAdmin = async (id: string, bannerData: FormData) => {
   const res = await request.patch(`/admin/banners/${id}`, bannerData, {
     headers: { "Content-Type": "multipart/form-data" }
+  })
+  return res.data
+}
+
+export const getRevenueStatisticsAdmin = async (typeDate: string) => {
+  const res = await request.get("/admin/dashboard/revenue", { params: { typeDate } })
+  return res.data
+}
+
+export const getTicketSalesStatisticsAdmin = async (typeDate: string) => {
+  const res = await request.get("/admin/dashboard/revenue/ticket", { params: { typeDate } })
+  return res.data
+}
+
+export const getProductSalesStatisticsAdmin = async (typeDate: string) => {
+  const res = await request.get("/admin/dashboard/revenue/product", { params: { typeDate } })
+  return res.data
+}
+
+export const getNewUsersStatisticsAdmin = async (typeDate: string) => {
+  const res = await request.get("/admin/dashboard/new-users", { params: { typeDate } })
+  return res.data
+}
+
+export const getTopMoviesAdmin = async () => {
+  const res = await request.get("/admin/dashboard/top-movies")
+  return res.data
+}
+
+export const getPaymentMethodsAdmin = async (year: string) => {
+  const res = await request.get("/admin/dashboard/payment", { params: { year } })
+  return res.data
+}
+
+export const getRevenueTimeSeriesAdmin = async () => {
+  const res = await request.get("/admin/dashboard/revenue/time-series")
+  return res.data
+}
+
+export const getRevenueByTypeAdmin = async (year: string) => {
+  const res = await request.get("/admin/dashboard/revenue/type", { params: { year } })
+  return res.data
+}
+
+export const getYearInvoicesAdmin = async () => {
+  const res = await request.get("/admin/dashboard/years")
+  return res.data
+}
+
+export const exportRevenueReportAdmin = async () => {
+  const res = await request.get("/admin/report/revenue", {
+    responseType: 'blob'
   })
   return res.data
 }

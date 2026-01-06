@@ -182,10 +182,9 @@ class VesController {
   // [GET] /admin/tickets/stats
   async getTicketStats(req: Request, res: Response) {
     try {
-      const [totalTickets, checkedInTickets, onlineTickets, offlineTickets, totalRevenue] =
+      const [totalTickets, onlineTickets, offlineTickets, totalRevenue] =
         await Promise.all([
-          prisma.vE.count(),
-          prisma.vE.count({ where: { trangThai: 'DaCheckIn' } }),
+          prisma.hOADON.count(),
           prisma.hOADON.count({
             where: { phuongThucThanhToan: { in: ['VNPAY', 'MOMO'] } },
           }),
@@ -195,7 +194,6 @@ class VesController {
 
       return res.status(200).json({
         totalTickets,
-        checkedInTickets,
         onlineTickets,
         offlineTickets,
         totalRevenue: totalRevenue._sum.tongTien || 0,
