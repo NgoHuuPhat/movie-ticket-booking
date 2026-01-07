@@ -20,6 +20,7 @@ import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
 import CheckoutResultPage from "@/pages/CheckoutResultPage"
 import NewsPage from "@/pages/NewsPage"
+import TransactionHistoryPage from "@/pages/TransactionHistoryPage"
 
 import DashboardPage from "@/pages/Admin/DashboardPage"
 import ManageMoviePage from "@/pages/Admin/ManageMoviePage"
@@ -88,6 +89,7 @@ function App(){
           <Route path="/checkout-result" element={<CheckoutResultPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/:slug" element={<NewsDetailPage />} />
+          <Route path="/transaction-history" element={<TransactionHistoryPage />} />
         </Route>
 
         <Route element={<AdminRoute />}>

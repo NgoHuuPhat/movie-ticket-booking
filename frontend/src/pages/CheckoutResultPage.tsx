@@ -42,18 +42,28 @@ export default function CheckoutResultPage() {
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-10 my-8 md:mb-10 border border-white/20 flex items-center justify-center text-center">
             <p className="text-white/90 md:text-lg">
               {isSuccess
-                ? "Thông tin vé đã được gửi đến email của bạn. Hãy kiểm tra và đến rạp đúng giờ để tận hưởng bộ phim nhé!"
+                ? "Thông tin vé đã được gửi đến email của bạn. Bạn cũng có thể xem thông tin vé trong lịch sử giao dịch. Hãy đến rạp đúng giờ để tận hưởng bộ phim nhé!"
                 : "Giao dịch không thành công. Vui lòng kiểm tra lại thông tin thanh toán và thử lại."}
             </p>
           </div>
 
-          <Button
-            onClick={() => navigate("/")}
-            variant="yellowToPinkPurple"
-            className="px-8 w-full h-8 md:h-12 font-anton text-lg"
-          >
-            <span>Về trang chủ</span>
-          </Button>
+          {isSuccess ? (
+            <Button 
+              variant="yellowToPinkPurple"
+              onClick={() => navigate("/transaction-history")}
+              className="px-8 w-full h-8 md:h-12 font-anton text-lg"
+            >
+              <span>Xem lịch sử giao dịch</span>
+            </Button>
+          ) : (
+            <Button 
+              variant="yellowToPinkPurple"
+              onClick={() => navigate("/")}
+              className="px-8 w-full h-8 md:h-12 font-anton text-lg"
+            >
+              <span>Về trang chủ</span>
+            </Button>
+          )}
         </div>
       </div>
     </UserLayout>

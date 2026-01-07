@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Search, CircleUser, Menu, X, LogOut, User, Settings } from "lucide-react"
+import { Search, CircleUser, Menu, X, LogOut, User, History } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import logo from "@/assets/logo.png"
@@ -100,13 +100,13 @@ const Header = () => {
                       <User className="w-4 h-4" />
                       <span>Thông tin cá nhân</span>
                     </a>
-                    <a
-                      href="/settings"
+                    <Link
+                      to="/transaction-history"
                       className="flex items-center gap-3 px-4 py-2 text-sm hover:text-yellow-300 transition-colors"
                     >
-                      <Settings className="w-4 h-4" />
-                      <span>Cài đặt</span>
-                    </a>
+                      <History className="w-4 h-4" />
+                      <span>Lịch sử giao dịch</span>
+                    </Link>
                   </div>
 
                   <div className="border-t border-gray-100">

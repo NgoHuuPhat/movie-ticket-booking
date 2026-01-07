@@ -42,6 +42,11 @@ export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => 
   return res.data
 }
 
+export const historyTickets = async () => {
+  const res = await request.get("/tickets/history")
+  return res.data
+}
+
 export const getCinemaInfo = async () => {
   const res = await request.get("/cinema")
   return res.data

@@ -10,6 +10,7 @@ import seatsRouter from '@/routes/seats.routes'
 import cinemaRouter from '@/routes/cinema.routes'
 import newsRouter from '@/routes/news.routes'
 import bannersRouter from '@/routes/banners.routes'
+import ticketsRouter from '@/routes/tickets.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 
 const router = Router()
@@ -25,6 +26,6 @@ router.use('/cinema', authenticateToken, cinemaRouter)
 router.use('/news', authenticateToken, newsRouter)
 router.use('/banners', authenticateToken, bannersRouter)
 router.use('/payments', paymentsRouter)
-
+router.use('/tickets', authenticateToken, ticketsRouter)
 
 export default router

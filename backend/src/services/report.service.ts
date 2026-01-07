@@ -489,7 +489,6 @@ export const generateRevenueReportPDF = async ( res: Response ) => {
 
     // 4. Trả về file PDF
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', `attachment; filename="Bao-cao-doanh-thu"`)
     res.send(pdfBuffer)
 
   } catch (error) {

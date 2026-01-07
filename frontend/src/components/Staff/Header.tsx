@@ -1,21 +1,7 @@
-import { 
-  User, 
-  Search, 
-  Menu, 
-  Settings, 
-  LogOut,
-} from 'lucide-react'
+import { User, Menu, Settings, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import useAuthStore from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router-dom'
 
@@ -47,16 +33,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
         </div>
 
         <div className="flex flex-1 items-center  gap-4 md:gap-6 lg:gap-8">
-          <h1 className="text-xl font-bold">Staff</h1>
-          <div className="w-full max-w-sm lg:max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Search..."
-                className="pl-8 md:pl-10 pr-4 bg-gray-100"
-              />
-            </div>
-          </div>
+          <h1 className="text-xl font-bold">Khu vực nhân viên</h1>
         </div>
 
         <div className="flex items-center gap-4">
