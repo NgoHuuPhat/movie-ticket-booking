@@ -7,10 +7,9 @@ class PhimsController {
   // [GET] /movies/showing
   async getPhimDangChieu(req: IUserRequest, res: Response) {
     try {
-      const startOfToday = new Date()
-      startOfToday.setHours(0, 0, 0, 0)
-      const endOfToday = new Date()
-      endOfToday.setHours(23, 59, 59, 999)
+      const now = new Date()
+      const todayStr = now.toISOString().split('T')[0] // '2026-01-11'
+      const today = new Date(todayStr)
 
       const result = (await prisma.pHIM.findMany({
         include: {
@@ -21,8 +20,8 @@ class PhimsController {
         },
         where: { 
           hienThi: true,
-          ngayKhoiChieu: { lte: endOfToday },
-          ngayKetThuc: { gte: startOfToday }
+          ngayKhoiChieu: { lte: today },
+          ngayKetThuc: { gte: today }
         },
         orderBy: { ngayKhoiChieu: 'desc' }
       })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
@@ -41,10 +40,9 @@ class PhimsController {
   // [GET] /movies/upcoming
 async getPhimSapChieu(req: Request, res: Response) {
     try {
-      const startOfToday = new Date()
-      startOfToday.setHours(0, 0, 0, 0)
-      const endOfToday = new Date()
-      endOfToday.setHours(23, 59, 59, 999)
+      const now = new Date()
+      const todayStr = now.toISOString().split('T')[0] // '2026-01-11'
+      const today = new Date(todayStr)
       
         const result = (await prisma.pHIM.findMany({
           include: {
@@ -55,7 +53,7 @@ async getPhimSapChieu(req: Request, res: Response) {
           },
           where: { 
             hienThi: true,
-            ngayKhoiChieu: { gt: endOfToday },
+            ngayKhoiChieu: { gt: today },
           },
           orderBy: { ngayKhoiChieu: 'asc' }
         })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({

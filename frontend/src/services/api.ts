@@ -717,6 +717,11 @@ export const exportRevenueReportAdmin = async () => {
   return res.data
 }
 
+export const sendNewsMailAdmin = async (maTinTuc: string, maLoaiNguoiDung: string) => {
+  const res = await request.post("/admin/news/send-mail", { maTinTuc, maLoaiNguoiDung })
+  return res.data
+}
+
 // Staff APIs
 export const getAllTicketsStaff = async (params: { phim?: string; hinhThuc?: string; search?: string; page?: number;  date?: string; sortField?: string; sortOrder?: string }) => {
   const res = await request.get("/staff/tickets", { params })

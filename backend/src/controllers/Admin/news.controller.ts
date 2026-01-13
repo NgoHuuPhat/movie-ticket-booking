@@ -4,6 +4,7 @@ import { generateIncrementalId } from '@/utils/generateId.utils'
 import { parseS3Url } from '@/utils/s3.utils'
 import { deleteFromS3 } from '@/services/s3.service'
 import { IUserRequest } from '@/types/user'
+import { addNewsEmailToQueue } from '@/queues/email.queue'
 import slugify from 'slugify'
 
 class TinTucsController {
@@ -124,6 +125,47 @@ class TinTucsController {
         default:
           return res.status(400).json({ message: 'Hành động không hợp lệ' })
       }
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
+  // [POST] /admin/news/send-mail
+  async sendNewsEmail(req: Request, res: Response) {
+    try {
+      const { maTinTuc, maLoaiNguoiDung } = req.body
+      console.log('Request to send news email for maTinTuc:', maTinTuc, 'to maLoaiNguoiDung:', maLoaiNguoiDung)
+      const existingNews = await prisma.tINTUC.findUnique({
+        where: { maTinTuc },
+      })
+      if (!existingNews) {
+        return res.status(404).json({ message: 'Tin tức không tồn tại' })
+      }
+
+      // Get list user to queue email
+      const recipients = await prisma.nGUOIDUNG.findMany({
+        where: {
+          maLoaiNguoiDung: !maLoaiNguoiDung || maLoaiNguoiDung === 'all' ? { notIn: ['ADMIN', 'NV'] } : maLoaiNguoiDung,
+          hoatDong: true,
+        },
+        select: { email: true },
+      })
+      if (recipients.length === 0) {
+        return res.status(400).json({ message: 'Không có người dùng nào để gửi email' })
+      }
+
+      // Queue email sending and update news record
+      recipients.forEach(async (user) => { await addNewsEmailToQueue(user.email, existingNews.tieuDe, existingNews.noiDung, existingNews.anhDaiDien) })
+      await prisma.tINTUC.update({
+        where: { maTinTuc },
+        data: {
+          daGuiMail: true,
+          thoiGianGuiMail: new Date(),
+        },
+      })
+
+      res.status(200).json({ message: 'Đã gửi email tin tức thành công' })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })

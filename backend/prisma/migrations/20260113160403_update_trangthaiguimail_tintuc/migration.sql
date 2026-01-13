@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "TINTUC" ADD COLUMN     "daGuiMail" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "thoiGianGuiMail" TIMESTAMP(3);

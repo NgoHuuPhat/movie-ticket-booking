@@ -1,7 +1,7 @@
 import { ITicketData } from '@/types/payment'
 import nodemailer from 'nodemailer'
 
-const sendEmail = async (email: string, subject: string, html: string) => {
+const sendEmail = async (email: string, subject: string, otp: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -14,7 +14,7 @@ const sendEmail = async (email: string, subject: string, html: string) => {
     from: `"Lê Độ Cinema" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: subject,
-    html: html,
+    html: mailTemplate(otp),
   })
 }
 
@@ -40,7 +40,90 @@ const sendTicketEmail = async (email: string, subject: string, ticketData: ITick
   })
 }
 
-const mailTemplate = (otp: number) => {
+const sendNewsEmail = async (email: string, title: string, content: string, imageUrl: string) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  })
+
+  await transporter.sendMail({
+    from: `"Lê Độ Cinema" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: title,
+    html: newsTemplate(content, imageUrl),
+  })
+}
+
+const newsTemplate = (content: string, imageUrl: string) => {
+  return `
+    <div style="font-family: Arial, sans-serif; background: #f5f6fa; padding: 20px;">
+      <div style="
+        max-width: 800px;
+        margin: auto;
+        background: #ffffff;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      ">
+        <!-- Content -->
+        <div style="padding: 30px 25px;">
+          <div style="margin-bottom: 25px; text-align: center;">
+            <img src="${imageUrl}" alt="Cinema Promo" style="
+              max-width: 100%;
+              height: auto;
+              border-radius: 4px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            "/>
+          </div>
+
+          <div style="
+            color: #555;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+          ">
+            ${content}
+          </div>
+
+          <!-- CTA -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.CLIENT_URL}/movies/showing" target="_blank"
+              style="
+                display:inline-block;
+                background: #a320c1;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 15px;
+                font-weight: bold;
+                padding: 12px 26px;
+                border-radius: 4px;
+              ">
+              Đặt vé ngay
+            </a>
+          </div>
+
+          <hr style="margin: 25px 0; border: 0; border-top: 1px solid #e5e5e5;" />
+
+          <!-- Footer Info -->
+          <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #777; font-size: 13px; margin: 5px 0;">
+              📍 46 Trần Phú, Hải Châu, Đà Nẵng, Việt Nam
+            </p>
+            <p style="color: #777; font-size: 13px; margin: 5px 0;">
+              ☎️ 0236 3822574 | 📧 ttphpcbdn@gmail.com
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+
+const mailTemplate = (otp: string) => {
   return `
     <div style="font-family: Arial, sans-serif; background: #f5f6fa; padding: 20px;">
       <div style="
@@ -202,4 +285,4 @@ const ticketTemplate = (data: ITicketData) => {
   `
 }
 
-export { sendEmail, sendTicketEmail, mailTemplate, ticketTemplate }
+export { sendEmail, sendTicketEmail, sendNewsEmail }

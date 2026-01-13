@@ -1,22 +1,26 @@
 import { Worker } from 'bullmq'
 import { workerClient } from '@/services/redis.service'
-import { sendEmail, sendTicketEmail } from '@/services/mail.service'
+import { sendEmail, sendTicketEmail, sendNewsEmail } from '@/services/mail.service'
 
 const emailWorker = new Worker('email', async job => {
   const { name, data } = job
   switch (name) {
     case 'sendEmail': {
-      const { to, subject, body } = data
-      await sendEmail(to, subject, body)
+      const { to, subject, otp } = data
+      await sendEmail(to, subject, otp)
       break
     }
-      
     case 'sendMovieTicket': {
       const { to, subject, ticketData, qrBase64 } = data
 
       const qrBase64Data = qrBase64.split(',')[1]
       const qrBuffer = Buffer.from(qrBase64Data, 'base64')
       await sendTicketEmail(to, subject, ticketData, qrBuffer)
+      break
+    }
+    case 'sendNewsEmail': {
+      const { to, title, content, imageUrl } = data
+      await sendNewsEmail(to, title, content, imageUrl)
       break
     }
     default:

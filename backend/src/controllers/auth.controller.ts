@@ -5,7 +5,6 @@ import { generateIncrementalId } from '@/utils/generateId.utils'
 import validator from 'validator';
 import { prisma } from '@/lib/prisma'
 import { IUserRequest } from '@/types/user'
-import { mailTemplate } from '@/services/mail.service'
 import { redisClient } from '@/services/redis.service'
 import { addEmailToQueue } from '@/queues/email.queue'
 
@@ -168,9 +167,8 @@ class AuthController {
         return res.status(400).json({ message: 'OTP đã tồn tại, vui lòng kiểm tra email của bạn' })
       }
 
-      const html = mailTemplate(otp)
       const subject = 'Mã OTP đặt lại mật khẩu'
-      await addEmailToQueue(email, subject, html)
+      await addEmailToQueue(email, subject, otp.toString())
 
       return res.status(200).json({ message: 'OTP đã được gửi đến email' })
     } catch (error) { 

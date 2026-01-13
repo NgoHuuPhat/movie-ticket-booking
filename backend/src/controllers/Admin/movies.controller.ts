@@ -24,8 +24,6 @@ class PhimsController {
       if(new Date(ngayKhoiChieu) > new Date(ngayKetThuc)) {
         return res.status(400).json({ message: 'Ngày kết thúc phải sau ngày khởi chiếu' })
       }
-      const endDate = new Date(ngayKetThuc)
-      endDate.setHours(23, 59, 59, 999)
 
       const newMovie = await prisma.pHIM.create({
         data: {
@@ -37,7 +35,7 @@ class PhimsController {
           moTa,
           anhBia,
           ngayKhoiChieu: new Date(ngayKhoiChieu),
-          ngayKetThuc: endDate,
+          ngayKetThuc: new Date(ngayKetThuc),
           maPhanLoaiDoTuoi,
           trailerPhim,
           quocGia,
@@ -54,7 +52,7 @@ class PhimsController {
         maTheLoai: ptl.maTheLoai,
         tenTheLoai: ptl.theLoai.tenTheLoai
       }))
-      const status = getMovieStatus(new Date(ngayKhoiChieu), endDate)
+      const status = getMovieStatus(new Date(ngayKhoiChieu), new Date(ngayKetThuc))
 
       res.status(201).json({ message: 'Thêm phim mới thành công', movie: { ...newMovie, phimTheLoais: mappedTheLoais, trangThai: status } })
     } catch (error) {

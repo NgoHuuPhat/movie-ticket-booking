@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { formatDate, formatTime } from '@/utils/formatDate'
 import { toast } from 'sonner'
 import { handleError } from '@/utils/handleError.utils'
+import { phienBan } from '@/constants/version'
+import { ngonNgu } from '@/constants/language'
 
 interface KhuyenMai {
   tenKhuyenMai: string
@@ -169,7 +171,7 @@ const TransactionHistoryPage = () => {
   }
 
   const getBookingTypeText = (type: string): string => {
-    return type === 'Online' ? 'Đặt online' : 'Đặt tại quầy'
+    return type === 'Online' ? 'Đặt online' : 'Mua tại quầy'
   }
 
   if (loading) {
@@ -177,7 +179,7 @@ const TransactionHistoryPage = () => {
       <UserLayout>
         <div className="min-h-[60vh] flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-yellow-400 mx-auto mb-6"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-yellow-300 mx-auto mb-6"></div>
             <p className="text-white text-lg font-medium">Đang tải lịch sử giao dịch...</p>
           </div>
         </div>
@@ -187,9 +189,9 @@ const TransactionHistoryPage = () => {
 
   return (
     <UserLayout>
-      <div className="py-12">
+      <div className="mx-auto max-w-8xl mt-10">
         <div className="mb-12 text-center">
-          <h1 className="text-5xl font-anton text-white mb-4 uppercase">Lịch sử giao dịch</h1>
+          <h1 className="text-4xl font-anton text-white mb-4 uppercase">Lịch sử giao dịch</h1>
         </div>
 
         {transactions.length === 0 ? (
@@ -208,14 +210,14 @@ const TransactionHistoryPage = () => {
                 (transaction.hoaDonSanPhams?.length > 0)
               
               return (
-                <div key={transaction.maHoaDon} className="bg-white/20 backdrop-blur-lg rounded border border-white/30 hover:border-yellow-400/60 transition-all shadow-xl">
+                <div key={transaction.maHoaDon} className="bg-white/20 backdrop-blur-lg rounded border border-white/30 hover:border-yellow-300/60 transition-all shadow-xl">
                   <div className="p-6">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-xl font-bold text-white">
-                            {transaction.maHoaDon}
+                            Mã đặt vé: {transaction.maQR}
                           </h3>
                           <span className={`px-3 py-1 rounded text-xs font-bold uppercase ${
                             transaction.hinhThucDatVe === 'Online' 
@@ -227,11 +229,11 @@ const TransactionHistoryPage = () => {
                         </div>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-gray-200">
                           <div className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4 text-yellow-400" />
+                            <Calendar className="w-4 h-4 text-yellow-300" />
                             <span className="font-medium">{formatTime(transaction.ngayThanhToan)} {formatDate(transaction.ngayThanhToan)}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <CreditCard className="w-4 h-4 text-yellow-400" />
+                            <CreditCard className="w-4 h-4 text-yellow-300" />
                             <span className="font-medium">{getPaymentMethodText(transaction.phuongThucThanhToan)}</span>
                           </div>
                         </div>
@@ -333,17 +335,17 @@ const TransactionHistoryPage = () => {
                                         {ve.gheSuatChieu.suatChieu.phim.tenPhim}
                                       </h5>
                                       <div className="text-sm text-gray-300 mt-1">
-                                        {ve.gheSuatChieu.suatChieu.phim.phienBan.replace('_', ' ')} • {ve.gheSuatChieu.suatChieu.phim.ngonNgu === 'LongTieng' ? 'Lồng tiếng' : 'Phụ đề'}
+                                        {phienBan[ve.gheSuatChieu.suatChieu.phim.phienBan]} • {ngonNgu[ve.gheSuatChieu.suatChieu.phim.ngonNgu]}
                                       </div>
                                     </div>
 
                                     <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-base text-white">
                                       <div className="flex items-center gap-2">
-                                        <Clock className="w-5 h-5 text-yellow-400" />
+                                        <Clock className="w-5 h-5 text-yellow-300" />
                                         <span className="font-medium">{formatTime(ve.gheSuatChieu.suatChieu.gioBatDau)}</span>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <MapPin className="w-5 h-5 text-yellow-400" />
+                                        <MapPin className="w-5 h-5 text-yellow-300" />
                                         <span className="font-medium">{ve.gheSuatChieu.ghe.phongChieu.rap.tenRap}</span>
                                       </div>
                                       <div className="flex items-center gap-2">
@@ -517,7 +519,7 @@ const TransactionHistoryPage = () => {
           onClick={() => setSelectedTransaction(null)}
         >
           <div 
-            className="bg-gradient-to-br from-white to-gray-100 rounded p-8 max-w-md w-full border-2 border-yellow-400/70 max-h-[90vh] shadow-2xl"
+            className="bg-gradient-to-br from-white to-gray-100 rounded p-8 max-w-md w-full border-2 border-yellow-300/70 max-h-[90vh] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">

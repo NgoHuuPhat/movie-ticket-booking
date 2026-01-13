@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react"
 import {
   Search, Plus, Filter, MoreVertical, Edit3, Trash2, Eye, Loader2,
-  CheckSquare
+  CheckSquare,
+  Mail,
+  Send
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,9 +24,13 @@ import {
   deleteNewsAdmin,
   bulkActionNewsAdmin,
   toggleShowNewsAdmin,
+  getAllUserTypesAdmin,
+  sendNewsMailAdmin
 } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
 import { formatDate, formatTime } from "@/utils/formatDate"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface INews {
   maTinTuc: string
@@ -37,6 +43,8 @@ interface INews {
     maNguoiDung: string
     hoTen: string
   }
+  daGuiMail: boolean
+  thoiGianGuiMail: string | null
 }
 
 const ManageNewsPage = () => {
@@ -49,6 +57,10 @@ const ManageNewsPage = () => {
   const [selectedNews, setSelectedNews] = useState<INews | null>(null)
   const [selectedNewsIds, setSelectedNewsIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
+
+  const [isSendMailDialogOpen, setIsSendMailDialogOpen] = useState(false)
+  const [userTypes, setUserTypes] = useState<Array<{ maLoaiNguoiDung: string; tenLoaiNguoiDung: string }>>([])
+  const [selectedUserType, setSelectedUserType] = useState<string>("")
 
   const [searchQuery, setSearchQuery] = useState("")
   const [hienThiFilter, setHienThiFilter] = useState<"all" | "true" | "false">("all")
@@ -80,6 +92,53 @@ const ManageNewsPage = () => {
     }
     fetchNews()
   }, [currentPage, searchQuery, hienThiFilter])
+
+  // Load user types for send mail dialog
+  useEffect(() => {
+    const fetchUserTypes = async () => {
+      try {
+        const res = await getAllUserTypesAdmin()
+        setUserTypes(res)
+      } catch (error) {
+        console.error("Failed to fetch user types:", error)
+      }
+    }
+    fetchUserTypes()
+  }, [])
+
+  // Handle open send mail dialog
+  const handleOpenSendMailDialog = (newsItem: INews) => {
+    setSelectedNews(newsItem)
+    setSelectedUserType("")
+    setIsSendMailDialogOpen(true)
+  }
+
+  const handleSendMail = async () => {
+    if (!selectedNews || !selectedUserType) {
+      toast.error("Vui lòng chọn loại người dùng")
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const res = await sendNewsMailAdmin(selectedNews.maTinTuc, selectedUserType)
+      setNews((prev) =>
+        prev.map((n) =>
+          n.maTinTuc === selectedNews.maTinTuc
+            ? { ...n, daGuiMail: true, thoiGianGuiMail: new Date().toISOString() }
+            : n
+        )
+      )
+      
+      setIsSendMailDialogOpen(false)
+      setSelectedNews(null)
+      toast.success(res.message)
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   const handleSelectNews = (id: string) => {
     setSelectedNewsIds((prev) =>
@@ -314,6 +373,7 @@ const ManageNewsPage = () => {
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Tiêu đề</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Ngày đăng</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Người đăng</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-600">Trạng thái gửi mail</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Hiển thị</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Hành động</th>
                   </tr>
@@ -350,6 +410,20 @@ const ManageNewsPage = () => {
                         </td>
                         <td className="p-4 text-sm text-gray-600">{newsItem.nguoiDang.hoTen}</td>
                         <td className="p-4">
+                          {newsItem.daGuiMail ? (
+                            <div className="flex flex-col gap-1">
+                              <Badge variant="default" className="w-fit">
+                                <Mail className="mr-1 h-3 w-3" />
+                                Đã gửi
+                              </Badge>
+                            </div>
+                          ) : (
+                            <Badge variant="secondary" className="w-fit">
+                              Chưa gửi
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="p-4">
                           <Switch
                             checked={newsItem.hienThi}
                             onCheckedChange={() => handleToggleHienThi(newsItem.maTinTuc, newsItem.hienThi)}
@@ -365,6 +439,9 @@ const ManageNewsPage = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleViewNews(newsItem)}>
                                 <Eye className="mr-2 h-4 w-4" /> Xem chi tiết
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleOpenSendMailDialog(newsItem)}>
+                                <Send className="mr-2 h-4 w-4" /> Gửi mail
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleEditNews(newsItem)}>
                                 <Edit3 className="mr-2 h-4 w-4" /> Sửa
@@ -501,6 +578,16 @@ const ManageNewsPage = () => {
                       <span>{formatTime(selectedNews.ngayDang)} {formatDate(selectedNews.ngayDang)}</span>
                       <span>•</span>
                       <span>Người đăng: {selectedNews.nguoiDang.hoTen}</span>
+                      <span>•</span>
+                      <Badge variant={selectedNews.daGuiMail ? "default" : "secondary"}>
+                        {selectedNews.daGuiMail ? "Đã gửi mail" : "Chưa gửi mail"}
+                      </Badge>
+                      <span>•</span>
+                      {selectedNews.thoiGianGuiMail && (
+                        <span>
+                          {formatTime(selectedNews.thoiGianGuiMail)} {formatDate(selectedNews.thoiGianGuiMail)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -518,10 +605,6 @@ const ManageNewsPage = () => {
                     dangerouslySetInnerHTML={{ __html: selectedNews.noiDung }}
                   />
                 </div>
-
-                <div className="text-sm text-gray-500 pt-4 border-t">
-                  <p>Mã tin tức: {selectedNews.maTinTuc}</p>
-                </div>
               </div>
             )}
             <DialogFooter>
@@ -531,6 +614,111 @@ const ManageNewsPage = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        
+        {/* Dialog Gửi mail */}
+        <Dialog open={isSendMailDialogOpen} onOpenChange={setIsSendMailDialogOpen}>
+          <DialogContent className="md:max-w-xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                Gửi tin tức qua Email cho khách hàng
+              </DialogTitle>
+              <DialogDescription>
+                Gửi tin tức này đến email của các khách hàng theo loại người dùng.
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedNews && (
+              <div className="space-y-4 pb-4">
+                {/* Thông tin tin tức */}
+                <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <img
+                    src={selectedNews.anhDaiDien}
+                    alt={selectedNews.tieuDe}
+                    className="w-20 h-16 object-cover rounded"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold line-clamp-2">{selectedNews.tieuDe}</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {formatDate(selectedNews.ngayDang)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chọn loại người dùng */}
+                <div className="py-4">
+                  <Label htmlFor="userType">
+                    Chọn loại người dùng nhận email <span className="text-red-500">*</span>
+                  </Label>
+                  <Select value={selectedUserType} onValueChange={setSelectedUserType}>
+                    <SelectTrigger id="userType">
+                      <SelectValue placeholder="Chọn loại người dùng..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Tất cả khách hàng</span>
+                        </div>
+                      </SelectItem>
+                      {userTypes
+                        .filter((type) => !['ADMIN', 'NV'].includes(type.maLoaiNguoiDung))
+                        .map((type) => (
+                          <SelectItem key={type.maLoaiNguoiDung} value={type.maLoaiNguoiDung}>
+                            {type.tenLoaiNguoiDung}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Thông báo */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <div className="flex gap-2">
+                    <span className="text-amber-600 text-lg">⚠️</span>
+                    <div className="text text-amber-800">
+                      <p className="font-semibold mb-1">Lưu ý:</p>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>
+                          {selectedUserType === 'all' 
+                            ? 'Email sẽ được gửi đến TẤT CẢ khách hàng'
+                            : 'Email sẽ được gửi đến tất cả người dùng thuộc loại đã chọn'}
+                        </li>
+                        <li>Hành động này không thể hoàn tác</li>
+                        <li>Vui lòng kiểm tra kỹ nội dung trước khi gửi</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsSendMailDialogOpen(false)}
+                disabled={submitting}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSendMail}
+                disabled={submitting || !selectedUserType}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang gửi...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Gửi Email
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
       </div>
     </AdminLayout>
   )

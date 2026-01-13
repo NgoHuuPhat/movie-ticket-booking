@@ -85,14 +85,14 @@ export const ShowtimeSeatsViewer = ({ maSuatChieu }: { maSuatChieu: string }) =>
       return "bg-gray-200 cursor-not-allowed"
     }
     if (seat.trangThaiGhe === "DaDat") {
-      return "bg-red-500 hover:bg-red-600 shadow-lg"
+      return "bg-purple-700 hover:bg-purple-800 shadow-lg"
     }
 
     if (typeName.includes("Couple")) {
       return "bg-pink-500 hover:bg-pink-600"
     }
     if (typeName.includes("VIP")) {
-      return "bg-rose-500 hover:bg-rose-600"
+      return "bg-rose-500 hover:bg-rose-700"
     }
     return "bg-blue-500 hover:bg-blue-600"
   }
@@ -143,7 +143,7 @@ export const ShowtimeSeatsViewer = ({ maSuatChieu }: { maSuatChieu: string }) =>
           <CardContent>
             <div className="text-center">
               <p className="text-sm text-gray-600">Đã đặt</p>
-              <p className="text-2xl font-bold text-red-600">{stats.booked}</p>
+              <p className="text-2xl font-bold text-purple-700">{stats.booked}</p>
             </div>
           </CardContent>
         </Card>
@@ -269,7 +269,7 @@ export const ShowtimeSeatsViewer = ({ maSuatChieu }: { maSuatChieu: string }) =>
 
             {/* Trạng thái */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-red-500 flex items-center justify-center relative">
+              <div className="w-6 h-6 rounded bg-purple-700 flex items-center justify-center relative">
                 <Armchair className="h-4 w-4 text-white" />
                 <div className="absolute -top-1 -right-1 bg-yellow-400 rounded-full w-3 h-3 border border-white" />
               </div>

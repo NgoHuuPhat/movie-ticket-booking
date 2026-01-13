@@ -397,14 +397,16 @@ model HOADON_SANPHAM {
 }
 
 model TINTUC {
-  maTinTuc     String    @id
-  tieuDe       String
-  noiDung      String
-  anhDaiDien   String
-  ngayDang     DateTime  @default(now())
-  hienThi      Boolean   @default(true)
-  slug         String    @unique
-  maNguoiDang  String
+  maTinTuc        String    @id
+  tieuDe          String
+  noiDung         String
+  anhDaiDien      String
+  ngayDang        DateTime  @default(now())
+  hienThi         Boolean   @default(true)
+  slug            String    @unique
+  maNguoiDang     String
+  daGuiMail       Boolean   @default(false)
+  thoiGianGuiMail DateTime?
 
   nguoiDang    NGUOIDUNG  @relation(fields: [maNguoiDang], references: [maNguoiDung])
 }

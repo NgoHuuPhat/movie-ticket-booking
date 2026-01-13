@@ -21,6 +21,7 @@ import MovieDetailPage from "@/pages/MovieDetailPage"
 import CheckoutResultPage from "@/pages/CheckoutResultPage"
 import NewsPage from "@/pages/NewsPage"
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage"
+import AboutPage from "@/pages/AboutPage"
 
 import DashboardPage from "@/pages/Admin/DashboardPage"
 import ManageMoviePage from "@/pages/Admin/ManageMoviePage"
@@ -90,6 +91,7 @@ function App(){
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/:slug" element={<NewsDetailPage />} />
           <Route path="/transaction-history" element={<TransactionHistoryPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Route>
 
         <Route element={<AdminRoute />}>
@@ -130,7 +132,7 @@ function App(){
           <Route path="/staff/orders/foods" element={<FoodOrdersPage />} />
           <Route path="/staff/pos" element={<POSPage />} />
 
-          <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+          <Route path="/staff" element={<Navigate to="/staff/pos" replace />} />
         </Route>
       </Routes>
     </>

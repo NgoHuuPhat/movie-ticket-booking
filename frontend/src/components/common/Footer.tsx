@@ -1,31 +1,10 @@
-import { useEffect, useState } from "react"
 import { Facebook, Instagram, Youtube, Twitter, MapPin, Phone, Mail } from "lucide-react"
 import logo from "@/assets/logo.png"
-import { handleError } from "@/utils/handleError.utils"
-import { getCinemaInfo } from "@/services/api"
-
-interface CinemaInfo {
-  tenRap: string
-  diaChi: string
-  soDienThoai: string
-  email: string
-}
+import useInfoCinema from "@/hooks/useInfoCinema"
 
 const Footer = () => {
-  const [ cinemaInfo, setCinemaInfo ] = useState<CinemaInfo | null>(null)
-
-  useEffect(() => {
-    try {
-      const fetchCinemaInfo = async () => {
-        const cinemaInfo = await getCinemaInfo()
-        setCinemaInfo(cinemaInfo)
-      }
-      fetchCinemaInfo()
-    } catch (error) {
-      console.error(handleError(error))
-    }
-  }, [])
-
+  const { cinemaInfo } = useInfoCinema()
+  
   return (
     <div>
       <footer className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">

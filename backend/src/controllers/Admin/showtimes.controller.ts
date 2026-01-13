@@ -94,9 +94,6 @@ class SuatChieusController {
         return res.status(404).json({ message: 'Phim không tồn tại' })
       }
 
-      // Check date validity
-      const movieStart = new Date(phim.ngayKhoiChieu)
-      movieStart.setHours(0,0,0,0)  
 
       const movieEnd = new Date(phim.ngayKetThuc)
       movieEnd.setHours(23,59,59,999) 
@@ -104,7 +101,7 @@ class SuatChieusController {
       const timeStart = new Date(gioBatDau)
       const timeEnd = new Date(gioKetThuc)
 
-      if(timeStart < movieStart || timeEnd > movieEnd) {
+      if(timeEnd > movieEnd) {
         return res.status(400).json({ message: 'Suất chiếu phải nằm trong khoảng thời gian chiếu của phim' })
       }
 
@@ -162,17 +159,11 @@ class SuatChieusController {
         return res.status(404).json({ message: 'Suất chiếu không tồn tại' })
       }
 
-      // Check date validity
-      const movieStart = new Date(showtime.phim.ngayKhoiChieu)
-      movieStart.setHours(0,0,0,0)  
-
       const movieEnd = new Date(showtime.phim.ngayKetThuc)
       movieEnd.setHours(23,59,59,999) 
-
-      const timeStart = new Date(gioBatDau)
       const timeEnd = new Date(gioKetThuc)
 
-      if(timeStart < movieStart || timeEnd > movieEnd) {
+      if(timeEnd > movieEnd) {
         return res.status(400).json({ message: 'Suất chiếu phải nằm trong khoảng thời gian chiếu của phim' })
       }
       

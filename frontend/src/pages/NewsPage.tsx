@@ -25,7 +25,7 @@ export default function NewsPage() {
     <UserLayout>
       <div className="mx-auto max-w-8xl mt-10">
         <section className="mb-20">
-          <h2 className="text-center text-4xl md:text-4xl font-anton text-white mb-12 uppercase">
+          <h2 className="text-center text-2xl md:text-4xl font-anton text-white mb-12 uppercase">
             Tin Tức & Sự Kiện
           </h2>
 

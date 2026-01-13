@@ -9,7 +9,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   const sidebarItems = [
-    { icon: Home, label: 'Tổng quan', path: '/staff/dashboard' },
+    // { icon: Home, label: 'Tổng quan', path: '/staff/dashboard' },
     { icon: Monitor, label: 'POS bán vé', path: '/staff/pos'},
     {
       icon: Ticket, 

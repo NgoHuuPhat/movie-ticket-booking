@@ -240,7 +240,7 @@ class VesController {
               tongTien: hoaDon.tongTien,
               phuongThucThanhToan: hoaDon.phuongThucThanhToan,
               ngayThanhToan: hoaDon.ngayThanhToan,
-              ves: hoaDon.ves,
+              ves: hoaDon.ves.filter(v => v.maVe === maVe),
             }
           })
         }
@@ -257,13 +257,12 @@ class VesController {
 
         return res.status(200).json({
           message: 'Check-in vé thành công',
-          type: 'paper_ticket',
           data: {
             maHoaDon: hoaDon.maHoaDon,
             tongTien: hoaDon.tongTien,
             phuongThucThanhToan: hoaDon.phuongThucThanhToan,
             ngayThanhToan: hoaDon.ngayThanhToan,
-            ves: hoaDon.ves,
+            ves: hoaDon.ves.filter(v => v.maVe === maVe),
           }
         })
       } else {
