@@ -69,20 +69,23 @@ class PhimsController {
         const filter: any = {}
         const skip = (Number(page) - 1) * limit
         const sortFields = sortField as string
-        const { startDate, endDate } = getDayRange()
+        
+        const now = new Date()
+        const todayStr = now.toISOString().split('T')[0] 
+        const today = new Date(todayStr)
 
         if(hienThi !== undefined) {
           filter.hienThi = hienThi === 'true'
         }
         if(trangThai === 'dangChieu') {
-          filter.ngayKhoiChieu = { lte: endDate }
-          filter.ngayKetThuc = { gte: startDate }
+          filter.ngayKhoiChieu = { lte: today }
+          filter.ngayKetThuc = { gte: today }
         }
         if(trangThai === 'sapChieu') {
-          filter.ngayKhoiChieu = { gt: endDate }
+          filter.ngayKhoiChieu = { gt: today }
         }
         if(trangThai === 'daKetThuc') {
-          filter.ngayKetThuc = { lte: startDate }
+          filter.ngayKetThuc = { lte: today }
         }
 
         if(search) {

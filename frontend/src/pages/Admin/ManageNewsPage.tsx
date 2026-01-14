@@ -561,12 +561,12 @@ const ManageNewsPage = () => {
 
         {/* Dialog Xem chi tiết */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="md:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="md:max-w-[800px] max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>Chi tiết tin tức</DialogTitle>
             </DialogHeader>
             {selectedNews && (
-              <div className="space-y-6 py-4">
+              <div className="space-y-6 py-4 overflow-y-auto max-h-[70vh]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold mb-3">{selectedNews.tieuDe}</h3>
@@ -595,7 +595,7 @@ const ManageNewsPage = () => {
                 <img
                   src={selectedNews.anhDaiDien}
                   alt={selectedNews.tieuDe}
-                  className="w-full h-80 object-cover rounded-lg border shadow-sm"
+                  className="w-1/2 mx-auto h-auto object-contain rounded-lg border shadow-sm"
                 />
 
                 <div className="prose prose-sm md:prose-base max-w-none">

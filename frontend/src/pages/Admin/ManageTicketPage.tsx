@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import AdminLayout from "@/components/layout/AdminLayout"
 import PaginationBar from "@/components/Admin/PaginationBar"
 import { getAllTicketsAdmin, getMoviesForSelect, getTicketStatsAdmin, exportRevenueReportAdmin } from "@/services/api"
@@ -112,9 +112,7 @@ const ManageTicketPage = () => {
     online: 0,
     offline: 0
   })
-
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
 
   const toggleExpandInvoice = (maHoaDon: string) => {
     setExpandedInvoiceIds(prev =>
@@ -420,9 +418,8 @@ const ManageTicketPage = () => {
                                     <DropdownMenuItem
                                       className="text-red-600 focus:text-red-600"
                                       onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedInvoice(invoice);
-                                        setIsCancelDialogOpen(true);
+                                        e.stopPropagation()
+                                        setSelectedInvoice(invoice)
                                       }}
                                     >
                                       <XCircle className="mr-2 h-4 w-4" /> Hủy hóa đơn
@@ -643,14 +640,14 @@ const ManageTicketPage = () => {
 
         {/* Dialog Chi tiết hóa đơn */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="md:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="md:max-w-4xl max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>Chi tiết hóa đơn #{selectedInvoice?.maHoaDon}</DialogTitle>
               <DialogDescription>Thông tin chi tiết về hóa đơn và các mục đã mua</DialogDescription>
             </DialogHeader>
 
             {selectedInvoice && (
-              <div className="space-y-6 py-4">
+              <div className="space-y-6 py-4 overflow-y-auto max-h-[70vh]">
                 {/* Thông tin hóa đơn */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-3">
@@ -660,7 +657,7 @@ const ManageTicketPage = () => {
                     </div>
                     <div>
                       <Label className="text-sm text-gray-600">Mã QR</Label>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{selectedInvoice.maQR}</p>
+                      <p className="font-semibold">{selectedInvoice.maQR}</p>
                     </div>
                     <div>
                       <Label className="text-sm text-gray-600">Khách hàng</Label>
@@ -863,7 +860,7 @@ const ManageTicketPage = () => {
                 )}
 
                 {/* Tổng cộng */}
-                <div className="border-t-2 pt-4">
+                <div className="border-t-2 py-8">
                   <div className="flex justify-between items-center text-xl">
                     <span className="font-bold">Tổng cộng:</span>
                     <span className="font-bold text-emerald-600">
@@ -878,55 +875,6 @@ const ManageTicketPage = () => {
                 </div>
               </div>
             )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-                Đóng
-              </Button>
-              <Button>
-                <Download className="mr-2 h-4 w-4" /> In hóa đơn
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Dialog Xác nhận hủy hóa đơn */}
-        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-          <DialogContent className="md:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-red-600">Hủy hóa đơn</DialogTitle>
-              <DialogDescription>
-                Bạn có chắc chắn muốn hủy hóa đơn này? Hành động này sẽ hủy tất cả vé trong hóa đơn và không thể hoàn tác.
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedInvoice && (
-              <div className="py-4 space-y-3">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="font-semibold mb-2">Thông tin hóa đơn</p>
-                  <p className="text-sm"><strong>Mã:</strong> {selectedInvoice.maHoaDon}</p>
-                  <p className="text-sm"><strong>Khách hàng:</strong> {selectedInvoice.nguoiDung?.hoTen}</p>
-                  <p className="text-sm"><strong>Số vé:</strong> {selectedInvoice.ves.length} vé</p>
-                  <p className="text-sm font-semibold text-emerald-700 mt-2">
-                    Tổng tiền: {Number(selectedInvoice.tongTien).toLocaleString()} VNĐ
-                  </p>
-                </div>
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ Hệ thống sẽ tự động hoàn tiền cho khách hàng theo phương thức thanh toán ban đầu.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCancelDialogOpen(false)}>
-                Hủy bỏ
-              </Button>
-              <Button variant="destructive">
-                <XCircle className="mr-2 h-4 w-4" /> Xác nhận hủy
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

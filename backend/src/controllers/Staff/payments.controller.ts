@@ -13,7 +13,6 @@ class ThanhToansController {
   // [POST] /staff/payments/create-vnpay
   async createVNPay(req: IUserRequest, res: Response) {
     const { maSuatChieu, selectedSeats, selectedFoods, tongTien, soDienThoaiNguoiDung }: IPaymentRequestBody = req.body
-    console.log('Yêu cầu tạo thanh toán VNPAY:', req.body)
     const maNhanVienBanVe = req.user?.maNguoiDung
     let nguoiDung = null
 

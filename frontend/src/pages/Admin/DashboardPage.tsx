@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
-import { TrendingUp, ShoppingCart, Ticket, DollarSign, Users, RefreshCw, Trophy, TrendingDown } from 'lucide-react'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title } from 'chart.js'
-import { Pie, Line } from 'react-chartjs-2'
-
+import { useState, useEffect } from "react"
+import { TrendingUp, ShoppingCart, Ticket, DollarSign, Users, RefreshCw, Trophy, TrendingDown, Brain, Loader2 } from "lucide-react"
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title } from "chart.js"
+import { Pie, Line } from "react-chartjs-2"
 import {
   getRevenueStatisticsAdmin,
   getTicketSalesStatisticsAdmin,
@@ -13,10 +12,14 @@ import {
   getRevenueTimeSeriesAdmin,
   getRevenueByTypeAdmin,
   getYearInvoicesAdmin,
-} from '@/services/api'
-import AdminLayout from '@/components/layout/AdminLayout'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { Button } from '@/components/ui/button'
+  revenueAnalysisAIAdmin
+} from "@/services/api"
+import AdminLayout from "@/components/layout/AdminLayout"
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { Button } from "@/components/ui/button"
+import { handleError } from "@/utils/handleError.utils"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import Markdown from "react-markdown"
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title)
 
@@ -42,12 +45,16 @@ export interface RevenueByType {
   revenue: number
 }
 
-
 const DashboardPage = () => {
-  const [timeFilter, setTimeFilter] = useState('day')
+  const [timeFilter, setTimeFilter] = useState("day")
   const [yearForRevenueType, setYearForRevenueType] = useState(new Date().getFullYear().toString())
   const [yearForPayment, setYearForPayment] = useState(new Date().getFullYear().toString())
   const [availableYears, setAvailableYears] = useState<number[]>([])
+
+  const [aiAnalysis, setAiAnalysis] = useState<string>("")
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false)
+  const [loadingAI, setLoadingAI] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
   
   const [loadingStats, setLoadingStats] = useState(true)
   const [loadingTimeSeries, setLoadingTimeSeries] = useState(true)
@@ -98,6 +105,21 @@ const DashboardPage = () => {
     fetchTimeSeriesData()
   }, [])
 
+  const fetchAIAnalysis = async () => {
+    setIsAIModalOpen(true)
+    setLoadingAI(true)
+    setAiError(null)
+
+    try {
+      const res = await revenueAnalysisAIAdmin(timeFilter)
+      setAiAnalysis(res.answer)
+    } catch (error) {
+      console.error("AI analysis error:", error)
+      setAiError(handleError(error))
+    } finally {
+      setLoadingAI(false)
+    }
+  }
 
   const fetchAvailableYears = async () => {
     try {
@@ -110,8 +132,8 @@ const DashboardPage = () => {
         setYearForRevenueType(years[years.length - 1].toString())
         setYearForPayment(years[years.length - 1].toString())
       }
-    } catch (err) {
-      console.error('Error fetching years:', err)
+    } catch (error) {
+      console.error("Error fetching years:", error)
     }
   }
 
@@ -131,9 +153,9 @@ const DashboardPage = () => {
         revenue: Number(revenue) || 0,
         newUsers: Number(newUsers) || 0
       })
-    } catch (err) {
-      console.error('Error fetching stats:', err)
-      setError('Không thể tải dữ liệu thống kê.')
+    } catch (error) {
+      console.error("Error fetching stats:", error)
+      setError("Không thể tải dữ liệu thống kê.")
     } finally {
       setLoadingStats(false)
     }
@@ -144,8 +166,8 @@ const DashboardPage = () => {
     try {
       const timeSeries = await getRevenueTimeSeriesAdmin()
       setRevenueTimeSeries(timeSeries || [])
-    } catch (err) {
-      console.error('Error fetching time series:', err)
+    } catch (error) {
+      console.error("Error fetching time series:", error)
     } finally {
       setLoadingTimeSeries(false)
     }
@@ -156,8 +178,8 @@ const DashboardPage = () => {
     try {
       const byType = await getRevenueByTypeAdmin(yearForRevenueType)
       setRevenueByType(byType || [])
-    } catch (err) {
-      console.error('Error fetching revenue type:', err)
+    } catch (error) {
+      console.error("Error fetching revenue type:", error)
     } finally {
       setLoadingRevenueType(false)
     }
@@ -168,8 +190,8 @@ const DashboardPage = () => {
     try {
       const payments = await getPaymentMethodsAdmin(yearForPayment)
       setPaymentMethods(payments || [])
-    } catch (err) {
-      console.error('Error fetching payment methods:', err)
+    } catch (error) {
+      console.error("Error fetching payment methods:", error)
     } finally {
       setLoadingPayment(false)
     }
@@ -180,8 +202,8 @@ const DashboardPage = () => {
     try {
       const movies = await getTopMoviesAdmin()
       setTopMovies(movies || [])
-    } catch (err) {
-      console.error('Error fetching movies:', err)
+    } catch (error) {
+      console.error("Error fetching movies:", error)
     } finally {
       setLoadingMovies(false)
     }
@@ -196,7 +218,7 @@ const DashboardPage = () => {
   }
 
   const formatCurrency = (value: number) => {
-    return value.toLocaleString('vi-VN') + " VNĐ"
+    return value.toLocaleString("vi-VN") + " VNĐ"
   }
 
   const formatNumber = (value: number) => {
@@ -212,32 +234,32 @@ const DashboardPage = () => {
   const revenueTimeChartData = {
     labels: revenueTimeSeries.map(d => d.hour),
     datasets: [{
-      label: 'Doanh thu (VNĐ)',
+      label: "Doanh thu (VNĐ)",
       data: revenueTimeSeries.map(d => d.revenue),
-      borderColor: 'rgb(124, 58, 237)',
-      backgroundColor: 'rgba(124, 58, 237, 0.05)',
+      borderColor: "rgb(124, 58, 237)",
+      backgroundColor: "rgba(124, 58, 237, 0.05)",
       tension: 0.4,
       fill: true,
       borderWidth: 2,
       pointRadius: 0,
       pointHoverRadius: 6,
-      pointHoverBackgroundColor: 'rgb(124, 58, 237)',
-      pointHoverBorderColor: 'white',
+      pointHoverBackgroundColor: "rgb(124, 58, 237)",
+      pointHoverBorderColor: "white",
       pointHoverBorderWidth: 2
     }]
   }
 
   const revenueTypeChartData = {
-    labels: revenueByType.map(d => d.type === 'Ticket Sales' ? 'Vé' : 'Combo/Sản phẩm'),
+    labels: revenueByType.map(d => d.type === "Ticket Sales" ? "Vé" : "Combo/Sản phẩm"),
     datasets: [{
       data: revenueByType.map(d => d.revenue),
       backgroundColor: [
-        'rgba(59, 130, 246, 0.8)',
-        'rgba(16, 185, 129, 0.8)'
+        "rgba(59, 130, 246, 0.8)",
+        "rgba(16, 185, 129, 0.8)"
       ],
       borderColor: [
-        'rgb(59, 130, 246)',
-        'rgb(16, 185, 129)'
+        "rgb(59, 130, 246)",
+        "rgb(16, 185, 129)"
       ],
       borderWidth: 2,
       hoverOffset: 15
@@ -246,22 +268,22 @@ const DashboardPage = () => {
 
   const paymentMethodChartData = {
     labels: paymentMethods.map(p => {
-      if (p.methodPayment === 'VNPAY') return 'VNPay'
-      if (p.methodPayment === 'MOMO') return 'MoMo'
-      if (p.methodPayment === 'TIENMAT') return 'Tiền mặt'
+      if (p.methodPayment === "VNPAY") return "VNPay"
+      if (p.methodPayment === "MOMO") return "MoMo"
+      if (p.methodPayment === "TIENMAT") return "Tiền mặt"
       return p.methodPayment
     }),
     datasets: [{
       data: paymentMethods.map(p => p.count),
       backgroundColor: [
-        'rgba(139, 92, 246, 0.8)',
-        'rgba(245, 158, 11, 0.8)',
-        'rgba(236, 72, 153, 0.8)'
+        "rgba(139, 92, 246, 0.8)",
+        "rgba(245, 158, 11, 0.8)",
+        "rgba(236, 72, 153, 0.8)"
       ],
       borderColor: [
-        'rgb(139, 92, 246)',
-        'rgb(245, 158, 11)',
-        'rgb(236, 72, 153)'
+        "rgb(139, 92, 246)",
+        "rgb(245, 158, 11)",
+        "rgb(236, 72, 153)"
       ],
       borderWidth: 2,
       hoverOffset: 15
@@ -273,7 +295,7 @@ const DashboardPage = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: "bottom" as const,
         labels: {
           padding: 15,
           font: {
@@ -281,16 +303,16 @@ const DashboardPage = () => {
             family: "'Inter', sans-serif"
           },
           usePointStyle: true,
-          pointStyle: 'circle' as const
+          pointStyle: "circle" as const
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
         padding: 12,
         borderRadius: 8,
         titleFont: {
           size: 13,
-          weight: 'bold' as const
+          weight: "bold" as const
         },
         bodyFont: {
           size: 12
@@ -335,54 +357,65 @@ const DashboardPage = () => {
                 disabled={isLoading}
                 className="border border-gray-300 bg-white hover:bg-gray-100 text-gray-700"
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                 Làm mới
               </Button>
+
+              
+
               <NativeSelect
                 value={timeFilter}
                 onChange={(e) => setTimeFilter(e.currentTarget.value)}
-                className='bg-white shadow-none'
+                className="bg-white shadow-none"
               >
                 <NativeSelectOption value="day" className="text-black">Hôm nay</NativeSelectOption>
                 <NativeSelectOption value="week" className="text-black">Tuần này</NativeSelectOption>
                 <NativeSelectOption value="month" className="text-black">Tháng này</NativeSelectOption>
                 <NativeSelectOption value="year" className="text-black">Năm này</NativeSelectOption>
               </NativeSelect>
+
+              <Button
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
+                onClick={fetchAIAnalysis}
+              >
+                <Brain className="h-4 w-4 mr-2" /> 
+                AI phân tích doanh thu
+              </Button>
             </div>
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[
               { 
-                title: 'Tổng số vé bán ra', 
-                value: stats.ticketSales + ' vé', 
+                title: "Tổng số vé bán ra", 
+                value: stats.ticketSales + " vé", 
                 icon: Ticket,
-                bg: 'bg-gradient-to-br from-rose-500/80 to-fuchsia-900',
-                iconBg: 'bg-white/30',
-                textColor: 'text-white'
+                bg: "bg-gradient-to-br from-rose-500/80 to-fuchsia-900",
+                iconBg: "bg-white/30",
+                textColor: "text-white"
               },
               { 
-                title: 'Tổng số hóa đơn sản phẩm bán ra', 
-                value: stats.productSales + ' đơn', 
+                title: "Tổng số hóa đơn sản phẩm bán ra", 
+                value: stats.productSales + " đơn", 
                 icon: ShoppingCart,
-                bg: 'bg-gradient-to-br from-violet-400/80 to-violet-800',
-                iconBg: 'bg-white/30',
-                textColor: 'text-white'
+                bg: "bg-gradient-to-br from-violet-400/80 to-violet-800",
+                iconBg: "bg-white/30",
+                textColor: "text-white"
               },
               { 
-                title: 'Tổng doanh thu', 
+                title: "Tổng doanh thu", 
                 value: formatCurrency(stats.revenue), 
                 icon: DollarSign,
-                bg: 'bg-gradient-to-br from-cyan-400/80 to-sky-700',
-                iconBg: 'bg-white/30',
-                textColor: 'text-white'
+                bg: "bg-gradient-to-br from-cyan-400/80 to-sky-700",
+                iconBg: "bg-white/30",
+                textColor: "text-white"
               },
               { 
-                title: 'Khách hàng mới', 
+                title: "Khách hàng mới", 
                 value: stats.newUsers, 
                 icon: Users,
-                bg: 'bg-gradient-to-br from-yellow-300/80 to-orange-600',
-                iconBg: 'bg-white/30',
-                textColor: 'text-white'
+                bg: "bg-gradient-to-br from-yellow-300/80 to-orange-600",
+                iconBg: "bg-white/30",
+                textColor: "text-white"
               },
             ].map((card, index) => {
               const Icon = card.icon
@@ -433,7 +466,7 @@ const DashboardPage = () => {
                   y: {
                     beginAtZero: true,
                     grid: {
-                      color: 'rgba(0, 0, 0, 0.05)'
+                      color: "rgba(0, 0, 0, 0.05)"
                     },
                     ticks: {
                       callback: (value) => formatNumber(Number(value)),
@@ -554,17 +587,17 @@ const DashboardPage = () => {
                       alt={movie.tenPhim}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/300x450?text=No+Image'
+                        e.currentTarget.src = "https://via.placeholder.com/300x450?text=No+Image"
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     
                     {/* Ranking Badge */}
                     <div className={`absolute top-3 left-3 w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg ${
-                      index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
-                      index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500' :
-                      index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600' :
-                      'bg-gradient-to-br from-blue-500 to-purple-600'
+                      index === 0 ? "bg-gradient-to-br from-yellow-400 to-yellow-600" :
+                      index === 1 ? "bg-gradient-to-br from-gray-300 to-gray-500" :
+                      index === 2 ? "bg-gradient-to-br from-orange-400 to-orange-600" :
+                      "bg-gradient-to-br from-blue-500 to-purple-600"
                     }`}>
                       {index + 1}
                     </div>
@@ -601,6 +634,50 @@ const DashboardPage = () => {
             )}
           </div>
         </div>
+
+        {/* AI Revenue Analysis Section */}
+        <Dialog open={isAIModalOpen} onOpenChange={setIsAIModalOpen}>
+          <DialogContent className="md:max-w-4xl max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Brain className="h-6 w-6 text-indigo-600" />
+                Phân tích doanh thu thông minh (AI)
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4 overflow-y-auto max-h-[70vh]">
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-indigo-100 min-h-[180px] prose prose-indigo max-w-none">
+                {loadingAI ? (
+                  <div className="flex flex-col items-center justify-center h-40 gap-4">
+                    <Loader2 className="h-10 w-10 text-indigo-500 animate-spin" />
+                    <p className="text-gray-600">AI đang phân tích dữ liệu doanh thu...</p>
+                  </div>
+                ) : aiError ? (
+                  <div className="text-center py-8 text-red-600">
+                    <p className="font-medium">{aiError}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-4"
+                      onClick={fetchAIAnalysis}
+                    >
+                      Thử lại
+                    </Button>
+                  </div>
+                ) : aiAnalysis ? (
+                  <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
+                    <Markdown>{aiAnalysis}</Markdown>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-40 text-gray-500">
+                    <Brain className="h-12 w-12 mb-3 opacity-40" />
+                    <p>Nhấn "Phân tích lại" để xem insight từ AI</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   )

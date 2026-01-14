@@ -1,8 +1,8 @@
 
 import { Request, Response } from 'express'
 import { prisma } from '@/lib/prisma'
-import { getDateRangeByType } from '@/utils/dateRange'
-import { TypeDate } from '@/utils/dateRange'
+import { TypeDate, getDateRangeByType } from '@/utils/dateRange'
+import { revenueAnalysisAI } from '@/services/ai.service'
 
 class ThongKeController {
 
@@ -324,6 +324,18 @@ class ThongKeController {
     }
   }
 
+  // [GET] /admin/dashboard/ai-revenue-analysis
+  async analyzeRevenueData(req: Request, res: Response) {
+    try {
+      const { typeDate } = req.query
+      const answer = await revenueAnalysisAI(typeDate as TypeDate)
+
+      res.status(200).json({ answer })
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
 }
 
 export default new ThongKeController()

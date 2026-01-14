@@ -22,7 +22,6 @@ import bannersRouter from '@/routes/Admin/banners.routes'
 import dashboardRouter from '@/routes/Admin/dashboard.routes'
 import reportRouter from '@/routes/Admin/report.routes'
 
-
 const router = Router()
 
 router.use('/movies', authenticateToken, moviesRouter)

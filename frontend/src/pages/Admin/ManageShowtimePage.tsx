@@ -497,7 +497,7 @@ const ManageShowtimePage = () => {
                                               </DropdownMenuTrigger>
                                               <DropdownMenuContent align="end">
                                                 <DropdownMenuItem onClick={() => { handleViewSeats(st); setIsSeatsDialogOpen(true) }}>
-                                                  <Eye className="mr-2 h-4 w-4" /> Xem sơ đồ ghế
+                                                  <Eye className="mr-2 h-4 w-4" /> Xem tình trạng ghế
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => { setSelectedShowtime(st); setIsEditDialogOpen(true) }}>
                                                   <Edit3 className="mr-2 h-4 w-4" /> Sửa

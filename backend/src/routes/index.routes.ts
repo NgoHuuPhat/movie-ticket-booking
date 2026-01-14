@@ -11,6 +11,7 @@ import cinemaRouter from '@/routes/cinema.routes'
 import newsRouter from '@/routes/news.routes'
 import bannersRouter from '@/routes/banners.routes'
 import ticketsRouter from '@/routes/tickets.routes'
+import chatbotRouter from '@/routes/chatbot.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 
 const router = Router()
@@ -27,5 +28,6 @@ router.use('/news', authenticateToken, newsRouter)
 router.use('/banners', authenticateToken, bannersRouter)
 router.use('/payments', paymentsRouter)
 router.use('/tickets', authenticateToken, ticketsRouter)
+router.use('/chatbot', authenticateToken, chatbotRouter)
 
 export default router

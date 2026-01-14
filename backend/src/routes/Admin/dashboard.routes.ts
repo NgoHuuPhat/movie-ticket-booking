@@ -4,7 +4,6 @@ import dashboardController from '@/controllers/Admin/dashboard.controller'
 const router = Router()
 
 router.get('/years', dashboardController.getYearForSelection)
-
 router.get('/revenue', dashboardController.getRevenueStatistics)
 router.get('/revenue/ticket', dashboardController.getTicketSalesStatistics)
 router.get('/revenue/product', dashboardController.getProductSalesStatistics)
@@ -14,5 +13,7 @@ router.get('/revenue/time-series', dashboardController.getRevenueTimeSeriesStati
 router.get('/revenue/type', dashboardController.getRevenueByTicketTypeStatistics)
 router.get('/top-movies', dashboardController.getTopMoviesStatistics)
 router.get('/payment', dashboardController.getPaymentMethodStatistics)
+
+router.get('/ai-revenue-analysis', dashboardController.analyzeRevenueData)
 
 export default router

@@ -7,6 +7,7 @@ import "slick-carousel/slick/slick-theme.css"
 import { Button } from "@/components/ui/button"
 import UserLayout from "@/components/layout/UserLayout"
 import MovieCard from "@/components/common/CardMovie"
+import ChatbotWidget from "@/components/common/ChatbotWidget"
 import useListMovieShowing from "@/hooks/useListMovieShowing"
 import useListMovieUpcoming from "@/hooks/useListMovieUpcoming"
 import TrailerModal from "@/components/common/TrailerModal"
@@ -316,6 +317,8 @@ export default function Homepage() {
           </div>
         </section>
       </div>
+
+      <ChatbotWidget />
     </UserLayout>
   )
 }

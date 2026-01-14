@@ -127,6 +127,11 @@ export const getHoldSeatTTL = async (showtimeId: string, seatId: string) => {
   return res.data
 }
 
+export const chatWithAI = async (question: string) => {
+  const res = await request.post("/chatbot", { question })
+  return res.data
+}
+
 // Admin APIs
 export const getAllMoviesAdmin = async (params: { page?: number; search?: string; hienThi?: boolean; trangThai?: string }) => {
   const res = await request.get("/admin/movies", { params })
@@ -714,6 +719,11 @@ export const exportRevenueReportAdmin = async () => {
   const res = await request.get("/admin/report/revenue", {
     responseType: 'blob'
   })
+  return res.data
+}
+
+export const revenueAnalysisAIAdmin = async (typeDate: string) => {
+  const res = await request.get("/admin/dashboard/ai-revenue-analysis", { params: { typeDate } })
   return res.data
 }
 
