@@ -14,18 +14,18 @@ interface TicketDetailModalProps {
   ticketCode: string
 }
 
-interface IPhim {
+export interface IPhim {
   maPhim: string
   tenPhim: string
   anhPhim?: string
 }
 
-interface IPhongChieu {
+export interface IPhongChieu {
   maPhong: string
   tenPhong: string
 }
 
-interface ISuatChieu {
+export interface ISuatChieu {
   maSuatChieu: string
   gioBatDau: string
   gioKetThuc: string
@@ -33,13 +33,13 @@ interface ISuatChieu {
   phongChieu: IPhongChieu
 }
 
-interface IGhe {
+export interface IGhe {
   maGhe: string
   hangGhe: string
   soGhe: number
 }
 
-interface IGheSuatChieu {
+export interface IGheSuatChieu {
   maGheSuatChieu: string
   ghe: IGhe
   suatChieu: ISuatChieu
@@ -56,13 +56,13 @@ export interface ITicket {
   gheSuatChieu: IGheSuatChieu
 }
 
-interface ICombo {
+export interface ICombo {
   maCombo: string
   tenCombo: string
   anhCombo?: string
 }
 
-interface ISanPham {
+export interface ISanPham {
   maSanPham: string
   tenSanPham: string
   anhSanPham?: string

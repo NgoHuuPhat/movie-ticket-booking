@@ -226,7 +226,7 @@ model GHE_SUATCHIEU {
   trangThaiGhe    TRANGTHAIGHE @default(DangTrong)
 
   ghe             GHE         @relation(fields: [maGhe], references: [maGhe])
-  suatChieu       SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu])
+  suatChieu       SUATCHIEU   @relation(fields: [maSuatChieu], references: [maSuatChieu], onDelete: Cascade)
   ve              VE?
 
   @@unique([maGhe, maSuatChieu])

@@ -1,4 +1,3 @@
-// components/Admin/ShowtimeForm.tsx
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -9,21 +8,19 @@ import { Calendar, Loader2, Save } from "lucide-react"
 import { z } from "zod"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/utils/formatDate"
+import { useEffect } from "react"
 
 const schema = z.object({
   maPhim: z.string().min(1, "Vui lòng chọn phim"),
   maPhong: z.string().min(1, "Vui lòng chọn phòng"),
   gioBatDau: z.string().min(1, "Vui lòng nhập giờ bắt đầu"),
-  gioKetThuc: z.string().min(1, "Vui lòng nhập giờ kết thúc"),
-}).refine(data => new Date(data.gioBatDau) < new Date(data.gioKetThuc), {
-  message: "Giờ kết thúc phải sau giờ bắt đầu",
-  path: ["gioKetThuc"]
+  gioKetThuc: z.string().optional(),
 })
 
 export type ShowtimeFormData = z.infer<typeof schema>
 
 interface Props {
-  movies: Array<{ maPhim: string; tenPhim: string, ngayKhoiChieu: string, ngayKetThuc: string }>
+  movies: Array<{ maPhim: string; tenPhim: string, ngayKhoiChieu: string, ngayKetThuc: string, thoiLuong: number }>
   rooms: Array<{ maPhong: string; tenPhong: string }>
   defaultValues?: Partial<ShowtimeFormData>
   onSubmit: (data: ShowtimeFormData) => Promise<void>
@@ -40,19 +37,17 @@ export const ShowtimeForm = ({
   isEditMode = false 
 }: Props) => {
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<ShowtimeFormData>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ShowtimeFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       maPhim: defaultValues?.maPhim || "",
       maPhong: defaultValues?.maPhong || "",
       gioBatDau: defaultValues?.gioBatDau || "",
-      gioKetThuc: defaultValues?.gioKetThuc || "",
     }
   })
 
-  console.log(movies)
-
   const selectedMaPhim = watch("maPhim")
+  const gioBatDau = watch("gioBatDau")
   const selectedMovie = movies.find(m => m.maPhim === selectedMaPhim)
   const currentMovie = defaultValues?.maPhim 
     ? movies.find(m => m.maPhim === defaultValues.maPhim)
@@ -60,6 +55,18 @@ export const ShowtimeForm = ({
   const currentRoom = defaultValues?.maPhong 
     ? rooms.find(r => r.maPhong === defaultValues.maPhong)
     : null
+
+  // Auto calculate end time based on start time and movie duration
+  useEffect(() => {
+    console.log(gioBatDau, selectedMovie?.thoiLuong)
+    if (gioBatDau && selectedMovie?.thoiLuong) {
+      const startTime = new Date(gioBatDau)
+      const endTime = new Date(startTime.getTime() + selectedMovie.thoiLuong * 60000)
+      
+      const formattedEndTime = formatDate(endTime.toISOString(), "yyyy-MM-dd'T'HH:mm")
+      setValue("gioKetThuc", formattedEndTime)
+    }
+  }, [gioBatDau, selectedMovie?.thoiLuong, setValue])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -137,10 +144,11 @@ export const ShowtimeForm = ({
         </div>
       </div>
       {selectedMovie?.ngayKetThuc && (
-        <div className="flex gap-2 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+        <div className="flex gap-4 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
           <Calendar className="h-4 w-4 text-blue-600" />
           <span>Ngày khởi chiếu: <span className="font-semibold text-red-600">{formatDate(selectedMovie.ngayKhoiChieu, "dd/MM/yyyy")}</span></span>
-          <span>- Ngày kết thúc: <span className="font-semibold text-red-600">{formatDate(selectedMovie.ngayKetThuc, "dd/MM/yyyy")}</span></span>
+          <span>Ngày kết thúc: <span className="font-semibold text-red-600">{formatDate(selectedMovie.ngayKetThuc, "dd/MM/yyyy")}</span></span>
+          <span>Thời lượng: <span className="font-semibold text-red-600">{selectedMovie.thoiLuong} phút</span></span>
         </div>
       )}
 
@@ -158,12 +166,17 @@ export const ShowtimeForm = ({
         </div>
 
         <div>
-          <Label htmlFor="gioKetThuc">Giờ kết thúc <span className="text-red-600">*</span></Label>
+          <Label htmlFor="gioKetThuc">Giờ kết thúc (tự động tính)</Label>
           <Controller
             name="gioKetThuc"
             control={control}
             render={({ field }) => (
-              <Input type="datetime-local" {...field} />
+              <Input 
+                type="datetime-local" 
+                {...field} 
+                disabled
+                className="bg-gray-100 cursor-not-allowed"
+              />
             )}
           />
           {errors.gioKetThuc && <p className="text-sm text-red-600 mt-1">{errors.gioKetThuc.message}</p>}

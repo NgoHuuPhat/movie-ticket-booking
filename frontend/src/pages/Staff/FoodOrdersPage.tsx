@@ -20,75 +20,12 @@ import { formatDate, formatTime } from "@/utils/formatDate"
 import StaffLayout from "@/components/layout/StaffLayout"
 import QRScannerModal from "@/components/Staff/QRScannerModal"
 import FoodDetailModal from "@/components/Staff/FoodDetailModal"
-
-interface ITicket {
-  maVe: string
-  giaVe: number
-  trangThai: "DaCheckIn" | "DaThanhToan"
-  thoiGianCheckIn?: string
-  suatChieu: {
-    maSuatChieu: string
-    gioBatDau: string
-    phongChieu: { tenPhong: string }
-    phim: { tenPhim: string }
-    tenPhanLoaiDoTuoi: string
-  }
-  ghe: string[]
-}
-
-interface ICombo {
-  maCombo: string
-  tenCombo: string
-  soLuong: number
-  donGia: number
-  tongTien: number
-  daLay: boolean
-  thoiGianLay?: string
-  chiTietCombos: [{
-    maSanPham: string
-    tenSanPham: string
-    soLuong: number
-  }]
-}
-
-interface ISanPham {
-  maSanPham: string
-  tenSanPham: string
-  soLuong: number
-  donGia: number
-  tongTien: number
-  daLay: boolean
-  thoiGianLay?: string
-}
-
-interface IInvoiceDisplay {
-  maHoaDon: string
-  maQR: string
-  maNguoiDung: string
-  nguoiDung: {
-    hoTen: string
-    email: string
-    soDienThoai: string
-  } | null
-  nhanVienBanVe: {
-    hoTen: string
-    email: string
-    soDienThoai: string
-  } | null
-  tongTien: number
-  phuongThucThanhToan: "VNPAY" | "MOMO" | "TIENMAT"
-  ngayThanhToan: string
-  hinhThucDatVe: "Online" | "Offline"
-  maKhuyenMai?: string
-  ves: ITicket[]
-  combos: ICombo[]
-  sanPhams: ISanPham[]
-}
+import type { IInvoice } from "@/types/invoice"
 
 const FoodOrdersPage = () => {
-  const [invoices, setInvoices] = useState<IInvoiceDisplay[]>([])
+  const [invoices, setInvoices] = useState<IInvoice[]>([])
   const [expandedInvoiceIds, setExpandedInvoiceIds] = useState<string[]>([])
-  const [selectedInvoice, setSelectedInvoice] = useState<IInvoiceDisplay | null>(null)
+  const [selectedInvoice, setSelectedInvoice] = useState<IInvoice | null>(null)
 
   const [showScanner, setShowScanner] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
@@ -138,7 +75,7 @@ const FoodOrdersPage = () => {
 
   return (
     <StaffLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header + Stats */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">

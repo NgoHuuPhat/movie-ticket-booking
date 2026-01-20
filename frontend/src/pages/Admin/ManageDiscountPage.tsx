@@ -322,7 +322,7 @@ const ManageDiscountPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
             <div>
@@ -424,7 +424,9 @@ const ManageDiscountPage = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => { setDoiTuongFilter("all"); setCurrentPage(1) }}>Tất cả</DropdownMenuItem>
-                  {userTypes.map(type => (
+                  {userTypes
+                    .filter(ut => ut.maLoaiNguoiDung !== "NV" && ut.maLoaiNguoiDung !== "ADMIN")
+                    .map(type => (
                     <DropdownMenuItem key={type.maLoaiNguoiDung} onClick={() => { setDoiTuongFilter(type.maLoaiNguoiDung); setCurrentPage(1) }}>
                       {type.tenLoaiNguoiDung}
                     </DropdownMenuItem>
@@ -470,6 +472,9 @@ const ManageDiscountPage = () => {
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Tên khuyến mãi</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Loại</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Giá trị</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-600">Đơn hàng tối thiểu</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-600">Giảm tối đa</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-600">Đối tượng</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Số lượng (Đã dùng/Tổng)</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Thời gian</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-600">Trạng thái</th>
@@ -505,6 +510,9 @@ const ManageDiscountPage = () => {
                             : (discount.giaTriGiam).toLocaleString() + " VNĐ"
                           }
                         </td>
+                        <td className="p-4">{Number(discount.donHangToiThieu).toLocaleString()} VNĐ</td>
+                        <td className="p-4">{discount.giamToiDa ? Number(discount.giamToiDa).toLocaleString() + " VNĐ" : "Không giới hạn"}</td>
+                        <td className="p-4">{discount.maLoaiNguoiDung ? discount.maLoaiNguoiDung : "Tất cả"}</td>
                         <td className="p-4">{discount.soLuongDaDung}/{discount.soLuong || "Không giới hạn"}</td>
                         <td className="p-4">
                           <div className="text-xs">
@@ -694,21 +702,21 @@ const ManageDiscountPage = () => {
                   {selectedDiscount.giamToiDa && (
                     <div>
                       <Label className="text-sm font-semibold text-gray-600">Giảm tối đa</Label>
-                      <p className="mt-1 text-base font-semibold">{(selectedDiscount.giamToiDa).toLocaleString() + " VNĐ"}</p>
+                      <p className="mt-1 text-base font-semibold">{Number(selectedDiscount.giamToiDa).toLocaleString() + " VNĐ"}</p>
                     </div>
                   )}
 
                   {selectedDiscount.donHangToiThieu && (
                     <div>
                       <Label className="text-sm font-semibold text-gray-600">Đơn hàng tối thiểu</Label>
-                      <p className="mt-1 text-base font-semibold">{(selectedDiscount.donHangToiThieu).toLocaleString() + " VNĐ"}</p>
+                      <p className="mt-1 text-base font-semibold">{Number(selectedDiscount.donHangToiThieu).toLocaleString() + " VNĐ"}</p>
                     </div>
                   )}
 
                   <div>
                     <Label className="text-sm font-semibold text-gray-600">Đối tượng áp dụng</Label>
                     <p className="mt-1 text-base">
-                      {selectedDiscount.loaiNguoiDung?.tenLoaiNguoiDung || "Tất cả khách hàng"}
+                      {selectedDiscount.maLoaiNguoiDung || "Tất cả khách hàng"}
                     </p>
                   </div>
                 </div>

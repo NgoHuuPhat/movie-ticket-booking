@@ -5,5 +5,4 @@ const router = Router()
 
 router.get('/:id/seats', showTimeController.getGheTheoSuatChieuId)
 
-
 export default router

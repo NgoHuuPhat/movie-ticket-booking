@@ -20,8 +20,8 @@ import CheckoutPage from "@/pages/CheckoutPage"
 import MovieDetailPage from "@/pages/MovieDetailPage"
 import CheckoutResultPage from "@/pages/CheckoutResultPage"
 import NewsPage from "@/pages/NewsPage"
-import TransactionHistoryPage from "@/pages/TransactionHistoryPage"
 import AboutPage from "@/pages/AboutPage"
+import ProfilePage from "@/pages/ProfilePage"
 
 import DashboardPage from "@/pages/Admin/DashboardPage"
 import ManageMoviePage from "@/pages/Admin/ManageMoviePage"
@@ -70,7 +70,6 @@ function App(){
     <>
       <Toaster position="top-center" richColors/>
       <Routes>
-
         <Route element={<PublicOnlyRoute />}>
           <Route path="/login" element={<AuthPage />} />
           <Route path="/register" element={<AuthPage />} />
@@ -80,18 +79,19 @@ function App(){
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+        <Route path="/" element={<HomePage />} />
+        <Route path="/movies/showing" element={<MovieShowing />} />
+        <Route path="/movies/upcoming" element={<MovieUpcoming />} />
+        <Route path="/movies" element={<SearchPage />} />
+        <Route path="/movies/:slug" element={<MovieDetailPage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:slug" element={<NewsDetailPage />} />
+        <Route path="/about" element={<AboutPage />} />
+
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/movies/showing" element={<MovieShowing />} />
-          <Route path="/movies/upcoming" element={<MovieUpcoming />} />
-          <Route path="/movies" element={<SearchPage />} />
-          <Route path="/movies/:slug" element={<MovieDetailPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/checkout-result" element={<CheckoutResultPage />} />
-          <Route path="/news" element={<NewsPage />} />
-          <Route path="/news/:slug" element={<NewsDetailPage />} />
-          <Route path="/transaction-history" element={<TransactionHistoryPage />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         <Route element={<AdminRoute />}>

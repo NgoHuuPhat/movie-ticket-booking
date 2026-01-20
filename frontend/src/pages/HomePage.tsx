@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { ChevronRight, ChevronLeft, Phone, Mail, MapPin } from "lucide-react"
+import { ChevronRight, ChevronLeft } from "lucide-react"
 import Slider from "react-slick"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
@@ -15,14 +15,7 @@ import useTrailerModal from "@/hooks/useTrailerModal"
 import { getBanners } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
 import useListNews from "@/hooks/useListNews"
-
-interface IBanner {
-  maBanner: string
-  anhBanner: string
-  duongDanLienKet: string
-  viTriHienThi: number
-  ngayTao: string
-}
+import type { IBanner } from "@/types/banner"
 
 export default function Homepage() {
   const [currentPageNow, setCurrentPageNow] = useState(0)
@@ -242,11 +235,13 @@ export default function Homepage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {displayedNews.map((item) => (
                 <Link key={item.maTinTuc} to={`/news/${item.slug}`} className="overflow-hidden rounded shadow-2xl">
-                  <img
-                    src={item.anhDaiDien}
-                    alt={item.tieuDe}
-                    className="w-full h-64 md:h-80 lg:h-full border border-white/20 hover:border-yellow-300 object-cover transition-transform duration-300"
-                  />
+                  <div className="relative aspect-[3/4] overflow-hidden bg-black">
+                    <img
+                      src={item.anhDaiDien}
+                      alt={item.tieuDe}
+                      className="w-full h-64 md:h-80 lg:h-full border border-white/20 hover:border-yellow-300 object-cover transition-transform duration-300"
+                    />
+                  </div>
                 </Link>
               ))}
             </div>
@@ -277,43 +272,6 @@ export default function Homepage() {
                 <span className="font-anton uppercase text-base">Xem thêm</span>
               </Button>
             </Link>
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section className="mt-40 mb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="space-y-8">
-              <h2 className="text-4xl font-anton text-center text-white uppercase">Liên hệ với chúng tôi</h2>
-              <a href="#" className="flex items-center gap-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded p-8 transition shadow-xl">
-                <div className="bg-white/20 p-5 rounded-2xl">
-                  <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                </div>
-                <span className="text-2xl font-anton text-white uppercase">Facebook</span>
-              </a>
-              <a href="#" className="flex items-center gap-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded p-8 transition shadow-xl">
-                <div className="bg-white/20 p-5 rounded-2xl">
-                  <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-                </div>
-                <span className="text-2xl font-anton text-white uppercase">Zalo Chat</span>
-              </a>
-            </div>
-            <div className="bg-gradient-to-br from-blue-600/90 to-purple-700/90 rounded p-8 shadow-2xl backdrop-blur">
-              <h3 className="text-3xl font-anton text-white mb-8 uppercase">Gửi phản ánh cho chúng tôi</h3>
-              <div className="space-y-4 text-white mb-8">
-                <div className="flex items-center gap-3"><Mail className="w-5 h-5" /> cskh@cinestar.com.vn</div>
-                <div className="flex items-center gap-3"><Phone className="w-5 h-5" /> 1900 0085</div>
-                <div className="flex items-center gap-3"><MapPin className="w-5 h-5" /> 135 Hai Bà Trưng, Q.1, TP.HCM</div>
-              </div>
-              <form className="space-y-5">
-                <input type="text" placeholder="Họ và tên" className="w-full px-5 py-4 rounded bg-white text-black focus:ring-4 focus:ring-yellow-400 outline-none" />
-                <input type="email" placeholder="Email" className="w-full px-5 py-4 rounded bg-white text-black focus:ring-4 focus:ring-yellow-400 outline-none" />
-                <textarea rows={4} placeholder="Nội dung phản ánh" className="w-full px-5 py-4 rounded bg-white text-black focus:ring-4 focus:ring-yellow-400 outline-none resize-none"></textarea>
-                <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-anton py-4 rounded uppercase transition flex items-center justify-center gap-3">
-                  <Mail className="w-6 h-6" /> Gửi ngay
-                </button>
-              </form>
-            </div>
           </div>
         </section>
       </div>

@@ -17,27 +17,9 @@ import { handleError } from "@/utils/handleError.utils"
 import { getAllWorkSchedulesAdmin, createWorkScheduleAdmin, updateWorkScheduleAdmin, deleteWorkScheduleAdmin, getAllShiftsAdmin, getAllUsersAdmin, } from "@/services/api"
 import { viTriLam } from "@/constants/position"
 import { formatDate, formatTime } from "@/utils/formatDate"
-
-interface IStaff {
-  maNguoiDung: string
-  hoTen: string
-}
-
-interface IShift {
-  maCaLam: string
-  tenCaLam: string
-  gioBatDau: string
-  gioKetThuc: string
-}
-
-interface IWorkSchedule {
-  maNhanVien: string
-  maCaLam: string
-  ngayLam: string
-  viTriLam: string
-  nguoiDung: IStaff
-  caLam: IShift
-}
+import type { IWorkSchedule } from "@/types/work-schedule"
+import type { IShift } from "@/types/shift"
+import type { IStaff } from "@/types/staff"
 
 const ManageWorkSchedulesPage = () => {
   const [workSchedules, setWorkSchedules] = useState<IWorkSchedule[]>([])
@@ -180,7 +162,7 @@ const ManageWorkSchedulesPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">

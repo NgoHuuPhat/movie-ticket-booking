@@ -671,7 +671,7 @@ const DashboardPage = () => {
                 ) : (
                   <div className="flex flex-col items-center justify-center h-40 text-gray-500">
                     <Brain className="h-12 w-12 mb-3 opacity-40" />
-                    <p>Nhấn "Phân tích lại" để xem insight từ AI</p>
+                    <p>Lỗi khi phân tích dữ liệu doanh thu bằng AI</p>
                   </div>
                 )}
               </div>

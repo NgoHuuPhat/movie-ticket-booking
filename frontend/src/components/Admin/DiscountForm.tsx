@@ -176,7 +176,9 @@ export const DiscountForm = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả khách hàng</SelectItem>
-                    {userTypes.map(type => (
+                    {userTypes
+                      .filter(ut => ut.maLoaiNguoiDung !== "NV" && ut.maLoaiNguoiDung !== "ADMIN")
+                      .map(type => (
                       <SelectItem key={type.maLoaiNguoiDung} value={type.maLoaiNguoiDung}>
                         {type.tenLoaiNguoiDung}
                       </SelectItem>

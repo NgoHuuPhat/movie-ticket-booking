@@ -31,21 +31,7 @@ import { handleError } from "@/utils/handleError.utils"
 import { formatDate, formatTime } from "@/utils/formatDate"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-interface INews {
-  maTinTuc: string
-  tieuDe: string
-  noiDung: string
-  anhDaiDien: string
-  hienThi: boolean
-  ngayDang: string
-  nguoiDang: {
-    maNguoiDung: string
-    hoTen: string
-  }
-  daGuiMail: boolean
-  thoiGianGuiMail: string | null
-}
+import type { INews } from "@/types/news"
 
 const ManageNewsPage = () => {
   const [news, setNews] = useState<INews[]>([])
@@ -270,7 +256,7 @@ const ManageNewsPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -408,7 +394,7 @@ const ManageNewsPage = () => {
                             <span>{formatDate(newsItem.ngayDang)}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-sm text-gray-600">{newsItem.nguoiDang.hoTen}</td>
+                        <td className="p-4 text-sm text-gray-600">{newsItem.nguoiDang?.hoTen}</td>
                         <td className="p-4">
                           {newsItem.daGuiMail ? (
                             <div className="flex flex-col gap-1">
@@ -426,7 +412,7 @@ const ManageNewsPage = () => {
                         <td className="p-4">
                           <Switch
                             checked={newsItem.hienThi}
-                            onCheckedChange={() => handleToggleHienThi(newsItem.maTinTuc, newsItem.hienThi)}
+                            onCheckedChange={() => handleToggleHienThi(newsItem.maTinTuc, newsItem.hienThi!)}
                           />
                         </td>
                         <td className="p-4">
@@ -577,7 +563,7 @@ const ManageNewsPage = () => {
                       <span>•</span>
                       <span>{formatTime(selectedNews.ngayDang)} {formatDate(selectedNews.ngayDang)}</span>
                       <span>•</span>
-                      <span>Người đăng: {selectedNews.nguoiDang.hoTen}</span>
+                      <span>Người đăng: {selectedNews.nguoiDang?.hoTen}</span>
                       <span>•</span>
                       <Badge variant={selectedNews.daGuiMail ? "default" : "secondary"}>
                         {selectedNews.daGuiMail ? "Đã gửi mail" : "Chưa gửi mail"}

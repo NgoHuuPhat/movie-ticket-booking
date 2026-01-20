@@ -4,5 +4,12 @@ export interface INews {
   noiDung: string
   anhDaiDien: string
   ngayDang: string
-  slug: string
+  slug?: string
+  hienThi?: boolean
+  nguoiDang?: {
+    maNguoiDung: string
+    hoTen: string
+  }
+  daGuiMail?: boolean
+  thoiGianGuiMail?: string | null
 }

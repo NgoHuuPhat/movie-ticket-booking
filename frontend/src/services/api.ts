@@ -43,7 +43,12 @@ export const resetPassword = async (matKhau: string, xacNhanMatKhau: string) => 
 }
 
 export const historyTickets = async () => {
-  const res = await request.get("/tickets/history")
+  const res = await request.get("/profile/history")
+  return res.data
+}
+
+export const updatePassword = async (currentPassword: string, newPassword: string, confirmNewPassword: string) => {
+  const res = await request.patch("/profile/password", { currentPassword, newPassword, confirmNewPassword })
   return res.data
 }
 
@@ -129,6 +134,11 @@ export const getHoldSeatTTL = async (showtimeId: string, seatId: string) => {
 
 export const chatWithAI = async (question: string) => {
   const res = await request.post("/chatbot", { question })
+  return res.data
+}
+
+export const getProfile = async () => {
+  const res = await request.get("/profile")
   return res.data
 }
 
@@ -359,13 +369,13 @@ export const getShowtimeDetailsAdmin = async (id: string) => {
   return res.data
 }
 
-export const createShowtimeAdmin = async (maPhim: string, maPhong: string, gioBatDau: string, gioKetThuc: string) => {
-  const res = await request.post("/admin/showtimes", { maPhim, maPhong, gioBatDau, gioKetThuc })
+export const createShowtimeAdmin = async (maPhim: string, maPhong: string, gioBatDau: string) => {
+  const res = await request.post("/admin/showtimes", { maPhim, maPhong, gioBatDau })
   return res.data
 }
 
-export const updateShowtimeAdmin = async (id: string, gioBatDau: string, gioKetThuc: string) => {
-  const res = await request.patch(`/admin/showtimes/${id}`, { gioBatDau, gioKetThuc })
+export const updateShowtimeAdmin = async (id: string, gioBatDau: string) => {
+  const res = await request.patch(`/admin/showtimes/${id}`, { gioBatDau })
   return res.data
 }
 

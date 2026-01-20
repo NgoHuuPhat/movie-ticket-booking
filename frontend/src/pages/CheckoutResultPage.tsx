@@ -50,7 +50,7 @@ export default function CheckoutResultPage() {
           {isSuccess ? (
             <Button 
               variant="yellowToPinkPurple"
-              onClick={() => navigate("/transaction-history")}
+              onClick={() => navigate("/profile?tab=history")}
               className="px-8 w-full h-8 md:h-12 font-anton text-lg"
             >
               <span>Xem lịch sử giao dịch</span>

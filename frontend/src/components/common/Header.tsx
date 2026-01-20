@@ -94,14 +94,14 @@ const Header = () => {
                 <div className="absolute right-0 mt-2 text-white w-56 bg-purple-900 rounded shadow-xl border border-gray-200 overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="py-1">
                     <a
-                      href="/profile"
+                      href="/profile?tab=info"
                       className="flex items-center gap-3 px-4 py-2 text-sm hover:text-yellow-300 transition-colors"
                     >
                       <User className="w-4 h-4" />
                       <span>Thông tin cá nhân</span>
                     </a>
                     <Link
-                      to="/transaction-history"
+                      to="/profile?tab=history"
                       className="flex items-center gap-3 px-4 py-2 text-sm hover:text-yellow-300 transition-colors"
                     >
                       <History className="w-4 h-4" />
@@ -140,11 +140,6 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t border-gray-200 space-y-3 animate-in slide-in-from-top">
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
-              <Input type="text" placeholder="Tìm phim, rạp..." className="pl-10 pr-4 py-2 w-full bg-white text-black border-gray-200" />
-            </div>
-
             {/* Mobile User Info */}
             {user && (
               <div className="mb-4 p-3 bg-white/10 rounded-lg flex gap-3 items-center">

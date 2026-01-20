@@ -15,18 +15,7 @@ import { formatDate } from "@/utils/formatDate"
 import { ShowtimeForm, type ShowtimeFormData } from "@/components/Admin/ShowtimeForm"
 import { Switch } from "@/components/ui/switch"
 import { ShowtimeSeatsViewer } from "@/components/Admin/ShowtimeSeatsViewer"
-
-interface IShowtime {
-  maSuatChieu: string
-  maPhim: string
-  maPhong: string
-  phim: { tenPhim: string, ngayKhoiChieu: string, ngayKetThuc: string }
-  phongChieu: { tenPhong: string }
-  gioBatDau: string
-  gioKetThuc: string
-  hoatDong: boolean
-  trangThai: "Sắp chiếu" | "Đang chiếu" | "Đã kết thúc"
-}
+import type { IShowtime } from "@/types/showtime"
 
 const ManageShowtimePage = () => {
   const [showtimes, setShowtimes] = useState<IShowtime[]>([])
@@ -34,7 +23,7 @@ const ManageShowtimePage = () => {
   const [preselectedMovieId, setPreselectedMovieId] = useState<string | null>(null)
   const [selectedShowtimeIds, setSelectedShowtimeIds] = useState<string[]>([])
   const [selectedShowtime, setSelectedShowtime] = useState<IShowtime | null>(null)
-  const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string, ngayKhoiChieu: string, ngayKetThuc: string }>>([])
+  const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string, ngayKhoiChieu: string, ngayKetThuc: string, thoiLuong: number }>>([])
   const [rooms, setRooms] = useState<Array<{ maPhong: string; tenPhong: string }>>([])
 
   const [isSeatsDialogOpen, setIsSeatsDialogOpen] = useState(false)
@@ -219,8 +208,7 @@ const ManageShowtimePage = () => {
   const handleAdd = async (data: ShowtimeFormData) => {
     setSubmitting(true)
     try {
-      const res = await createShowtimeAdmin(data.maPhim, data.maPhong, data.gioBatDau, data.gioKetThuc)
-      console.log(res)
+      const res = await createShowtimeAdmin(data.maPhim, data.maPhong, data.gioBatDau)
       setShowtimes(prev => [{
         ...res.newShowtime,
         trangThai: getTrangThai(res.newShowtime.gioBatDau, res.newShowtime.gioKetThuc),
@@ -241,7 +229,6 @@ const ManageShowtimePage = () => {
       const res = await updateShowtimeAdmin(
         selectedShowtime.maSuatChieu,
         data.gioBatDau,
-        data.gioKetThuc
       )
       setShowtimes(prev => prev.map(s => s.maSuatChieu === res.updatedShowtime.maSuatChieu
         ? { ...res.updatedShowtime, trangThai: getTrangThai(res.updatedShowtime.gioBatDau, res.updatedShowtime.gioKetThuc) }
@@ -565,19 +552,13 @@ const ManageShowtimePage = () => {
             </DialogHeader>
             {selectedShowtime && (
               <ShowtimeForm
-                movies={showtimes.filter(s => s.maSuatChieu === selectedShowtime.maSuatChieu).map(s => ({
-                  maPhim: s.maPhim,
-                  tenPhim: s.phim.tenPhim,
-                  ngayKhoiChieu: s.phim.ngayKhoiChieu,
-                  ngayKetThuc: s.phim.ngayKetThuc,
-                }))}
+                movies={movies}
                 rooms={rooms}
                 isEditMode={true}
                 defaultValues={{
                   maPhim: selectedShowtime.maPhim,
                   maPhong: selectedShowtime.maPhong,
                   gioBatDau: formatDate(selectedShowtime.gioBatDau, "yyyy-MM-dd HH:mm"),
-                  gioKetThuc: formatDate(selectedShowtime.gioKetThuc, "yyyy-MM-dd HH:mm"),
                 }}
                 onSubmit={handleEdit}
                 submitting={submitting}

@@ -1,11 +1,34 @@
-import { Response } from 'express'
-import { prisma } from '@/lib/prisma'
+import {  Response } from 'express'
 import { IUserRequest } from '@/types/user'
+import bcrypt from 'bcrypt'
+import { prisma } from '@/lib/prisma'
 
-class VesController {
+class HoSoNguoiDungController {
 
-  // [GET] /api/tickets/history
-  async getInvoicesWithDetails(req: IUserRequest, res: Response) {
+  // [GET] /profile
+  async getProfile(req: IUserRequest, res: Response) {
+    try {
+      const userId = req.user?.maNguoiDung
+      const profileUser = await prisma.nGUOIDUNG.findUnique({
+        where: { maNguoiDung: userId },
+      })
+      
+      if(!profileUser) {
+        return res.status(404).json({ message: 'Người dùng không tồn tại' })
+      }
+      if(profileUser.hoatDong === false) {
+        return res.status(403).json({ message: 'Tài khoản đã bị vô hiệu hóa' })
+      }
+
+      res.status(200).json(profileUser)
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+
+  // [GET] /profile/history
+  async getTransactionHistory(req: IUserRequest, res: Response) {
     try {
       const maNguoiDung = req.user?.maNguoiDung
 
@@ -102,6 +125,50 @@ class VesController {
       return res.status(500).json({ message: 'Internal server error' })
     }
   }
+
+  // [PUT] /profile/password
+  async updatePassword(req: IUserRequest, res: Response) {
+    try {
+      const userId = req.user?.maNguoiDung
+      const { currentPassword, newPassword, confirmNewPassword } = req.body
+
+      if (!currentPassword || !newPassword || !confirmNewPassword) {
+        return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' })
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        return res.status(400).json({ message: 'Mật khẩu mới và xác nhận mật khẩu không khớp' })
+      }
+
+      const user = await prisma.nGUOIDUNG.findUnique({
+        where: { maNguoiDung: userId }
+      })
+      if (!user) {
+        return res.status(404).json({ message: 'Người dùng không tồn tại' })
+      }
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.matKhau)
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: 'Mật khẩu hiện tại không đúng' })
+      }
+
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: 'Mật khẩu phải có ít nhất 8 ký tự' })
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
+      await prisma.nGUOIDUNG.update({
+        where: { maNguoiDung: userId },
+        data: { matKhau: hashedPassword }
+      })
+
+      res.status(200).json({ message: 'Cập nhật mật khẩu thành công' })
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+  
 }
 
-export default new VesController()
+export default new HoSoNguoiDungController()

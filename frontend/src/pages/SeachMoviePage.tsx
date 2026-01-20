@@ -38,7 +38,7 @@ export default function SearchPage() {
 
   return (
     <UserLayout>
-      <div className="text-white max-w-8xl mx-auto mt-10 px-4 md:px-0">
+      <div className="text-white max-w-7xl mx-auto mt-10 px-4 md:px-0">
         <h1 className="text-3xl font-anton mb-8">Kết quả tìm kiếm: "{keyword}"</h1>
 
         {loading && <p>Đang tải dữ liệu...</p>}

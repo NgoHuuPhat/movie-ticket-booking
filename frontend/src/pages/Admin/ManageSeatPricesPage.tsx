@@ -19,24 +19,8 @@ import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
 import { getSeatTypesAdmin, getAllRoomTypesAdmin } from "@/services/api"
-
-interface ISeatPrice {
-  maLoaiPhong: string
-  maLoaiGhe: string
-  giaTien: number
-  loaiGhe: { tenLoaiGhe: string }
-  loaiPhongChieu: { tenLoaiPhong: string }
-}
-
-interface ISeatType {
-  maLoaiGhe: string
-  tenLoaiGhe: string
-}
-
-interface IRoomType {
-  maLoaiPhong: string
-  tenLoaiPhong: string
-}
+import type { ISeatPrice, ISeatType } from "@/types/seat"
+import type { IRoomType } from "@/types/room-type"
 
 const createPriceSchema = z.object({
   maLoaiPhong: z.string().min(1, "Vui lòng chọn loại phòng"),

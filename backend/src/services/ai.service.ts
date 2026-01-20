@@ -6,7 +6,7 @@ import { TypeDate, getDateRangeByType } from '@/utils/dateRange'
 const askQuestion = async (question: string) => {
   try {
     const context = await getContextChatbot()
-    const prompt = `Bạn là nhân viên tư vấn phim thông minh (Không hỗ trợ đặt vé). Đây là dữ liệu hiện có tại rạp:\n${context}
+    const prompt = `Bạn là chatbot nhân viên tư vấn phim thông minh (Không hỗ trợ đặt vé). Đây là dữ liệu hiện có tại rạp:\n${context}
     Câu hỏi của người dùng: ${question}. Hãy trả lời một cách tự nhiên thân thiện và ngắn gọn nhất`
     
     const result = await model.generateContent(prompt)
@@ -19,83 +19,146 @@ const askQuestion = async (question: string) => {
 
 const getContextChatbot = async () => {
   const { startDate, endDate } = getDayRange()
-  const today = new Date(new Date().toISOString().split('T')[0])
-  let context = ''
+  const now = new Date()
+  const today = new Date(now.toISOString().split("T")[0])
 
-  // Fetch all movies and today's showtimes in parallel
-  const [allMovies, todayShowtimes, allRoomType] = await Promise.all([
+  let context = ""
+
+  // Lấy dữ liệu phim và suất chiếu hôm nay
+  const [allMovies, todayShowtimes] = await Promise.all([
     prisma.pHIM.findMany({
       where: { hienThi: true },
-      include: { phimTheLoais: { include: { theLoai: true } }, phanLoaiDoTuoi: true },
-      orderBy: { ngayKhoiChieu: 'desc' },
-    }),
-    prisma.sUATCHIEU.findMany({
-      where: { hoatDong: true, gioBatDau: { gte: startDate, lt: endDate } },
       include: {
-        phim: { include: { phimTheLoais: { include: { theLoai: true } } } },
-        phongChieu: { include: { rap: true, loaiPhongChieu: { include: { giaGhePhongs: { include: { loaiGhe: true }, orderBy: { giaTien: 'asc' } } } } } },
-        gheSuatChieus: { include: { ghe: { include: { loaiGhe: true } } } },
+        phimTheLoais: { include: { theLoai: true } },
+        phanLoaiDoTuoi: true,
       },
-      orderBy: { gioBatDau: 'asc' },
-      take: 50,
+      orderBy: { ngayKhoiChieu: "desc" },
     }),
-    prisma.pHONGCHIEU.findMany({
-      where: { hoatDong: true },
-      include: { loaiPhongChieu: { include: { giaGhePhongs: { include: { loaiGhe: true } } } } },
+
+    prisma.sUATCHIEU.findMany({
+      where: {
+        hoatDong: true,
+        gioBatDau: { gte: startDate, lt: endDate },
+      },
+      include: {
+        phim: {
+          include: {
+            phimTheLoais: { include: { theLoai: true } },
+          },
+        },
+        phongChieu: {
+          include: {
+            rap: true,
+            loaiPhongChieu: {
+              include: {
+                giaGhePhongs: {
+                  include: { loaiGhe: true },
+                  orderBy: { giaTien: "asc" },
+                },
+              },
+            },
+          },
+        },
+        gheSuatChieus: {
+          include: {
+            ghe: { include: { loaiGhe: true } },
+          },
+        },
+      },
+      orderBy: { gioBatDau: "asc" },
+      take: 50,
     }),
   ])
 
-  // List all movies
+  // Lấy mã phim có suất chiếu hôm nay
+  const phimCoSuatHomNay = new Set<string>()
+  todayShowtimes.forEach(sc => phimCoSuatHomNay.add(sc.maPhim))
+
+  // Phân loại phim
+  const phimDangChieuCoSuat: string[] = []
+  const phimDangChieuKhongSuat: string[] = []
+  const phimSapChieu: string[] = []
+
   allMovies.forEach(movie => {
-    const genres = movie.phimTheLoais.map(pt => pt.theLoai.tenTheLoai).join(', ') 
-    const ageRating = movie.phanLoaiDoTuoi.tenPhanLoaiDoTuoi                         
-    const screeningStatus = movie.ngayKhoiChieu > today ? 'Sắp chiếu' :
-      movie.ngayKetThuc < today ? 'Đã kết thúc' : 'Đang chiếu'
+    const genres = movie.phimTheLoais.map(pt => pt.theLoai.tenTheLoai).join(", ")
+    const age = movie.phanLoaiDoTuoi.tenPhanLoaiDoTuoi
 
-    context += `${screeningStatus}: ${movie.tenPhim} (${genres} | ${ageRating})\n`
+    const dangChieu =
+      movie.ngayKhoiChieu <= today &&
+      (!movie.ngayKetThuc || movie.ngayKetThuc >= today)
+
+    const coSuatHomNay = phimCoSuatHomNay.has(movie.maPhim)
+
+    if (dangChieu && coSuatHomNay) {
+      phimDangChieuCoSuat.push(
+        `- ${movie.tenPhim} (${genres} | ${age})`
+      )
+    } else if (dangChieu && !coSuatHomNay) {
+      phimDangChieuKhongSuat.push(
+        `- ${movie.tenPhim} (${genres} | ${age})`
+      )
+    } else if (movie.ngayKhoiChieu > today) {
+      phimSapChieu.push(
+        `- ${movie.tenPhim} (${genres} | ${age})`
+      )
+    }
   })
 
-  // List room types and today's showtimes
-  allRoomType.forEach(roomType => {
-    context += `(${roomType.loaiPhongChieu.tenLoaiPhong}) có các phòng ${roomType.tenPhong}:\n`
-    roomType.loaiPhongChieu.giaGhePhongs.forEach(price => {
-      context += `- ${price.loaiGhe.tenLoaiGhe}: ${Number(price.giaTien).toLocaleString('vi-VN')}đ\n`
-    })
-  })
-  context += "\n"
+  // Lấy dữ liệu phim và suất chiếu hôm nay
+  context += `🎬 PHIM CÓ SUẤT CHIẾU HÔM NAY:\n`
+  if (phimDangChieuCoSuat.length) {
+    context += phimDangChieuCoSuat.join("\n") + "\n"
+  } else {
+    context += "Không có phim nào đang chiếu hôm nay.\n"
+  }
 
-  // List today's showtimes 
+  context += `\n🎞 PHIM ĐANG CHIẾU NHƯNG HÔM NAY KHÔNG CÓ SUẤT:\n`
+  context += phimDangChieuKhongSuat.length
+    ? phimDangChieuKhongSuat.join("\n") + "\n"
+    : "Không có.\n"
+
+  context += `\n⏳ PHIM SẮP CHIẾU:\n`
+  context += phimSapChieu.length
+    ? phimSapChieu.join("\n") + "\n"
+    : "Không có.\n"
+
+  // Lấy dữ liệu phim và suất chiếu hôm nay
+  context += `\n🎟 SUẤT CHIẾU HÔM NAY (CHI TIẾT):\n`
   todayShowtimes.forEach(showtime => {
     const movie = showtime.phim
-    const genres = movie.phimTheLoais.map(pt => pt.theLoai.tenTheLoai).join(', ')
+    const genres = movie.phimTheLoais.map(pt => pt.theLoai.tenTheLoai).join(", ")
 
-    const showTime = new Date(showtime.gioBatDau)
-    const showTimeStr = showTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    const timeStr = new Date(showtime.gioBatDau).toLocaleTimeString("vi-VN",{ hour: "2-digit", minute: "2-digit" })
 
     const totalSeats = showtime.gheSuatChieus.length
-    const emptySeats = showtime.gheSuatChieus.filter(seat => seat.trangThaiGhe === 'DangTrong').length
+    const emptySeats = showtime.gheSuatChieus.filter(g => g.trangThaiGhe === "DangTrong").length
 
-    const seatTypeDetails = Array.from(
-      showtime.gheSuatChieus.reduce((seatMap, seat) => {
-        const seatType = seat.ghe.loaiGhe.tenLoaiGhe
-        const [free, total] = seatMap.get(seatType) || [0, 0]
-        seatMap.set(seatType, [free + (seat.trangThaiGhe === 'DangTrong' ? 1 : 0), total + 1])
-        return seatMap
+    // Thống kê ghế theo loại
+    const seatStats = Array.from(
+      showtime.gheSuatChieus.reduce((map, s) => {
+        const type = s.ghe.loaiGhe.tenLoaiGhe
+        const [free, total] = map.get(type) || [0, 0]
+        map.set(type, [
+          free + (s.trangThaiGhe === "DangTrong" ? 1 : 0),
+          total + 1,
+        ])
+        return map
       }, new Map<string, [number, number]>())
     )
-    .map(([seatType, [free, total]]) => `${seatType} ${free}/${total}`)
-    .join(' | ')
+    .map(([type, [free, total]]) => `${type}: ${free}/${total}`)
+    .join(" | ")
 
-    const seatPrices = showtime.phongChieu.loaiPhongChieu.giaGhePhongs
-      .map(price => `${price.loaiGhe.tenLoaiGhe} ${Number(price.giaTien).toLocaleString('vi-VN')}đ`)
-      .join(', ')
+    const prices = showtime.phongChieu.loaiPhongChieu.giaGhePhongs
+    .map(p =>`${p.loaiGhe.tenLoaiGhe} ${Number(p.giaTien).toLocaleString("vi-VN")}đ`)
+    .join(", ")
 
-    if (seatTypeDetails) context += `Loại ghế: ${seatTypeDetails}\n`
-
-    context += `${movie.tenPhim} (${genres})\n`
-    context += `${showtime.phongChieu.rap.tenRap} - ${showtime.phongChieu.tenPhong} ${showTimeStr}\n`
-    context += `Ghế trống: ${emptySeats}/${totalSeats}\n`
-    context += `Giá: ${seatPrices}\n\n`
+    context += `
+      ${movie.tenPhim} (${genres})
+      ${showtime.phongChieu.rap.tenRap} - ${showtime.phongChieu.tenPhong} | ${timeStr}
+      Ghế trống: ${emptySeats}/${totalSeats}
+      ${seatStats ? `Loại ghế: ${seatStats}\n` : ""}
+      Giá vé: ${prices}
+    `
   })
 
   return context
@@ -105,14 +168,15 @@ const revenueAnalysisAI = async (typeDate: TypeDate) => {
   try {
     const context = await getContextRevenue(typeDate)
 
-    const prompt = `Bạn là chuyên gia phân tích dữ liệu kinh doanh rạp chiếu phim. Dữ liệu doanh thu kỳ ${typeDate}:\n${context}
+    const prompt =
+    `Bạn là một nhà phân tích doanh thu chuyên nghiệp. Hãy phân tích nhanh doanh thu rạp chiếu phim dựa trên dữ liệu sau (${typeDate}): ${context}
     Hãy phân tích ngắn gọn (150-250 từ) theo cấu trúc sau:
     1. Nhận xét tổng quan xu hướng doanh thu so với kỳ vọng (tăng/giảm/ổn định)
     2. Điểm mạnh nổi bật (phim nào hot, combo tốt, ...)
     3. Điểm yếu / rủi ro 
     4. 2-3 gợi ý hành động cụ thể, khả thi trong 1-4 tuần tới để cải thiện doanh thu
 
-    Trả lời tự nhiên, chuyên nghiệp, sử dụng ngôn ngữ tiếng Việt thân thiện nhưng có tính thuyết phục. Không bịa số liệu, chỉ dựa vào dữ liệu được cung cấp.`
+    Trả lời tự nhiên, chuyên nghiệp, các mục không xuống dòng dư,  tập trung insight thực tế cho quản trị viên.`
 
     const result = await model.generateContent(prompt)
     return result.response.text().trim()
@@ -124,8 +188,7 @@ const revenueAnalysisAI = async (typeDate: TypeDate) => {
 
 const getContextRevenue = async (typeDate: TypeDate) => {
   const { start, end } = getDateRangeByType(typeDate)
-
-  let context = `Thời gian phân tích: ${typeDate}\n\n`
+  let context = `Thời gian phân tích: ${typeDate} ${start.toISOString().split("T")[0]} - Thời điểm hiện tại\n\n`
 
   // Overview and key metrics
   const revenueSummary = await prisma.hOADON.aggregate({

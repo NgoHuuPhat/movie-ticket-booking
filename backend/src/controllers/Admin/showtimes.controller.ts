@@ -7,8 +7,8 @@ class SuatChieusController {
   // [GET] /showtimes
   async getAllShowtimes(req: Request, res: Response) {
     try {
-      const { trangThai, date, search, page = 1, sortField = 'maSuatChieu', sortOrder = 'desc' } = req.query
-      const limit = 10
+      const { trangThai, date, search, page = 1, sortField = 'gioBatDau', sortOrder = 'desc' } = req.query
+      const limit = 50
       const filter: any = {}
       const skip = (Number(page) - 1) * limit
       const sortFields = sortField as string
@@ -41,11 +41,10 @@ class SuatChieusController {
           where: filter,
           orderBy: { [sortFields]: sortOrder },
           skip,
-          take: limit,
           include: {
             phim: true,
             phongChieu: true
-          }
+          },
         }),
         prisma.sUATCHIEU.count({ where: filter })
       ])
@@ -88,25 +87,29 @@ class SuatChieusController {
   // [POST] /showtimes
   async createShowtime(req: Request, res: Response) {
     try {
-      const { maPhim, maPhong, gioBatDau, gioKetThuc } = req.body
+      const { maPhim, maPhong, gioBatDau } = req.body
       const phim = await prisma.pHIM.findUnique({ where: { maPhim } })
       if(!phim) {
         return res.status(404).json({ message: 'Phim không tồn tại' })
       }
 
-
       const movieEnd = new Date(phim.ngayKetThuc)
       movieEnd.setHours(23,59,59,999) 
 
       const timeStart = new Date(gioBatDau)
-      const timeEnd = new Date(gioKetThuc)
+      // Tính giờ kết thúc = giờ bắt đầu + thời lượng phim (phút)
+      const timeEnd = new Date(timeStart.getTime() + phim.thoiLuong * 60000)
 
-      if(timeEnd > movieEnd) {
-        return res.status(400).json({ message: 'Suất chiếu phải nằm trong khoảng thời gian chiếu của phim' })
-      }
-
-      if(new Date(gioBatDau) >= new Date(gioKetThuc)) {
-        return res.status(400).json({ message: 'Thời gian kết thúc phải sau thời gian bắt đầu' })
+      const conflictingShowtime = await prisma.sUATCHIEU.findFirst({
+        where: {
+          maPhong,
+          hoatDong: true,
+          gioBatDau: { lt: timeEnd }, 
+          gioKetThuc: { gt: timeStart } 
+        }
+      })
+      if(conflictingShowtime) {
+        return res.status(400).json({ message: 'Suất chiếu trùng thời gian trong cùng phòng chiếu' })
       }
       
       const newShowtime = await prisma.$transaction(async (tx) => {
@@ -115,8 +118,8 @@ class SuatChieusController {
             maSuatChieu: await generateIncrementalId(tx.sUATCHIEU, 'maSuatChieu', 'SC'),
             maPhim,
             maPhong,
-            gioBatDau: new Date(gioBatDau),
-            gioKetThuc: new Date(gioKetThuc),
+            gioBatDau: timeStart,
+            gioKetThuc: timeEnd,
             hoatDong: true
           },
           include: { phim: true, phongChieu: true }
@@ -150,7 +153,7 @@ class SuatChieusController {
   async updateShowtime(req: Request, res: Response) {
     try {
       const { id } = req.params
-      const { gioBatDau, gioKetThuc } = req.body
+      const { gioBatDau } = req.body
       const showtime = await prisma.sUATCHIEU.findUnique({
         where: { maSuatChieu: id },
         include: { phim: true }
@@ -161,20 +164,21 @@ class SuatChieusController {
 
       const movieEnd = new Date(showtime.phim.ngayKetThuc)
       movieEnd.setHours(23,59,59,999) 
-      const timeEnd = new Date(gioKetThuc)
+      const timeStart = new Date(gioBatDau)
+      const timeEnd = new Date(timeStart.getTime() + showtime.phim.thoiLuong * 60000)
 
       if(timeEnd > movieEnd) {
         return res.status(400).json({ message: 'Suất chiếu phải nằm trong khoảng thời gian chiếu của phim' })
       }
       
-      if(new Date(gioBatDau) >= new Date(gioKetThuc)) {
+      if(timeEnd <= timeStart) {
         return res.status(400).json({ message: 'Thời gian kết thúc phải sau thời gian bắt đầu' })
       }
       const updatedShowtime = await prisma.sUATCHIEU.update({
         where: { maSuatChieu: id },
         data: {
           gioBatDau: new Date(gioBatDau),
-          gioKetThuc: new Date(gioKetThuc)
+          gioKetThuc: timeEnd
         },
         include: { phim: true, phongChieu: true }
       })

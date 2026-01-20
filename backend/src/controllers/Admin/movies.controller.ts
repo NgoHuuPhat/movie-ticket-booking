@@ -349,14 +349,24 @@ class PhimsController {
   // [GET] /admin/movies/select
   async getMoviesForSelect(req: Request, res: Response) {
     try {
-      const { startDate, endDate } = getDayRange()
+      const now = new Date()
+      const todayStr = now.toISOString().split('T')[0] 
+      const today = new Date(todayStr)
+
       const movies = await prisma.pHIM.findMany({
         where: {
-          ngayKhoiChieu: { lte: endDate },
-          ngayKetThuc: { gte: startDate }
+          OR: [
+            {
+              ngayKhoiChieu: { lte: today },
+              ngayKetThuc: { gte: today }
+            },
+            {
+              ngayKhoiChieu: { gt: today }
+            }
+          ]
         },
         orderBy: { ngayKhoiChieu: 'desc' },
-        select: { maPhim: true, tenPhim: true, ngayKetThuc: true, ngayKhoiChieu: true }
+        select: { maPhim: true, tenPhim: true, ngayKetThuc: true, ngayKhoiChieu: true, thoiLuong: true }
       })
       res.status(200).json(movies)
     } catch (error) {

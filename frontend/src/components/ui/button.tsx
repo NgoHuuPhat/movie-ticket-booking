@@ -26,6 +26,14 @@ const buttonVariants = cva(
           after:from-pink-500 after:to-purple-500 after:translate-x-[-100%] hover:after:translate-x-0
           focus:text-white focus:after:translate-x-0 after:duration-500 [&_*]:z-20
         `,
+        purpleToYellowOrange: `
+          relative cursor-pointer overflow-hidden rounded bg-purple-500 text-white
+          transition-colors duration-300
+          after:absolute after:inset-0 after:bg-gradient-to-r
+          after:from-yellow-400 after:to-orange-400
+          after:translate-x-[-100%] hover:after:translate-x-0
+          focus:text-black focus:after:translate-x-0 after:duration-500 [&_*]:z-20
+        `,
         transparentToYellowOrange: `
           relative cursor-pointer overflow-hidden rounded border border-yellow-300 text-yellow-300 bg-transparent
           hover:text-white transition-colors duration-300 after:absolute after:inset-0

@@ -295,7 +295,7 @@ class VesController {
         const daCheckInVe = hoaDon.ves.find(v => v.trangThai === 'DaCheckIn')
         if (daCheckInVe) {
           return res.status(400).json({ 
-            message: 'Các vé trong hóa đơn này đã được check-in trước đó',
+            message: 'Vé này đã được check-in trước đó',
             data: {
               maHoaDon: hoaDon.maHoaDon,
               tongTien: hoaDon.tongTien,
@@ -317,7 +317,7 @@ class VesController {
         })
 
         return res.status(200).json({
-          message: 'Check-in toàn bộ vé thành công',
+          message: 'Check-in thành công',
           data: {
             maHoaDon: hoaDon.maHoaDon,
             tongTien: hoaDon.tongTien,
@@ -369,7 +369,7 @@ class VesController {
 
       const hasFood = hoaDon.hoaDonSanPhams.length > 0 || hoaDon.hoaDonCombos.length > 0
       if (!hasFood) {
-        return res.status(400).json({ message: 'Hóa đơn không có bắp nước để lấy' })
+        return res.status(400).json({ message: 'Hóa đơn không có sản phẩm để nhận' })
       }
 
       const daLaySanPham = hoaDon.hoaDonSanPhams.some(v => v.daLay === true) 
@@ -377,7 +377,7 @@ class VesController {
 
       if (daLaySanPham || daLayCombo) {
         return res.status(400).json({ 
-          message: 'Bắp nước & combo đã được lấy trước đó',
+          message: 'Sản phẩm đã được nhận trước đó',
           data: {
             maHoaDon: hoaDon.maHoaDon,
             tongTien: hoaDon.tongTien,
@@ -401,7 +401,7 @@ class VesController {
       ])
 
       res.status(200).json({
-        message: 'Lấy bắp nước & combo thành công',
+        message: 'Nhận sản phẩm thành công',
         data: {
           maHoaDon: hoaDon.maHoaDon,
           tongTien: hoaDon.tongTien,

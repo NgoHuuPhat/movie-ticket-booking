@@ -18,80 +18,13 @@ import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { Label } from "@/components/ui/label"
 import { formatDate, formatTime } from "@/utils/formatDate"
-
-interface ITicket {
-  maVe: string
-  giaVe: number
-  trangThai: "DaCheckIn" | "DaDat" | "DaHuy" | "DaHoanTien"
-  thoiGianCheckIn?: string
-  nhanVienSoatVe?: IStaff | null
-  suatChieu: {
-    maSuatChieu: string
-    gioBatDau: string
-    phongChieu: { tenPhong: string }
-    phim: { tenPhim: string }
-  }
-  ghe: string[]
-}
-
-interface IStaff {
-  hoTen: string
-  email: string
-  soDienThoai: string
-}
-
-interface ICombo {
-  maCombo: string
-  tenCombo: string
-  soLuong: number
-  donGia: number
-  tongTien: number
-  daLay: boolean
-  thoiGianLay?: string
-  nhanVienSoatBapNuoc?: IStaff | null
-}
-
-interface ISanPham {
-  maSanPham: string
-  tenSanPham: string
-  soLuong: number
-  donGia: number
-  tongTien: number
-  daLay: boolean
-  thoiGianLay?: string
-  nhanVienSoatBapNuoc?: IStaff | null
-}
-
-interface IInvoiceDisplay {
-  maHoaDon: string
-  maQR: string
-  maNguoiDung: string
-  nguoiDung: {
-    hoTen: string
-    email: string
-    soDienThoai: string
-  } | null
-  nhanVienBanVe: {
-    hoTen: string
-    email: string
-    soDienThoai: string
-  } | null
-  tongTien: number
-  phuongThucThanhToan: "VNPAY" | "MOMO" | "TIENMAT"
-  trangThaiThanhToan: "DaThanhToan" | "ChuaThanhToan"
-  ngayThanhToan: string
-  hinhThuc: "Online" | "Offline"
-  maKhuyenMai?: string
-  ves: ITicket[]
-  combos: ICombo[]
-  sanPhams: ISanPham[]
-}
+import type { IInvoice } from "@/types/invoice"
 
 const ManageTicketPage = () => {
-  const [invoices, setInvoices] = useState<IInvoiceDisplay[]>([])
+  const [invoices, setInvoices] = useState<IInvoice[]>([])
   const [movies, setMovies] = useState<Array<{ maPhim: string; tenPhim: string }>>([])
   const [expandedInvoiceIds, setExpandedInvoiceIds] = useState<string[]>([])
-  const [selectedInvoice, setSelectedInvoice] = useState<IInvoiceDisplay | null>(null)
+  const [selectedInvoice, setSelectedInvoice] = useState<IInvoice | null>(null)
 
   const [loading, setLoading] = useState(false)
 
@@ -207,7 +140,7 @@ const ManageTicketPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header + Stats */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -862,7 +795,7 @@ const ManageTicketPage = () => {
                 {/* Tổng cộng */}
                 <div className="border-t-2 py-8">
                   <div className="flex justify-between items-center text-xl">
-                    <span className="font-bold">Tổng cộng:</span>
+                    <span className="font-bold">Tổng tiền:</span>
                     <span className="font-bold text-emerald-600">
                       {Number(selectedInvoice.tongTien).toLocaleString()} VNĐ
                     </span>

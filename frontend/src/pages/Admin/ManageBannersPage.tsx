@@ -17,6 +17,7 @@ import { formatDate } from "@/utils/formatDate"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import type { IBanner } from "@/types/banner"
 
 const bannerSchemaAdd = z.object({
   anhBanner: z.instanceof(File, { message: "Vui lòng chọn ảnh banner" }).nullable(),
@@ -32,19 +33,6 @@ const bannerSchemaEdit = z.object({
 
 type BannerFormDataAdd = z.infer<typeof bannerSchemaAdd>
 type BannerFormDataEdit = z.infer<typeof bannerSchemaEdit>
-
-interface IBanner {
-  maBanner: string
-  anhBanner: string
-  duongDanLienKet: string | null
-  viTriHienThi: string
-  hienThi: boolean
-  ngayTao: string
-  nguoiTao: {
-    maNguoiDung: string
-    hoTen: string
-  }
-}
 
 const ManageBannersPage = () => {
   const [banners, setBanners] = useState<IBanner[]>([])
@@ -227,7 +215,7 @@ const ManageBannersPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header + Stats */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">

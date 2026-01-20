@@ -10,12 +10,13 @@ import { phienBan } from "@/constants/version"
 import { Button } from "@/components/ui/button"
 import TrailerModal from "@/components/common/TrailerModal"
 import useTrailerModal from "@/hooks/useTrailerModal"
-import { formatDate, formatTime } from "@/utils/formatDate"
+import { formatDate, formatTime, formatWeekday, isShowtimeExpired } from "@/utils/formatDate"
 import Seat from "@/components/common/Seat"
 import { useAlert } from "@/stores/useAlert"
 import { ComboCard, ProductCard } from "@/components/common/FoodItemCard"
 import type { ICategoryWithProducts, ICombo, IProduct, ISelectedFood } from "@/types/product"
 import useBookingStore from "@/stores/useBookingStore"
+import useAuthStore from "@/stores/useAuthStore"
   
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
@@ -37,6 +38,7 @@ export default function MovieDetailPage() {
   const { showToast } = useAlert()
   const navigate = useNavigate()
 
+  const { user } = useAuthStore()
   const { setMovie, setShowtime, setSeats: setSeatStore, setFoods } = useBookingStore()
   const { show, trailerId, openModal, closeModal } = useTrailerModal()
 
@@ -123,7 +125,7 @@ export default function MovieDetailPage() {
         const data = await getMovieShowtimes(movieDetail.maPhim)
 
         const grouped = data.reduce((acc: IGroupedShowtime, show: IMovieShowtime) => {
-          const dateKey = formatDate(show.gioBatDau,"dd/MM")
+          const dateKey = formatDate(show.gioBatDau,"yyyy-MM-dd")
           if(!acc[dateKey]) {
             acc[dateKey] = {}
           }
@@ -147,6 +149,11 @@ export default function MovieDetailPage() {
   }, [movieDetail?.maPhim])
 
   const handleShowtimeSelect = async (show: IMovieShowtime) => {
+    if(!user) {
+      return navigate("/login", {
+        state: { from: `/movies/${slug}` }
+      })
+    }
     setSelectedShowtime(show)
     setSelectedSeats([])
     setLoadingSeats(true)
@@ -463,7 +470,8 @@ export default function MovieDetailPage() {
                         : 'bg-white/10 border-yellow-300 text-yellow-300 hover:bg-white/20'
                     }`}
                   >
-                    <span className="text-xl font-anton">{date}</span>
+                    <span className="text-xl font-anton">{formatDate(date, "dd/MM")}</span>
+                    <span className="mt-1 font-semibold">{formatWeekday(date)}</span>
                   </button>
                 )
               })}
@@ -485,17 +493,26 @@ export default function MovieDetailPage() {
                       {roomType}
                     </h4>
                     <div className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-14 gap-3">
-                      {shows.map((show) => (
-                        <button
-                          key={show.maSuatChieu}
-                          className="bg-gradient-to-r text-sm md:text-base cursor-pointer border border-yellow-300 from-yellow-300 to-pink-500 hover:from-yellow-400 hover:to-pink-500 text-black font-bold p-1 rounded transition-all shadow-lg"
-                          onClick={() => {
-                            handleShowtimeSelect(show)
-                          }}
-                        >
-                          {formatTime(show.gioBatDau)}
-                        </button>
-                      ))}
+                      {shows.map((show) => {
+                        const expired = isShowtimeExpired(show.gioBatDau)
+
+                        return (
+                          <button
+                            key={show.maSuatChieu}
+                            disabled={expired}
+                            className={`
+                              bg-yellow-300
+                              text-black font-bold p-1 rounded transition-all shadow-lg
+                              ${expired ? "opacity-40 cursor-not-allowed" : "bg-gradient-to-r text-sm md:text-base border border-yellow-300 from-yellow-300 to-pink-500 hover:from-yellow-400 hover:to-pink-500 cursor-pointer"}
+                            `}
+                            onClick={() => {
+                              handleShowtimeSelect(show)
+                            }}
+                          >
+                            {formatTime(show.gioBatDau)}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                 ))
@@ -549,13 +566,13 @@ export default function MovieDetailPage() {
                       {uniqueRows.map((row) => {
                         return (
                           <div key={row} className="flex items-center gap-[1px] md:gap-8">
-                            <div className="w-8 md:h-14 flex items-center justify-center text-yellow-300 font-bold text-xs md:text-lg">
+                            <div className="w-8 md:h-14 md:flex hidden items-center justify-center text-yellow-300 font-bold text-xs md:text-lg">
                               {row}
                             </div>
                             <div className="flex gap-[1px] md:gap-4">
                               {renderRowSeats(row)}
                             </div>
-                            <div className="w-8 md:h-14 flex items-center justify-center text-yellow-300 font-bold text-xs md:text-lg">
+                            <div className="w-8 md:h-14 md:flex hidden items-center justify-center text-yellow-300 font-bold text-xs md:text-lg">
                               {row}
                             </div>
                           </div>

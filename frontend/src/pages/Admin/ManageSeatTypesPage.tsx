@@ -19,12 +19,7 @@ import {
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
-
-interface ISeatType {
-  maLoaiGhe: string
-  tenLoaiGhe: string
-  moTa: string
-}
+import type { ISeatType } from "@/types/seat"
 
 const seatTypeSchema = z.object({
   tenLoaiGhe: z.string().min(1, "Tên loại ghế không được để trống").trim(),

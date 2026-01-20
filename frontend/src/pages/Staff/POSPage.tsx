@@ -393,7 +393,7 @@ const CinemaPOS = () => {
   const seatTypes = Array.from(new Set(seats.map(seat => seat.tenLoaiGhe)))
   return (
     <StaffLayout>
-      <div className="max-w-8xl mx-auto bg-white shadow-md rounded">
+      <div className="max-w-7xl mx-auto bg-white shadow-md rounded">
         {/* Header */}
         <div className="bg-purple-700 text-white px-4 h-14 rounded flex justify-between items-center">
           <div className="flex items-center gap-4">

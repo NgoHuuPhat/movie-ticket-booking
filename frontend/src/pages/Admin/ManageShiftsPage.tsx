@@ -14,13 +14,7 @@ import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
 import { formatTime } from "@/utils/formatDate"
-
-interface IShift {
-  maCaLam: string
-  tenCaLam: string
-  gioBatDau: string
-  gioKetThuc: string
-}
+import type { IShift } from "@/types/shift"
 
 const shiftSchema = z.object({
   tenCaLam: z.string()
@@ -139,7 +133,7 @@ const ManageShiftsPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">

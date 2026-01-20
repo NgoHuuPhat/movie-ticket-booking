@@ -16,25 +16,8 @@ import { getAllRoomsAdmin, createRoomAdmin, updateRoomAdmin, deleteRoomAdmin, ge
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { RoomForm, type RoomFormData, type SeatConfig } from "@/components/Admin/RoomForm"
-
-interface IRoom {
-  maPhong: string
-  tenPhong: string
-  maLoaiPhong: string
-  hoatDong: boolean
-  loaiPhongChieu: {
-    tenLoaiPhong: string
-  }
-}
-
-interface ISeat {
-  maGhe: string;
-  maPhong: string;
-  hangGhe: string;
-  soGhe: number;
-  maLoaiGhe: string;
-  hoatDong: boolean;
-}
+import type { IRoom } from "@/types/room"
+import type { ISeat } from "@/types/seat"
 
 const ManageRoomsPage = () => {
   const [rooms, setRooms] = useState<IRoom[]>([])
@@ -687,7 +670,7 @@ const ManageRoomsPage = () => {
 
         {/* Modal view/edit seats */}
         <Dialog open={isSeatViewDialogOpen} onOpenChange={setIsSeatViewDialogOpen}>
-          <DialogContent className="md:max-w-[900px] max-h-[90vh] flex flex-col">
+          <DialogContent className="md:max-w-7xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Sơ đồ ghế - {selectedRoom?.tenPhong}</DialogTitle>
               <DialogDescription>

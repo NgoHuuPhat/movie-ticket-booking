@@ -20,8 +20,18 @@ class PhimsController {
         },
         where: { 
           hienThi: true,
-          ngayKhoiChieu: { lte: today },
-          ngayKetThuc: { gte: today }
+          OR: [
+            { 
+              ngayKhoiChieu: { lte: today },
+              ngayKetThuc: { gte: today }, 
+            },
+            {
+              ngayKhoiChieu: { gt: today },
+              suatChieus: {
+                some: { gioBatDau: { gt: new Date() }, hoatDong: true}
+              }
+            }
+          ]
         },
         orderBy: { ngayKhoiChieu: 'desc' }
       })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
@@ -54,6 +64,11 @@ async getPhimSapChieu(req: Request, res: Response) {
           where: { 
             hienThi: true,
             ngayKhoiChieu: { gt: today },
+            NOT: {
+              suatChieus: {
+                some: { gioBatDau: { gt: new Date() }, hoatDong: true}
+              }
+            }
           },
           orderBy: { ngayKhoiChieu: 'asc' }
         })).map(({ phimTheLoais, maPhanLoaiDoTuoi, phanLoaiDoTuoi, ...phim }) => ({
@@ -141,7 +156,8 @@ async getPhimSapChieu(req: Request, res: Response) {
               loaiPhongChieu: { select: { tenLoaiPhong: true } },
             }
           },
-        }
+        },
+        orderBy: { gioBatDau: 'asc' }
       })).map(({ maPhong, phongChieu, ...suatChieu }) => ({
         ...suatChieu,
         tenLoaiPhong: phongChieu.loaiPhongChieu.tenLoaiPhong,

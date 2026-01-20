@@ -40,23 +40,7 @@ import {
 } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
 import { formatDate } from "@/utils/formatDate"
-
-interface IUserType {
-  maLoaiNguoiDung: 'ADMIN' | 'KH' | 'NV' | 'VIP'
-  tenLoaiNguoiDung: string
-}
-
-interface IUser {
-  maNguoiDung: string
-  hoTen: string
-  email: string
-  soDienThoai: string
-  hoatDong: boolean
-  ngaySinh: string
-  gioiTinh: string
-  diemTichLuy: number
-  loaiNguoiDung: IUserType
-}
+import type { IUser, IUserType } from "@/types/user"
 
 const createUserSchema = z.object({
   hoTen: z.string().min(2, "Họ tên ít nhất 2 ký tự"),
@@ -276,7 +260,7 @@ const ManageUsersPage = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-8xl mx-auto pb-10">
+      <div className="max-w-7xl mx-auto pb-10">
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-gradient-to-br from-purple-100 via-white to-pink-100 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">

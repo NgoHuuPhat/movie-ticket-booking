@@ -10,24 +10,24 @@ import seatsRouter from '@/routes/seats.routes'
 import cinemaRouter from '@/routes/cinema.routes'
 import newsRouter from '@/routes/news.routes'
 import bannersRouter from '@/routes/banners.routes'
-import ticketsRouter from '@/routes/tickets.routes'
 import chatbotRouter from '@/routes/chatbot.routes'
+import profileRouter from '@/routes/profile.routes'
 import authenticateToken from '@/middlewares/auth.middleware'
 
 const router = Router()
 
 router.use('/auth', authRouter)
-router.use('/movies', authenticateToken, moviesRouter)
+router.use('/movies', moviesRouter)
+router.use('/news', newsRouter)
+router.use('/banners', bannersRouter)
+router.use('/payments', paymentsRouter)
 router.use('/showtimes', authenticateToken, showtimesRouter)
 router.use('/products', authenticateToken, productsRouter)
 router.use('/combos', authenticateToken, combosRouter)
 router.use('/discounts', authenticateToken, discountsRouter)
 router.use('/seats', authenticateToken, seatsRouter)
 router.use('/cinema', authenticateToken, cinemaRouter)
-router.use('/news', authenticateToken, newsRouter)
-router.use('/banners', authenticateToken, bannersRouter)
-router.use('/payments', paymentsRouter)
-router.use('/tickets', authenticateToken, ticketsRouter)
 router.use('/chatbot', authenticateToken, chatbotRouter)
+router.use('/profile', authenticateToken, profileRouter)
 
 export default router

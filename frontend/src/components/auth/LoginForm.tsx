@@ -7,7 +7,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import useAuthStore from "@/stores/useAuthStore"
-import { useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const loginSchema = z.object({
@@ -21,6 +21,8 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const { signIn, errorLogin } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from || "/"
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -36,7 +38,7 @@ const LoginForm = () => {
       } else if (user?.maLoaiNguoiDung === "NV") {
         navigate("/staff")
       } else {
-        navigate("/")
+        navigate(from, { replace: true })
       }
     }
   }

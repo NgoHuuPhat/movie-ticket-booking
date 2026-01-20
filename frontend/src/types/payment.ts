@@ -1,4 +1,4 @@
-export interface IProduct {
+export interface IPaymentProduct {
   maSanPham: string
   soLuong: number
   donGia: number
