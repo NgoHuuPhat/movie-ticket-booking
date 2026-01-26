@@ -31,10 +31,8 @@ const createPriceSchema = z.object({
 const updatePriceSchema = z.object({
   giaTien: z.number().min(1000, "Giá tiền phải lớn hơn 1000 VNĐ"),
 })
-
 type CreatePriceFormData = z.infer<typeof createPriceSchema>
 type UpdatePriceFormData = z.infer<typeof updatePriceSchema>
-
 const ManageSeatPricesPage: React.FC = () => {
   const [prices, setPrices] = useState<ISeatPrice[]>([])
   const [seatTypes, setSeatTypes] = useState<ISeatType[]>([])

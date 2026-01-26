@@ -18,19 +18,9 @@ import { Switch } from "@/components/ui/switch"
 import { formatDate } from "@/utils/formatDate"
 import { ngonNgu } from "@/constants/language"
 import { MovieForm, type MovieFormData } from "@/components/Admin/MovieForm"
+import { type ICategory, type IAgeRating } from "@/types/movie"
 
-interface ICategory {
-  maTheLoai: string
-  tenTheLoai: string
-}
-
-interface IAgeRating {
-  maPhanLoaiDoTuoi: string
-  tenPhanLoaiDoTuoi: string
-  moTa: string
-}
-
-interface IMovie {
+interface IMovieLocal {
   maPhim: string
   tenPhim: string
   daoDien: string
@@ -53,14 +43,14 @@ interface IMovie {
 }
 
 const ManageMoviePage = () => {
-  const [movies, setMovies] = useState<IMovie[]>([])
+  const [movies, setMovies] = useState<IMovieLocal[]>([])
   const [categories, setCategories] = useState<ICategory[]>([])
   const [ageRatings, setAgeRatings] = useState<IAgeRating[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedMovie, setSelectedMovie] = useState<IMovie | null>(null)
+  const [selectedMovie, setSelectedMovie] = useState<IMovieLocal | null>(null)
   const [selectedMovieIds, setSelectedMovieIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
 
@@ -236,7 +226,7 @@ const ManageMoviePage = () => {
     }
   }
 
-  const handleEditMovie = (movie: IMovie) => {
+  const handleEditMovie = (movie: IMovieLocal) => {
     setSelectedMovie(movie)
     setFormData({
       tenPhim: movie.tenPhim,
@@ -252,7 +242,7 @@ const ManageMoviePage = () => {
       maPhanLoaiDoTuoi: movie.maPhanLoaiDoTuoi,
       phienBan: movie.phienBan,
       ngonNgu: movie.ngonNgu,
-      maTheLoais: movie.phimTheLoais.map(c => c.maTheLoai),
+      maTheLoais: movie.phimTheLoais.map((c: { maTheLoai: string }) => c.maTheLoai),
     })
     setIsEditDialogOpen(true)
   }

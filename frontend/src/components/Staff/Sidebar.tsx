@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, X, Ticket, ChevronDown, Monitor } from 'lucide-react'
+import { X, Ticket, ChevronDown, Monitor } from 'lucide-react'
 import logo from "@/assets/logo.png"
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'

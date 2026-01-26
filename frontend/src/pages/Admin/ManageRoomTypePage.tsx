@@ -17,9 +17,7 @@ import type { IRoomType as RoomType } from "@/types/room-type"
 const roomTypeSchema = z.object({
   tenLoaiPhong: z.string().min(1, "Tên loại phòng không được để trống").max(50, "Tên loại phòng không được vượt quá 50 ký tự").trim(),
 })
-
 type RoomTypeForm = z.infer<typeof roomTypeSchema>
-
 const ManageRoomTypePage: React.FC = () => {
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
   const [searchQuery, setSearchQuery] = useState("")

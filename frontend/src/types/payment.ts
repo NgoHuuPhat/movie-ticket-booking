@@ -1,3 +1,4 @@
+
 export interface IPaymentProduct {
   maSanPham: string
   soLuong: number
@@ -8,7 +9,7 @@ export interface IPaymentProduct {
 export interface IPaymentRequestBody {
   maSuatChieu: string
   selectedSeats: { maGhe: string; giaTien: number }[]
-  selectedFoods: IProduct[]
+  selectedFoods: IPaymentProduct[]
   maCodeKhuyenMai?: string
   tongTien: number
   soDienThoaiNguoiDung?: string

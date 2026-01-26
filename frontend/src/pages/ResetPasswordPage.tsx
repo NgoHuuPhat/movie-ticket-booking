@@ -22,7 +22,6 @@ const resetPasswordSchema = z.object({
   message: "Mật khẩu xác nhận không khớp",
   path: ["xacNhanMatKhau"]
 })
-
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
 const ResetPasswordPage = () => {

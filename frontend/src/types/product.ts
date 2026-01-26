@@ -39,3 +39,24 @@ export interface ISelectedFood {
   soLuong: number
   loai: "sanpham" | "combo"
 }
+
+export interface IAdminComboDetail {
+  maSanPham: string
+  soLuong: number
+  sanPham: {
+    maSanPham: string
+    tenSanPham: string
+    giaTien: number
+    anhSanPham: string
+  }
+}
+
+export interface IAdminCombo {
+  maCombo: string
+  tenCombo: string
+  anhCombo: string
+  giaGoc: number
+  giaBan: number
+  hienThi: boolean
+  chiTietCombos: IAdminComboDetail[]
+}

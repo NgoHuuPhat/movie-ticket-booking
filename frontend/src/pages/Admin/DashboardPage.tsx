@@ -19,31 +19,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Button } from "@/components/ui/button"
 import { handleError } from "@/utils/handleError.utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import type { RevenueTimeSeries, RevenueByType, TopMovie, PaymentMethod } from "@/types/statistics"
 import Markdown from "react-markdown"
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title)
-
-export interface TopMovie {
-  maPhim: string
-  tenPhim: string
-  anhBia: string
-  countTicketSold: number
-}
-
-export interface PaymentMethod {
-  methodPayment: string
-  count: number
-}
-
-export interface RevenueTimeSeries {
-  hour: string
-  revenue: number
-}
-
-export interface RevenueByType {
-  type: string
-  revenue: number
-}
 
 const DashboardPage = () => {
   const [timeFilter, setTimeFilter] = useState("day")

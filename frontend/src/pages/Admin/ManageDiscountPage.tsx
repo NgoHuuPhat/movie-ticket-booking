@@ -24,39 +24,18 @@ import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { Switch } from "@/components/ui/switch"
 import { formatDate } from "@/utils/formatDate"
+import type { IDiscountAdmin } from "@/types/discount"
+import type { IUserType } from "@/types/user"
 import { DiscountForm, type DiscountFormData } from "@/components/Admin/DiscountForm"
 
-interface IUserType {
-  maLoaiNguoiDung: string
-  tenLoaiNguoiDung: string
-}
-
-interface IDiscount {
-  maKhuyenMai: string
-  tenKhuyenMai: string
-  maCode: string
-  loaiKhuyenMai: "GiamPhanTram" | "GiamTien"
-  giaTriGiam: number
-  giamToiDa?: number
-  donHangToiThieu: number 
-  maLoaiNguoiDung?: string
-  soLuong: number
-  soLuongDaDung: number
-  ngayBatDau: string
-  ngayKetThuc: string
-  hoatDong: boolean
-  moTa?: string
-  loaiNguoiDung?: { tenLoaiNguoiDung: string }
-}
-
 const ManageDiscountPage = () => {
-  const [discounts, setDiscounts] = useState<IDiscount[]>([])
+  const [discounts, setDiscounts] = useState<IDiscountAdmin[]>([])
   const [userTypes, setUserTypes] = useState<IUserType[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedDiscount, setSelectedDiscount] = useState<IDiscount | null>(null)
+  const [selectedDiscount, setSelectedDiscount] = useState<IDiscountAdmin | null>(null)
   const [selectedDiscountIds, setSelectedDiscountIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
 
@@ -213,7 +192,7 @@ const ManageDiscountPage = () => {
     }
   }
 
-  const handleEditDiscount = (discount: IDiscount) => {
+  const handleEditDiscount = (discount: IDiscountAdmin) => {
     setSelectedDiscount(discount)
     setFormData({
       tenKhuyenMai: discount.tenKhuyenMai,
@@ -302,7 +281,7 @@ const ManageDiscountPage = () => {
     }
   }
 
-  const getStatusBadge = (discount: IDiscount) => {
+  const getStatusBadge = (discount: IDiscountAdmin) => {
     const now = new Date()
     const start = new Date(discount.ngayBatDau)
     const end = new Date(discount.ngayKetThuc)

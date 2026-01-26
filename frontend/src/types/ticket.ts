@@ -39,7 +39,7 @@ export interface ITicket {
   }
 }
 
-export interface ICombo {
+export interface IComboInvoices {
   maCombo: string
   tenCombo: string
   anhCombo: string

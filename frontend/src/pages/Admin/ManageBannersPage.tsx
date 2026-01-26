@@ -30,7 +30,6 @@ const bannerSchemaEdit = z.object({
   duongDanLienKet: z.string().optional(),
   viTriHienThi: z.number().min(1, "Vị trí hiển thị phải lớn hơn 0")
 })
-
 type BannerFormDataAdd = z.infer<typeof bannerSchemaAdd>
 type BannerFormDataEdit = z.infer<typeof bannerSchemaEdit>
 

@@ -21,8 +21,7 @@ const categorySchema = z.object({
     .max(100, "Tên danh mục không được quá 100 ký tự")
     .trim(),
 })
-
-type CategoryFormData = z.infer<typeof categorySchema>
+type ProductCategoryFormData = z.infer<typeof categorySchema>
 
 const ManageProductCategoriesPage = () => {
   const [categories, setCategories] = useState<IProductCategory[]>([])
@@ -33,7 +32,7 @@ const ManageProductCategoriesPage = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<IProductCategory | null>(null)
 
-  const form = useForm<CategoryFormData>({
+  const form = useForm<ProductCategoryFormData>({
     resolver: zodResolver(categorySchema),
     mode: "onTouched",
   })
@@ -59,7 +58,7 @@ const ManageProductCategoriesPage = () => {
     setIsEditOpen(false)
   }
 
-  const handleAdd = async (data: CategoryFormData) => {
+  const handleAdd = async (data: ProductCategoryFormData) => {
     try {
       const res = await createProductCategoryAdmin(data.tenDanhMucSanPham)
       setCategories(prev => [res.newCategory, ...prev])
@@ -70,7 +69,7 @@ const ManageProductCategoriesPage = () => {
     }
   }
 
-  const handleEdit = async (data: CategoryFormData) => {
+  const handleEdit = async (data: ProductCategoryFormData) => {
     if (!selectedCategory) return
 
     try {

@@ -25,9 +25,7 @@ const seatTypeSchema = z.object({
   tenLoaiGhe: z.string().min(1, "Tên loại ghế không được để trống").trim(),
   moTa: z.string().optional(),
 })
-  
 type SeatTypeFormData = z.infer<typeof seatTypeSchema>
-
 const ManageSeatTypesPage: React.FC = () => {
   const [seatTypes, setSeatTypes] = useState<ISeatType[]>([])
   const [searchQuery, setSearchQuery] = useState("")

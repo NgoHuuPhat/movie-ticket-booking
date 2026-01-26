@@ -276,7 +276,7 @@ const ManageRoomsPage = () => {
     }
   }
 
-  const handleUpdateSeats = async (data: RoomFormData, seatConfig: SeatConfig[]) => {
+  const handleUpdateSeats = async (_data: RoomFormData, seatConfig: SeatConfig[]) => {
     if (!selectedRoom) return
     setSubmitting(true)
     try {

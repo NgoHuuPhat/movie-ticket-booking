@@ -12,6 +12,7 @@ import { z } from "zod"
 import AdminLayout from "@/components/layout/AdminLayout"
 import { getCinemaInfoAdmin, updateCinemaInfoAdmin } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
+import type { CinemaInfo } from "@/types/cinema"
 
 const cinemaSchema = z.object({
   tenRap: z.string().min(1, "Tên rạp không được để trống").max(100, "Tên rạp quá dài"),
@@ -19,16 +20,7 @@ const cinemaSchema = z.object({
   soDienThoai: z.string().min(1, "Số điện thoại không được để trống").regex(/^\d+$/, "Số điện thoại không hợp lệ"),
   email: z.string().email("Email không hợp lệ"),
 })
-
 type CinemaFormData = z.infer<typeof cinemaSchema>
-
-interface CinemaInfo {
-  maRap: string
-  tenRap: string
-  diaChi: string
-  soDienThoai: string
-  email: string
-}
 
 export default function CinemaInfoPage() {
   const [loading, setLoading] = useState(true)

@@ -1,4 +1,15 @@
 
+export interface ICategory {
+  maTheLoai: string
+  tenTheLoai: string
+}
+
+export interface IAgeRating {
+  maPhanLoaiDoTuoi: string
+  tenPhanLoaiDoTuoi: string
+  moTa: string
+}
+
 export interface IMovie {
   maPhim: string
   tenPhim: string

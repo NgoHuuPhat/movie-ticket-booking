@@ -21,31 +21,11 @@ import {
   bulkActionCombosAdmin,
   getProductsForSelectAdmin,
 } from "@/services/api"
+import type { IAdminCombo } from "@/types/product"
 import { ComboForm, type ComboFormData } from "@/components/Admin/ComboForm"
 
-interface IChiTietCombo {
-  maSanPham: string
-  soLuong: number
-  sanPham: {
-    maSanPham: string
-    tenSanPham: string
-    giaTien: number        
-    anhSanPham: string  
-  }
-}
-
-interface ICombo {
-  maCombo: string
-  tenCombo: string
-  anhCombo: string
-  giaGoc: number
-  giaBan: number
-  hienThi: boolean
-  chiTietCombos: IChiTietCombo[]
-}
-
 const ManageCombosPage = () => {
-  const [combos, setCombos] = useState<ICombo[]>([])
+  const [combos, setCombos] = useState<IAdminCombo[]>([])
   const [availableProducts, setAvailableProducts] = useState<{ maSanPham: string; tenSanPham: string; giaTien: number;}[]>([])
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -53,7 +33,7 @@ const ManageCombosPage = () => {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   
-  const [selectedCombo, setSelectedCombo] = useState<ICombo | null>(null)
+  const [selectedCombo, setSelectedCombo] = useState<IAdminCombo | null>(null)
   const [selectedComboIds, setSelectedComboIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
 
@@ -160,7 +140,7 @@ const ManageCombosPage = () => {
     }
   }
 
-  const handleEditCombo = (combo: ICombo) => {
+  const handleEditCombo = (combo: IAdminCombo) => {
     setSelectedCombo(combo)
     setIsEditDialogOpen(true)
   }

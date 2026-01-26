@@ -14,12 +14,7 @@ import { getAllAgeRatingsAdmin, createAgeRatingAdmin, updateAgeRatingAdmin, dele
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
-
-interface IAgeRating {
-  maPhanLoaiDoTuoi: string
-  tenPhanLoaiDoTuoi: string
-  moTa: string
-}
+import type { IAgeRating } from "@/types/movie"
 
 const ageRatingSchema = z.object({
   tenPhanLoaiDoTuoi: z.string().min(1, "Tên phân loại không được để trống").max(3, "Tên phân loại không được vượt quá 3 ký tự").trim(),

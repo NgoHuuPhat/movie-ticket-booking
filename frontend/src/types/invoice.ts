@@ -1,4 +1,4 @@
-import type { ITicket, ICombo, ISanPham, IKhuyenMai } from "@/types/ticket"
+import type { ITicket, IComboInvoices, ISanPham, IKhuyenMai } from "@/types/ticket"
 
 export interface IInvoice {
   maHoaDon: string
@@ -23,8 +23,8 @@ export interface IInvoice {
   maKhuyenMai?: string
   khuyenMai?: IKhuyenMai
   ves: ITicket[]
-  combos: ICombo[]
-  hoaDonCombos: ICombo[]
+  combos: IComboInvoices[]
+  hoaDonCombos: IComboInvoices[]
   sanPhams: ISanPham[]
   hoaDonSanPhams: ISanPham[]
 }

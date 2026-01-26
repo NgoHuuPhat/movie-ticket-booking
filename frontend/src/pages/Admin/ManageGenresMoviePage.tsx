@@ -13,17 +13,12 @@ import { getAllCategoriesAdmin, createCategoryAdmin, updateCategoryAdmin, delete
 import { toast } from "sonner"
 import { handleError } from "@/utils/handleError.utils"
 import { z } from "zod"
-
-interface ICategory {
-  maTheLoai: string
-  tenTheLoai: string
-}
+import type { ICategory } from "@/types/movie"
 
 const categorySchema = z.object({
   tenTheLoai: z.string().min(1, "Tên thể loại không được để trống").max(50, "Tên thể loại không được quá 50 ký tự").trim(),
 })
-
-type CategoryFormData = z.infer<typeof categorySchema>
+type GenreCategoryFormData = z.infer<typeof categorySchema>
 
 const ManageGenresMoviePage = () => {
   const [categories, setCategories] = useState<ICategory[]>([])
@@ -34,7 +29,7 @@ const ManageGenresMoviePage = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(null)
 
-  const form = useForm<CategoryFormData>({
+  const form = useForm<GenreCategoryFormData>({
     resolver: zodResolver(categorySchema),
     mode: "onTouched",
   })
@@ -60,7 +55,7 @@ const ManageGenresMoviePage = () => {
     setIsEditOpen(false)
   }
 
-  const handleAdd = async (data: CategoryFormData) => {
+  const handleAdd = async (data: GenreCategoryFormData) => {
     try {
       const res = await createCategoryAdmin(data.tenTheLoai)
       setCategories(prev => [...prev, res.category])
@@ -71,7 +66,7 @@ const ManageGenresMoviePage = () => {
     }
   }
 
-  const handleEdit = async (data: CategoryFormData) => {
+  const handleEdit = async (data: GenreCategoryFormData) => {
     if (!selectedCategory) return
 
     try {
