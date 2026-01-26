@@ -39,7 +39,7 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
       {/* Content */}
       <div className="p-5 flex flex-col flex-1 justify-between">
         <div>
-          <h3 className="text-lg lg:text-xl text-white uppercase font-semibold mb-3 line-clamp-2 group-hover:text-yellow-300 transition-colors duration-300">
+          <h3 className="text-xs lg:text-xl text-white uppercase font-semibold mb-3 line-clamp-2 group-hover:text-yellow-300 transition-colors duration-300">
             {movie.tenPhim}
           </h3>
 
@@ -90,7 +90,7 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
           ) : (
             <Button
               variant="yellowToPinkPurple"
-              className="flex-1 h-10 font-anton uppercase text-sm"
+              className="flex-1 h-8 md:h-10 font-anton uppercase text-sm"
             >
               <span>Đặt vé</span>
             </Button>

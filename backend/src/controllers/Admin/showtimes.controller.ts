@@ -8,20 +8,20 @@ class SuatChieusController {
   async getAllShowtimes(req: Request, res: Response) {
     try {
       const { trangThai, date, search, page = 1, sortField = 'gioBatDau', sortOrder = 'desc' } = req.query
-      const limit = 50
-      const filter: any = {}
-      const skip = (Number(page) - 1) * limit
-      const sortFields = sortField as string
-
+      const limitFilms = 10
+      const skip = (Number(page) - 1) * limitFilms
+      const showtimeFilter: any = {}
+      const filmFilter: any = {}
+      
       if(trangThai === 'sapChieu') {
-        filter.gioBatDau = { gt: new Date() }
+        showtimeFilter.gioBatDau = { gt: new Date() }
       } 
       if(trangThai === 'dangChieu') {
-        filter.gioBatDau = { lte: new Date() }
-        filter.gioKetThuc = { gt: new Date() }
+        showtimeFilter.gioBatDau = { lte: new Date() }
+        showtimeFilter.gioKetThuc = { gt: new Date() }
       }
       if(trangThai === 'daKetThuc') {
-        filter.gioKetThuc = { lte: new Date() }
+        showtimeFilter.gioKetThuc = { lte: new Date() }
       }
 
       if(date) {
@@ -29,29 +29,60 @@ class SuatChieusController {
         startOfDay.setHours(0,0,0,0)
         const endOfDay = new Date(date as string)
         endOfDay.setHours(23,59,59,999)
-        filter.gioBatDau = { gte: startOfDay, lt: endOfDay }
+        showtimeFilter.gioBatDau = { gte: startOfDay, lt: endOfDay }
       }
       
       if(search) {
-        filter.phim = { tenPhim: { contains: search as string, mode: 'insensitive' } }
+        filmFilter.tenPhim = { contains: search as string, mode: 'insensitive' }
       }
 
-      const [showtimes, total] = await Promise.all([
-        prisma.sUATCHIEU.findMany({
-          where: filter,
-          orderBy: { [sortFields]: sortOrder },
+      filmFilter.suatChieus = {
+        some: showtimeFilter
+      }
+
+      const [films, totalFilms] = await Promise.all([
+        prisma.pHIM.findMany({
+          where: filmFilter,
+          orderBy: { tenPhim: 'asc' },
           skip,
+          take: limitFilms,
           include: {
-            phim: true,
-            phongChieu: true
-          },
+            suatChieus: {
+              where: showtimeFilter,
+              orderBy: { [sortField as string]: sortOrder },
+              include: {
+                phongChieu: true
+              }
+            }
+          }
         }),
-        prisma.sUATCHIEU.count({ where: filter })
+        prisma.pHIM.count({ where: filmFilter })
       ])
+
+      const showtimes = films.flatMap(film => 
+        film.suatChieus.map(suatChieu => ({
+          ...suatChieu,
+          phim: {
+            maPhim: film.maPhim,
+            tenPhim: film.tenPhim,
+            ngayKhoiChieu: film.ngayKhoiChieu,
+            ngayKetThuc: film.ngayKetThuc,
+            thoiLuong: film.thoiLuong
+          }
+        }))
+      )
+
       const startIndex = skip + 1
-      const endIndex = Math.min(Number(page) * Number(limit), total)
+      const endIndex = Math.min(Number(page) * limitFilms, totalFilms)
       
-      return res.status(200).json({ showtimes, total, startIndex, endIndex, page: Number(page), totalPages: Math.ceil(total / Number(limit)) })
+      return res.status(200).json({ 
+        showtimes, 
+        total: totalFilms,  
+        startIndex, 
+        endIndex, 
+        page: Number(page), 
+        totalPages: Math.ceil(totalFilms / limitFilms) 
+      })
     } catch (error) {
       console.error(error)
       res.status(500).json({ message: 'Internal server error' })
@@ -97,7 +128,6 @@ class SuatChieusController {
       movieEnd.setHours(23,59,59,999) 
 
       const timeStart = new Date(gioBatDau)
-      // Tính giờ kết thúc = giờ bắt đầu + thời lượng phim (phút)
       const timeEnd = new Date(timeStart.getTime() + phim.thoiLuong * 60000)
 
       const conflictingShowtime = await prisma.sUATCHIEU.findFirst({
