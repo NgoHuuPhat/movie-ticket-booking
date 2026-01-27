@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "ES2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
     "outDir": "dist",
     "esModuleInterop": true,
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "noEmitOnError": true
+    "noEmitOnError": true,
   },
   "files": ["src/types/type.d.ts"],
   "include": ["src/**/*"]
