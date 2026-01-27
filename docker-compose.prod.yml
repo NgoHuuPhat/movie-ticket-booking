@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-ngoohuuphat/mtb-backend}:latest
+    container_name: mtb-backend
+    env_file:
+      - ./backend/.env.production
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - app-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ngoohuuphat/mtb-frontend}:latest
+    container_name: mtb-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:17
+    container_name: mtb-postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=ledocinema
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=prisma
+    ports:
+      - "5434:5432"
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ledocinema"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: postgres -c listen_addresses='*'
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: mtb-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - app-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app-net:
+    driver: bridge
