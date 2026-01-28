@@ -2,7 +2,9 @@ import type { IPaymentRequestBody } from "@/types/payment"
 import axios from "axios"
 
 const request = axios.create({
-  baseURL: import.meta.env.NODE_ENV === "production" ? "/api" : "http://localhost:3000/api",
+  baseURL: window.location.hostname === "localhost" 
+    ? "http://localhost:3000/api" 
+    : "/api",
   withCredentials: true
 })
 
