@@ -12,33 +12,19 @@ services:
     networks:
       - app-net
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - postgres
+      - redis
 
   frontend:
     image: ${FRONTEND_IMAGE:-ngoohuuphat/mtb-frontend}:latest
     container_name: mtb-frontend
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     ports:
       - "80:80"
     restart: unless-stopped
     networks:
       - app-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   postgres:
     image: postgres:17
@@ -52,11 +38,6 @@ services:
       - "5434:5432"
     networks:
       - app-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ledocinema"]
-      interval: 5s
-      timeout: 2s
-      retries: 20
     volumes:
       - postgres_data:/var/lib/postgresql/data
     command: postgres -c listen_addresses='*'
@@ -73,11 +54,6 @@ services:
     restart: unless-stopped
     networks:
       - app-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
 
 volumes:
   postgres_data:
