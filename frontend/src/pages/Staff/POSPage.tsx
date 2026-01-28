@@ -24,6 +24,7 @@ import { handleError } from '@/utils/handleError.utils'
 import { toast } from 'sonner'
 import type { IUser } from '@/types/user'
 import { useSearchParams } from 'react-router-dom'
+import { SeatType } from '@/constants/seat'
 
 const CinemaPOS = () => {
   const [step, setStep] = useState<number>(1)
@@ -139,10 +140,10 @@ const CinemaPOS = () => {
       // Check limit 8 seats
       const currentCount = prev.reduce((count, id) => {
         const s = seats.find(seat => seat.maGhe === id)
-        return count + (s?.tenLoaiGhe === 'Couple' ? 2 : 1)
+        return count + (s?.tenLoaiGhe === SeatType.Couple ? 2 : 1)
       }, 0)
 
-      const newSeatCount = seat.tenLoaiGhe === 'Couple' ? 2 : 1
+      const newSeatCount = seat.tenLoaiGhe === SeatType.Couple ? 2 : 1
       
       if (currentCount + newSeatCount > 8) {
         showToast("Bạn chỉ có thể chọn tối đa 8 ghế!")
@@ -311,10 +312,10 @@ const CinemaPOS = () => {
     const rowSeats = seats.filter(seat => seat.hangGhe === row).sort((a, b) => a.soGhe - b.soGhe)
 
     return rowSeats.map((seat) => {
-      let seatType: "Standard" | "Couple" | "VIP" = "Standard"
+      let seatType: "Ghế thường" | "Ghế đôi" | "Ghế VIP" = "Ghế thường"
       
-      if (seat.tenLoaiGhe === "Couple") seatType = "Couple"
-      else if (seat.tenLoaiGhe === "VIP") seatType = "VIP"   
+      if (seat.tenLoaiGhe === SeatType.Couple) seatType = "Ghế đôi"
+      else if (seat.tenLoaiGhe === SeatType.VIP) seatType = "Ghế VIP"   
 
       const isSelected = selectedSeats.includes(seat.maGhe)
       const isDisabled = seat.trangThai === "KhongSuDung"
@@ -537,7 +538,7 @@ const CinemaPOS = () => {
                     {seatTypes.map((tenLoaiGhe) => {
                       return (
                         <div key={tenLoaiGhe} className="flex items-center gap-3">
-                          <Seat type={tenLoaiGhe} variant="purple" className={tenLoaiGhe === "Couple" ? "w-20" : "w-8"} />
+                          <Seat type={tenLoaiGhe} variant="purple" className={tenLoaiGhe === "Ghế đôi" ? "w-20" : "w-8"} />
                           <span className="text-gray-300">Ghế {tenLoaiGhe}</span>
                         </div>
                       )
@@ -545,12 +546,12 @@ const CinemaPOS = () => {
 
                     {/* Trạng thái */}
                     <div className="flex items-center gap-3">
-                      <Seat type="Standard" status="DangDuocChon" className="w-8" />
+                      <Seat type="Ghế thường" status="DangDuocChon" className="w-8" />
                       <span className="text-gray-300">Ghế đang chọn</span>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Seat type="Standard" status="DaDat" className="w-8" />
+                      <Seat type="Ghế thường" status="DaDat" className="w-8" />
                       <span className="text-gray-300">Ghế đã đặt</span>
                     </div>
                   </div>
