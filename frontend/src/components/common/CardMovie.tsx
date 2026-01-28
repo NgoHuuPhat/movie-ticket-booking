@@ -83,14 +83,14 @@ export default function MovieCard({movie, isComingSoon = false, onWatchTrailer }
           {isComingSoon ? (
             <Button
               variant="yellowToPinkPurple"
-              className="flex-1 h-10 font-anton uppercase text-sm cursor-pointer"
+              className="flex-1 h-8 md:h-10 font-anton uppercase text-xs md:text-sm cursor-pointer"
             >
               <span>Tìm hiểu thêm</span>
             </Button>
           ) : (
             <Button
               variant="yellowToPinkPurple"
-              className="flex-1 h-8 md:h-10 font-anton uppercase text-sm"
+              className="flex-1 h-8 md:h-10 font-anton uppercase text-xs md:text-sm cursor-pointer"
             >
               <span>Đặt vé</span>
             </Button>

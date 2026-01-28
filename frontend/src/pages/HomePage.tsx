@@ -112,7 +112,7 @@ export default function Homepage() {
                 <img
                   src={slide.anhBanner}
                   alt={"Banner quảng cáo"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto object-cover"
                 />
               </Link>
             ))}
@@ -120,8 +120,8 @@ export default function Homepage() {
         </section>
 
         {/* Phim đang chiếu */}
-        <section className="mb-20">
-          <h2 className="text-center text-4xl font-anton text-white mb-12 uppercase tracking-wider">Phim đang chiếu</h2>
+        <section className="mb-10 md:mb-20">
+          <h2 className="text-center text-2xl md:text-4xl font-anton text-white mb-6 md:mb-12 uppercase tracking-wider">Phim đang chiếu</h2>
           <div className="relative">
             <button onClick={prevPageNow} className="hidden lg:block cursor-pointer absolute top-1/2 -translate-y-1/2 -translate-x-14 text-white hover:text-yellow-300 2xl:left-0 xl:left-10 lg:left-15 z-10">
               <ChevronLeft className="w-12 h-12" />
@@ -141,7 +141,7 @@ export default function Homepage() {
               ))}
             </div>
           </div>
-          <div className="flex justify-center gap-4 mt-8">
+          <div className="flex justify-center gap-4 mt-4 md:mt-8">
             <button onClick={prevPageNow} className="md:hidden hover:bg-yellow-500 text-white p-3 rounded-full">
               <ChevronLeft className="w-7 h-7" />
             </button>
@@ -156,7 +156,7 @@ export default function Homepage() {
               <ChevronRight className="w-7 h-7" />
             </button>
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-4 md:mt-8">
             <Link to="/movies/showing">
               <Button variant="transparentToYellowOrange" className="h-10 px-20">
                 <span className="font-anton uppercase text-base">Xem thêm</span>
@@ -166,8 +166,8 @@ export default function Homepage() {
         </section>
 
         {/* Phim sắp chiếu */}
-        <section className="mb-20">
-          <h2 className="text-center text-4xl font-anton text-white mb-12 uppercase tracking-wider">Phim sắp chiếu</h2>
+        <section className="mb-10 md:mb-20">
+          <h2 className="text-center text-2xl md:text-4xl font-anton text-white mb-6 md:mb-12 uppercase tracking-wider">Phim sắp chiếu</h2>
           <div className="relative">
             <button onClick={prevPageComing} className="hidden lg:block absolute cursor-pointer top-1/2 -translate-y-1/2 -translate-x-14 text-white hover:text-yellow-300 2xl:left-0 xl:left-10 lg:left-15 z-10">
               <ChevronLeft className="w-12 h-12" />
@@ -188,7 +188,7 @@ export default function Homepage() {
             </div>
           </div>
           {show && trailerId && <TrailerModal show={show} trailerId={trailerId} onClose={closeModal} />}
-          <div className="flex justify-center gap-4 mt-8">
+          <div className="flex justify-center gap-4 mt-4 md:mt-8">
             <button onClick={prevPageComing} className="md:hidden hover:bg-yellow-500 text-white p-3 rounded-full">
               <ChevronLeft className="w-7 h-7" />
             </button>
@@ -203,7 +203,7 @@ export default function Homepage() {
               <ChevronRight className="w-7 h-7" />
             </button>
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-4 md:mt-8">
             <Link to="/movies/upcoming">
               <Button variant="transparentToYellowOrange" className="h-10 px-20">
                 <span className="font-anton uppercase text-base">Xem thêm</span>
@@ -213,8 +213,8 @@ export default function Homepage() {
         </section>
 
         {/* Tin tức & sự kiện */}
-        <section className="mt-25">
-          <h2 className="text-center text-4xl md:text-4xl font-anton text-white mb-12 uppercase">
+        <section>
+          <h2 className="text-center text-2xl md:text-4xl font-anton text-white mb-8 md:mb-12 uppercase">
             Tin tức & sự kiện
           </h2>
 
@@ -248,7 +248,7 @@ export default function Homepage() {
           </div>
 
           {/* Pagination  */}
-          <div className="flex justify-center gap-4 mt-8">
+          <div className="flex justify-center gap-4 mt-4 md:mt-8">
             <button onClick={prevPageNews} className="md:hidden hover:bg-yellow-500 text-white p-3 rounded-full">
               <ChevronLeft className="w-7 h-7" />
             </button>
@@ -266,7 +266,7 @@ export default function Homepage() {
             </button>
           </div>
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-4 md:mt-8">
             <Link to="/news">
               <Button variant="transparentToYellowOrange" className="h-10 px-20">
                 <span className="font-anton uppercase text-base">Xem thêm</span>

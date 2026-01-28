@@ -20,7 +20,7 @@ export default function CheckoutResultPage() {
 
   return (
     <UserLayout>
-      <div className="max-w-2xl w-full mx-auto px-4 py-14">
+      <div className="max-w-2xl w-full mx-auto py-14">
         <div className={`rounded-3xl shadow-2xl border p-8 md:p-12 text-center
           ${isSuccess 
             ? "bg-gradient-to-tr from-transparent to-green-700 border-green-600" 
@@ -35,11 +35,11 @@ export default function CheckoutResultPage() {
             )}
           </div>
 
-          <h1 className="text-white font-anton text-2xl md:text-4xl mb-4 md:mb-6 uppercase">
+          <h1 className="text-white font-anton text-2xl md:text-4xl uppercase">
             {isSuccess ? "Đặt vé thành công!" : "Thanh toán thất bại"}
           </h1>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-10 my-8 md:mb-10 border border-white/20 flex items-center justify-center text-center">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl md:p-10 p-6 my-6 border border-white/20 flex items-center justify-center text-center">
             <p className="text-white/90 md:text-lg">
               {isSuccess
                 ? "Thông tin vé đã được gửi đến email của bạn. Bạn cũng có thể xem thông tin vé trong lịch sử giao dịch. Hãy đến rạp đúng giờ để tận hưởng bộ phim nhé!"
@@ -59,7 +59,7 @@ export default function CheckoutResultPage() {
             <Button 
               variant="yellowToPinkPurple"
               onClick={() => navigate("/")}
-              className="px-8 w-full h-8 md:h-12 font-anton text-lg"
+              className="px-8 w-full h-full md:h-12 font-anton md:text-lg"
             >
               <span>Về trang chủ</span>
             </Button>

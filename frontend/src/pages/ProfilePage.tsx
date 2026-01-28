@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
-import { CircleUser, History } from "lucide-react"
 import UserLayout from "@/components/layout/UserLayout"
 import { getProfile, historyTickets, updatePassword } from "@/services/api"
 import { handleError } from "@/utils/handleError.utils"
@@ -81,7 +80,7 @@ export default function UserProfilePage() {
 
   return (
     <UserLayout>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto py-8">
         <ProfileHeader user={user} />
 
         {/* Tabs */}
@@ -89,29 +88,27 @@ export default function UserProfilePage() {
           <div className="flex border-b-2 border-purple-100">
             <button
               onClick={() => handleTabChange("info")}
-              className={`flex-1 py-4 px-6 cursor-pointer font-anton uppercase transition-all text-lg ${
+              className={`flex-1 py-4 cursor-pointer font-anton uppercase transition-all md:text-lg ${
                 activeTab === "info"
                   ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white "
                   : "text-gray-800 hover:bg-purple-50"
               }`}
             >
-              <CircleUser className="w-5 h-5 inline mr-4" />
               Thông tin cá nhân
             </button>
             <button
               onClick={() => handleTabChange("history")}
-              className={`flex-1 py-4 px-6 cursor-pointer font-anton uppercase transition-all text-lg ${
+              className={`flex-1 py-4 cursor-pointer font-anton uppercase transition-all md:text-lg ${
                 activeTab === "history"
                   ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white "
                   : "text-gray-800 hover:bg-purple-50"
               }`}
             >
-              <History className="w-5 h-5 inline mr-2" />
               Lịch sử giao dịch
             </button>
           </div>
 
-          <div className="p-8">
+          <div className="md:p-8 p-2">
             {activeTab === "info" && (
               <div className="space-y-8">
                 <ProfileInfoForm user={user} />

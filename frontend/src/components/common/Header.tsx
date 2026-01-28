@@ -93,13 +93,13 @@ const Header = () => {
                 {/* Dropdown Menu */}
                 <div className="absolute right-0 mt-2 text-white w-56 bg-purple-900 rounded shadow-xl border border-gray-200 overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="py-1">
-                    <a
-                      href="/profile?tab=info"
+                    <Link
+                      to="/profile?tab=info"
                       className="flex items-center gap-3 px-4 py-2 text-sm hover:text-yellow-300 transition-colors"
                     >
                       <User className="w-4 h-4" />
                       <span>Thông tin cá nhân</span>
-                    </a>
+                    </Link>
                     <Link
                       to="/profile?tab=history"
                       className="flex items-center gap-3 px-4 py-2 text-sm hover:text-yellow-300 transition-colors"
@@ -121,10 +121,10 @@ const Header = () => {
                 </div>
               </div>
             ) : (
-              <a href="/login" className="hidden md:flex items-center gap-2 px-4 py-2 group">
+              <Link to="/login" className="hidden md:flex items-center gap-2 px-4 py-2 group">
                 <CircleUser className="w-6 h-6 group-hover:text-yellow-300" />
                 <span className="font-medium group-hover:text-yellow-300">Đăng nhập</span>
-              </a>
+              </Link>
             )}
 
 
@@ -142,12 +142,12 @@ const Header = () => {
           <div className="lg:hidden py-4 border-t border-gray-200 space-y-3 animate-in slide-in-from-top">
             {/* Mobile User Info */}
             {user && (
-              <div className="mb-4 p-3 bg-white/10 rounded-lg flex gap-3 items-center">
-                <a href="/profile">
-                  <CircleUser className="w-6 h-6 group-hover:text-yellow-300 transition-colors" />
-                </a>
-                <span>{user.hoTen}</span>
-              </div>
+              <Link to="/profile">
+                <div className="mb-4 p-3 bg-white/10 rounded-lg flex gap-3 items-center">
+                    <CircleUser className="w-6 h-6 group-hover:text-yellow-300 transition-colors" />
+                  <span>{user.hoTen}</span>
+                </div>
+              </Link>
             )}
 
             <Link to="/" className="block py-2 active:text-yellow-300 font-medium transition-colors">Trang chủ</Link>
@@ -162,13 +162,14 @@ const Header = () => {
                 className="w-full"
               >
                 <LogOut className="w-5 h-5 mr-2" />
-                <span>Đăng xuất</span>
+                <span className="font-anton">Đăng xuất</span>
               </Button>
             ) : (
-              <Button variant="yellowToPinkPurple" className="w-full">
-                <CircleUser className="w-5 h-5 mr-2" />
-                <span>Đăng nhập</span>
-              </Button>
+              <Link to="/login" className="w-full">
+                <Button variant="yellowToPinkPurple" className="w-full flex items-center justify-center">
+                  <span className="font-anton uppercase">Đăng nhập</span>
+                </Button>
+              </Link>
             )}
           </div>
         )}

@@ -22,26 +22,24 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
   return (
     <div className="bg-white rounded shadow-2xl p-8 mb-8 border border-purple-200">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row items-center gap-10">
+      <div className="flex flex-col md:flex-row items-center gap-4 md:gap-10">
         <div className="relative">
-          <CircleUser strokeWidth={1.8} className="w-30 h-auto text-purple-500" />
+          <CircleUser strokeWidth={1.8} className="md:w-30 w-15 h-auto text-purple-500" />
 
           {isVIP && (
-            <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-2 shadow-lg">
-              <Crown className="w-5 h-5 text-white" />
+            <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full md:p-2 p-1 shadow-lg">
+              <Crown className="md:w-5 md:h-5 w-4 h-4 text-white" />
             </div>
           )}
         </div>
 
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-anton text-gray-800 mb-2 uppercase">
+          <h1 className="text-xl md:text-3xl font-anton text-gray-800 mb-4">
             {user.hoTen}
           </h1>
 
-          <p className="text-gray-600 mb-4 text-lg">{user.email}</p>
-
           <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2 rounded flex items-center gap-2 shadow-md">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 md:px-5 md:py-2 px-3 py-1.5 rounded flex items-center gap-2 shadow-md">
               <Star className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-semibold">
                 {user.diemTichLuy.toLocaleString()} điểm
@@ -56,12 +54,12 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
               }`}
             >
               {isVIP ? (
-                <Crown className="w-5 h-5 text-white" />
+                <Crown className="md:w-5 md:h-5 w-4 h-4 text-white" />
               ) : (
-                <Award className="w-5 h-5 text-white" />
+                <Award className="md:w-5 md:h-5 w-4 h-4 text-white" />
               )}
 
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-white text-sm md:text-base">
                 {isVIP ? "Thành viên VIP" : user.capBac || "Thành viên"}
               </span>
             </div>
@@ -71,7 +69,7 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
 
       {/* PROGRESS */}
       <div className="mt-8">
-        <div className="flex justify-between mb-2">
+        <div className="flex justify-between text-sm md:text-base mb-2">
           <p className={isVIP ? "text-orange-500" : "text-purple-600"}>
             {isVIP ? "Cấp độ VIP" : "Tiến độ lên VIP"}
           </p>

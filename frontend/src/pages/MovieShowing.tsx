@@ -14,7 +14,7 @@ export default function MovieShowingpage() {
       <div className="mx-auto max-w-7xl mt-10">
         {/* Movie is showing */}
         <section className="mb-20">
-          <h2 className="text-center text-4xl font-anton text-white mb-12 uppercase tracking-wider">Phim đang chiếu</h2>
+          <h2 className="text-center text-3xl md:text-4xl font-anton text-white mb-8 md:mb-12 uppercase tracking-wider">Phim đang chiếu</h2>
 
           <div className="relative">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">

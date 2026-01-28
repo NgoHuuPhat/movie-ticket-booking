@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 interface SeatProps {
-  type: "Standard" | "Couple" | "VIP"         
+  type: "Ghế thường" | "Ghế đôi" | "Ghế VIP"         
   status?: "DangTrong" | "DaDat" | "DangDuocChon" | "KhongSuDung"
   number?: string
   onClick?: () => void
@@ -43,7 +43,7 @@ const Seat = ({
     KhongSuDung: { bg: "bg-transparent", text: "text-transparent" },
   }
 
-  // Couple seat colors (giữ nguyên)
+  // Couple seat colors
   const coupleColors = {
     DangTrong: { bg: "bg-pink-400", text: "text-white" },
     DangDuocChon: { bg: "bg-yellow-300", text: "text-purple-900" },
@@ -53,10 +53,10 @@ const Seat = ({
 
   // Xử lý ghế không sử dụng
   if (status === "KhongSuDung") {
-    if (type === "Standard" || type === "VIP") {
+    if (type === "Ghế thường" || type === "Ghế VIP") {
       return <div className={cn(baseStyle, "bg-transparent", className)}></div>
     }
-    // Couple
+    // Ghế đôi
     return (
       <div className={cn("flex gap-[2px] md:gap-1 w-[41px] h-4 md:w-26 md:h-8", className)}>
         <div className="w-full h-full"></div>
@@ -68,8 +68,8 @@ const Seat = ({
   // Cursor style
   const cursorStyle = status === "DaDat" ? "cursor-not-allowed" : "cursor-pointer"
 
-  // Standard Seat
-  if (type === "Standard") {
+  // Ghế thường
+  if (type === "Ghế thường") {
     const s = standardColors[variant as keyof typeof standardColors]?.[status as keyof typeof standardColors["default"]]
     return (
       <div
@@ -81,8 +81,8 @@ const Seat = ({
     )
   }
 
-  // VIP Seat
-  if (type === "VIP") {
+  // Ghế VIP
+  if (type === "Ghế VIP") {
     const v = vipColors[status as keyof typeof vipColors]
     return (
       <div
@@ -100,7 +100,7 @@ const Seat = ({
     )
   }
 
-  // Couple Seat
+  // Ghế đôi
   const c = coupleColors[status as keyof typeof coupleColors]
   return (
     <div className={cn("relative flex", cursorStyle, className)} onClick={status !== "DaDat" ? onClick : undefined}>

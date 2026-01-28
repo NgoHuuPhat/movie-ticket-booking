@@ -11,16 +11,16 @@ export default function AboutPage() {
     <UserLayout>
       <div className="mx-auto max-w-7xl">
         {/* Hero Section */}
-        <section className="relative text-center mb-20 mt-10">
-          <h2 className="text-center text-2xl md:text-4xl font-anton text-white mb-6 uppercase">
+        <section className="relative text-center m-10 md:mb-20">
+          <h2 className="text-center text-3xl md:text-4xl font-anton text-white mb-6 uppercase">
             Về Chúng Tôi
           </h2>
-          <div className="w-32 h-1 bg-gradient-to-r from-yellow-300 to-orange-400 mx-auto mt-8"></div>
+          <div className="w-32 h-1 bg-gradient-to-r from-yellow-300 to-orange-400 mx-auto"></div>
         </section>
 
         {/* Main Story Section */}
-        <section className="mb-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+        <section className="md:mb-24 mb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1">
               <h2 className="text-4xl font-anton text-white mb-8 uppercase tracking-wider leading-tight">
                 Trải nghiệm điện ảnh<br/>
@@ -58,8 +58,8 @@ export default function AboutPage() {
         </section>
 
         {/* Features Section */}
-        <section className="mb-24">
-          <h2 className="text-2xl md:text-4xl font-anton text-white text-center mb-16 uppercase tracking-wider">
+        <section className="md:mb-24 mb-10">
+          <h2 className="text-2xl md:text-4xl font-anton text-white text-center mb-8 md:mb-16 uppercase tracking-wider">
             Điểm nổi bật
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -106,7 +106,7 @@ export default function AboutPage() {
         </section>
 
         {/* Story Continue Section */}
-        <section className="mb-24">
+        <section className="md:mb-24 mb-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="relative group">
@@ -147,11 +147,11 @@ export default function AboutPage() {
         </section>
 
         {/* Gallery Section */}
-        <section className="mb-24">
-          <h2 className="text-2xl md:text-4xl font-anton text-white text-center mb-16 uppercase tracking-wider">
+        <section className="md:mb-24 mb-10">
+          <h2 className="text-2xl md:text-4xl font-anton text-white text-center mb-8 md:mb-16 uppercase tracking-wider">
             Hình ảnh rạp
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
             <div className="relative group overflow-hidden rounded aspect-video border-2 border-white/10 hover:border-yellow-400/50 transition duration-300">
               <img 
                 src="https://bqn.1cdn.vn/2025/06/10/baodanang.vn-dataimages-202506-original-_images1780312_phim2.jpg" 
@@ -180,8 +180,8 @@ export default function AboutPage() {
         </section>
 
         {/* Location & Contact Section */}
-        <section className="mb-24">
-          <h2 className="text-2xl md:text-4xl font-anton text-white text-center mb-16 uppercase tracking-wider">
+        <section className="md:mb-24 mb-10">
+          <h2 className="text-2xl md:text-4xl font-anton text-white text-center mb-8 md:mb-16 uppercase tracking-wider">
             Thông tin liên hệ
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -258,18 +258,18 @@ export default function AboutPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="mb-20">
-          <div className="relative bg-gradient-to-br from-purple-600/30 via-blue-600/30 to-purple-600/30 backdrop-blur-sm rounded p-16 border border-white/10 overflow-hidden">
+        <section className="md:mb-24 mb-10">
+          <div className="relative bg-gradient-to-br from-purple-600/30 via-blue-600/30 to-purple-600/30 backdrop-blur-sm rounded p-8 md:p-16 border border-white/10 overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl"></div>
             <div className="relative text-center">
-              <h2 className="text-2xl md:text-4xl font-anton text-white mb-6 uppercase tracking-wider">
+              <h2 className="text-xl md:text-4xl font-anton text-white mb-6 uppercase tracking-wider">
                 Sẵn sàng cho trải nghiệm điện ảnh tuyệt vời?
               </h2>
-              <p className="text-lg mb-8 text-white/80  mx-auto leading-relaxed">
+              <p className="md:text-lg mb-8 text-white/80  mx-auto leading-relaxed">
                 Đặt vé ngay hôm nay và khám phá thế giới điện ảnh đầy màu sắc tại Rạp chiếu phim Lê Độ
               </p>
-              <Button variant="yellowToPinkPurple" className="font-anton text-xl w-70 h-12">
+              <Button variant="yellowToPinkPurple" className="font-anton md:text-xl w-full md:w-70 md:h-12">
                 <Link to="/movies/showing">
                   Đặt vé ngay
                 </Link>

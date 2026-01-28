@@ -41,9 +41,9 @@ const ProfileInfoForm = ({ user }: ProfileInfoFormProps) => {
   })
 
   return (
-    <div className="bg-purple-50 rounded p-6 border border-purple-200">
+    <div className="bg-purple-50 rounded md:p-6 p-4 border border-purple-200">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-anton text-gray-800">Thông tin cá nhân</h3>
+        <h3 className="md:text-2xl text-lg font-anton text-gray-800">Thông tin cá nhân</h3>
       </div>
 
       <form className="grid grid-cols-1 md:grid-cols-2 gap-6">

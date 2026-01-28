@@ -156,10 +156,10 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-gray-800">
+                      <h3 className="md:text-lg text-sm font-bold text-gray-800">
                         Mã đặt vé: {transaction.maQR}
                       </h3>
-                      <span className={`px-3 py-1.5 rounded text-xs font-bold uppercase ${
+                      <span className={`px-3 py-1 rounded text-sm font-semibold ${
                         transaction.hinhThucDatVe === 'Online' 
                           ? 'bg-purple-500 text-white' 
                           : 'bg-yellow-300 text-black'
@@ -167,7 +167,7 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                         {transaction.hinhThucDatVe === 'Online' ? 'Đặt online' : 'Mua tại quầy'}
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3  text-gray-600">
+                    <div className="flex flex-wrap items-center text-xs md:text-base gap-3 text-gray-600">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4 text-purple-500" />
                         <span>{formatTime(transaction.ngayThanhToan)} {formatDate(transaction.ngayThanhToan)}</span>
@@ -179,7 +179,7 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                     </div>
                   </div>
                   <div className="text-left md:text-right">
-                    <div className="text-2xl font-bold text-purple-600">
+                    <div className="md:text-2xl font-bold text-purple-600">
                       {Number(transaction.tongTien).toLocaleString()} VNĐ
                     </div>
                     {transaction.khuyenMai && (
@@ -192,7 +192,7 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                 </div>
 
                 <div className="flex items-center justify-between py-3 border-t-2 border-purple-200">
-                  <div className="flex items-center gap-4  text-gray-700">
+                  <div className="flex items-center md:gap-4 text-gray-700 text-sm md:text-base">
                     {transaction.ves?.length > 0 && (
                       <div className="flex items-center gap-1.5">
                         <Film className="w-4 h-4 text-blue-500" />
@@ -218,14 +218,14 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                       variant="purpleToYellowOrange"
                       onClick={() => setSelectedTransaction(transaction)}
                     >
-                      <QrCode className="w-4 h-4 mr-1" />
-                      <span className="font-bold">QR</span>
+                      <QrCode/>
+                      <span className="font-bold text-xs">QR</span>
                     </Button>
                     
                     {hasItems && (
                       <button
                         onClick={() => toggleExpand(transaction.maHoaDon)}
-                        className="flex cursor-pointer items-center gap-1 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded transition-all  font-medium"
+                        className="flex cursor-pointer items-center gap-1 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-sm text-purple-700 rounded transition-all font-medium"
                       >
                         {isExpanded ? (
                           <>
@@ -248,7 +248,7 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                     {/* Tickets */}
                     {transaction.ves && transaction.ves.length > 0 && (
                       <div>
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-lg">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                           <Film className="w-6 h-6 text-blue-500" />
                           Vé xem phim ({transaction.ves.length})
                         </h4>
@@ -262,14 +262,14 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                               />
                               <div className="flex-1 space-y-3">
                                 <div>
-                                  <h5 className="font-bold text-gray-800 text-xl">
+                                  <h5 className="font-bold text-gray-800">
                                     {ve.gheSuatChieu.suatChieu.phim.tenPhim}
                                   </h5>
-                                  <div className=" text-gray-600 mt-1">
+                                  <div className=" text-gray-600 mt-1 text-sm md:text-base">
                                     {phienBan[ve.gheSuatChieu.suatChieu.phim.phienBan]} • {ngonNgu[ve.gheSuatChieu.suatChieu.phim.ngonNgu]}
                                   </div>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-x-6 gap-y-2  text-gray-700">
+                                <div className="flex flex-wrap items-center text-sm md:text-base gap-x-6 gap-y-2 text-gray-700">
                                   <div className="flex items-center gap-2">
                                     <Clock className="w-4 h-4 text-purple-500" />
                                     <span>{formatTime(ve.gheSuatChieu.suatChieu.gioBatDau)}</span>
@@ -279,30 +279,30 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                                     <span>{ve.gheSuatChieu.ghe.phongChieu.rap.tenRap}</span>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-x-6">
+                                <div className="flex items-center gap-x-6 text-sm md:text-base">
                                   <div className="flex items-center gap-2">
                                     <span className="text-purple-600 font-medium">Ghế:</span>
                                     <span className="bg-purple-100 px-3 py-1 rounded text-purple-800 font-semibold">
                                       {ve.gheSuatChieu.ghe.hangGhe}{ve.gheSuatChieu.ghe.soGhe}
                                     </span>
                                   </div>
-                                  <div className="text-lg font-bold text-purple-600">
+                                  <div className="md:text-lg font-bold text-purple-600">
                                     {Number(ve.giaVe).toLocaleString()} VNĐ
                                   </div>
                                 </div>
                               </div>
                               {ve.trangThai === 'DaCheckIn' && (
-                                <div className="w-full md:w-72 lg:w-80 text-right md:border-l md:border-white/20 md:pl-6 flex flex-col justify-start gap-1">
+                                <div className="w-full text-xs md:text-sm md:w-72 lg:w-80 text-right md:border-l md:border-white/20 md:pl-6 flex flex-col justify-start gap-1">
                                   <div className="flex items-center justify-end gap-2 text-purple-600">
                                     <CheckCircle2 className="w-5 h-5" />
-                                    <span className="font-medium text">Đã check-in</span>
+                                    <span className="font-medium">Đã check-in</span>
                                   </div>
-                                  <div className=" text-purple-600 flex items-center justify-end gap-2">
+                                  <div className="text-purple-600 flex items-center justify-end gap-2">
                                     <Clock className="w-5 h-5" />
                                     <span>{formatTime(ve.thoiGianCheckIn)} {formatDate(ve.thoiGianCheckIn)}</span>
                                   </div>
                                   {ve.nhanVienSoatVe && (
-                                    <div className="text text-purple-600 italic">
+                                    <div className="text-purple-600 italic">
                                       Nhân viên soát vé: {ve.nhanVienSoatVe.hoTen}
                                     </div>
                                   )}
@@ -317,7 +317,7 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                     {/* Combos & Products */}
                     {transaction.hoaDonCombos && transaction.hoaDonCombos.length > 0 && (
                       <div>
-                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-lg">
+                        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                           <Package className="w-6 h-6 text-orange-500" />
                           Combo ({transaction.hoaDonCombos.length})
                         </h4>
@@ -326,15 +326,15 @@ const TransactionHistoryTab = ({ transactions }: TransactionHistoryTabProps) => 
                             <div key={idx} className="flex items-start gap-4 bg-white rounded p-4 border-1 border-orange-200 shadow-md">
                               <img src={item.combo.anhCombo} alt={item.combo.tenCombo} className="w-16 h-16 object-cover rounded border-1 border-orange-300" />
                               <div className="flex-1">
-                                <div className="font-bold text-gray-800 text-lg">{item.combo.tenCombo}</div>
+                                <div className="font-bold text-gray-800 md:text-lg">{item.combo.tenCombo}</div>
                                 <div className="text-gray-700 mt-1">
-                                  SL: {item.soLuong} • <span className="font-bold text-orange-600">{Number(item.tongTien).toLocaleString()} VNĐ</span>
+                                  <span className="text-xs md:text-sm">SL: {item.soLuong}</span> • <span className="font-bold text-orange-600 text-sm md:text-base">{Number(item.tongTien).toLocaleString()} VNĐ</span>
                                 </div>
                               </div>
                               {item.daLay && (
                                 <div className="flex items-center gap-2 text-purple-600">
-                                  <CheckCircle2 className="w-5 h-5" />
-                                  <span className="font-semibold">Đã lấy</span>
+                                  <CheckCircle2 className="md:w-5 md:h-5 w-4 h-4" />
+                                  <span className="font-semibold text-xs md:text-sm">Đã lấy</span>
                                 </div>
                               )}
                             </div>

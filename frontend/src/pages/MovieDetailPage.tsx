@@ -17,7 +17,8 @@ import { ComboCard, ProductCard } from "@/components/common/FoodItemCard"
 import type { ICategoryWithProducts, ICombo, IProduct, ISelectedFood } from "@/types/product"
 import useBookingStore from "@/stores/useBookingStore"
 import useAuthStore from "@/stores/useAuthStore"
-  
+import { SeatType } from "@/constants/seat"
+
 export default function MovieDetailPage() {
   const [movieDetail, setMovieDetail] = useState<IMovie | null>(null)
   const [selectedDate, setSelectedDate] = useState<string>("")
@@ -184,7 +185,7 @@ export default function MovieDetailPage() {
         const seat = rowSeats[i]
 
         // Skip couple seats and already booked seats
-        if (seat.tenLoaiGhe === "Couple") continue
+        if (seat.tenLoaiGhe === SeatType.Couple) continue
         if (seat.trangThai === "DaDat") continue
 
         const isSelected = selected.includes(seat.maGhe)
@@ -198,7 +199,7 @@ export default function MovieDetailPage() {
           if (!s) return true
           if (s.trangThai === "DaDat") return true
           if (selected.includes(s.maGhe)) return true
-          if (s.tenLoaiGhe === "Couple") return true
+          if (s.tenLoaiGhe === SeatType.Couple) return true
           return false
         }
 
@@ -314,10 +315,10 @@ export default function MovieDetailPage() {
     const rowSeats = seats.filter(seat => seat.hangGhe === row).sort((a, b) => a.soGhe - b.soGhe)
 
     return rowSeats.map((seat) => {
-      let seatType: "Standard" | "Couple" | "VIP" = "Standard"
+      let seatType: "Ghế thường" | "Ghế đôi" | "Ghế VIP" = "Ghế thường"
       
-      if (seat.tenLoaiGhe === "Couple") seatType = "Couple"
-      else if (seat.tenLoaiGhe === "VIP") seatType = "VIP"   
+      if (seat.tenLoaiGhe === SeatType.Couple) seatType = "Ghế đôi"
+      else if (seat.tenLoaiGhe === SeatType.VIP) seatType = "Ghế VIP"   
 
       const isSelected = selectedSeats.includes(seat.maGhe)
       const isDisabled = seat.trangThai === "KhongSuDung"
@@ -382,7 +383,7 @@ export default function MovieDetailPage() {
               {movieDetail?.tenPhim} ({movieDetail?.tenPhanLoaiDoTuoi})
             </h1>
             
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center text-sm md:text-base">
               <Tags className="text-yellow-300 w-5 h-5" />
               {movieDetail?.theLoais.map((genre, i) => (
                 <span key={i} className="text-gray-300">
@@ -391,21 +392,21 @@ export default function MovieDetailPage() {
               ))}
             </div>
 
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center text-sm md:text-base">
               <Clock className="text-yellow-300 w-5 h-5" />
               <span className="text-gray-300">{movieDetail?.thoiLuong} phút</span>
             </div>
 
             <div className="flex gap-2 items-center">
               <UserRoundCheck className="text-yellow-300 w-5 h-5" />
-              <span className="px-3 py-1 text-black bg-yellow-300 rounded font-semibold text-sm">
+              <span className="px-3 py-1 text-black bg-yellow-300 rounded font-semibold text-xs md:text-sm">
                 {movieDetail?.tenPhanLoaiDoTuoi}: {movieDetail?.moTaPhanLoaiDoTuoi}
               </span>
             </div>
             
             {/* Movie Details */}
-            <div className="space-y-3 mt-4">
-              <h2 className="font-anton text-white text-xl uppercase">Mô tả</h2>
+            <div className="space-y-3 md:mt-4 text-sm md:text-base">
+              <h2 className="font-anton text-white text-lg md:text-xl uppercase">Mô tả</h2>
               
               <div className="flex gap-3">
                 <span className="text-yellow-300 font-semibold min-w-24">Đạo diễn:</span>
@@ -424,15 +425,15 @@ export default function MovieDetailPage() {
             </div>
 
             {/* Movie Content */}
-            <div className="space-y-3 mt-4">
-              <h2 className="font-anton text-white text-xl uppercase">Nội dung phim</h2>
-              <p className="text-gray-300 text-base leading-relaxed">
+            <div className="space-y-3 md:mt-4 text-sm md:text-base">
+              <h2 className="font-anton text-white text-lg md:text-xl uppercase">Nội dung phim</h2>
+              <p className="text-gray-300 md:text-base text-sm leading-relaxed">
                 {movieDetail?.moTa}
               </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 mt-4">
+            <div className="md:mt-4">
               <Button
                 onClick={() => openModal(movieDetail?.trailerPhim || "")}
                 disabled={!movieDetail?.trailerPhim}
@@ -449,11 +450,11 @@ export default function MovieDetailPage() {
 
       {/* Main Content */}
       <section className="max-w-7xl mx-auto pt-8">
-        <h2 className="text-4xl font-anton uppercase text-white text-center">Lịch chiếu</h2>
+        <h2 className="md:text-4xl text-2xl font-anton uppercase text-white text-center">Lịch chiếu</h2>
 
         {availableDates.length > 0 ? (
           <div className="overflow-x-auto mb-10">
-            <div className="flex gap-4 min-w-max justify-center my-10">
+            <div className="flex gap-4 min-w-max justify-center md:my-10 my-6">
               {availableDates.map((date) => {
                 return (
                   <button
@@ -464,14 +465,14 @@ export default function MovieDetailPage() {
                       setSelectedSeats([])
                     }}
                     disabled={loadingShowtimes}
-                    className={`w-24 cursor-pointer flex flex-col aspect-square items-center justify-center rounded border transition-all ${
+                    className={`p-2 md:p-3 cursor-pointer flex flex-col aspect-square items-center justify-center rounded border transition-all ${
                       selectedDate === date
                         ? 'bg-gradient-to-br from-yellow-300 to-yellow-400 border-yellow-300 text-purple-900 font-bold shadow-lg'
                         : 'bg-white/10 border-yellow-300 text-yellow-300 hover:bg-white/20'
                     }`}
                   >
-                    <span className="text-xl font-anton">{formatDate(date, "dd/MM")}</span>
-                    <span className="mt-1 font-semibold">{formatWeekday(date)}</span>
+                    <span className="md:text-xl font-anton">{formatDate(date, "dd/MM")}</span>
+                    <span className="mt-1 md:text-lg font-semibold">{formatWeekday(date)}</span>
                   </button>
                 )
               })}
@@ -525,8 +526,8 @@ export default function MovieDetailPage() {
             </div>
           </div>
         ) : (
-          <div className="text-center py-16 my-10 text-gray-400 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-xl">Chưa có lịch chiếu cho phim này</p>
+          <div className="text-center py-10 md:py-16 my-8 md:my-10 text-white/50 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-lg md:text-xl">Chưa có lịch chiếu cho phim này</p>
             <p className="text-sm mt-2">Vui lòng quay lại sau</p>
           </div>
         )}
@@ -534,12 +535,12 @@ export default function MovieDetailPage() {
 
       {/* Seat Selection Section */}
       {selectedShowtime && (
-        <section ref={seatRef} className="max-w-7xl mx-auto pt-8 pb-32">
+        <section ref={seatRef} className="max-w-7xl mx-auto pt-8 pb-22 md:pb-32">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 hover:border-yellow-300/50 rounded-lg py-6">
             {/* Header */}
             <div className="flex justify-center mb-6 pb-4 border-b border-white/10">
               <div>
-                <h2 className="text-3xl md:text-4xl font-anton uppercase text-white mb-2">Chọn ghế ngồi - {selectedShowtime.tenPhongChieu}</h2>
+                <h2 className="text-2xl md:text-4xl font-anton uppercase text-white mb-2">Chọn ghế ngồi - {selectedShowtime.tenPhongChieu}</h2>
                 <p className="text-gray-300 text-base text-center">
                   Suất chiếu: {formatTime(selectedShowtime.gioBatDau)} - {selectedShowtime.tenLoaiPhong}
                 </p>
@@ -555,7 +556,7 @@ export default function MovieDetailPage() {
               <>
                 <div className="w-full flex justify-center overflow-x-auto">
                   <div className="inline-block min-w-min">
-                    <div className="mb-6 md:mb-10">
+                    <div className="mb-4 md:mb-10">
                       <div className="bg-gradient-to-b from-yellow-300/50 to-transparent h-2 rounded-t-full"></div>
                       <p className="text-center text-yellow-300 text-base font-semibold mt-3">
                         MÀN HÌNH
@@ -585,27 +586,29 @@ export default function MovieDetailPage() {
                 {/* Color Status Seat  */}
                 <div
                   className="
-                    flex flex-wrap justify-center gap-14 my-8 md:my-12 text-sm
-                    md:grid md:grid-flow-col md:auto-cols-max md:justify-center md:items-center
+                    flex flex-wrap justify-center gap-3 my-6 mx-2 text-sm
+                    md:gap-6 md:my-8
+                    md:grid md:grid-flow-col md:auto-cols-max md:gap-14 md:my-12 md:mx-0
+                    md:items-center
                   "
                 >
                   {seatTypes.map((tenLoaiGhe) => {
                     return (
                       <div key={tenLoaiGhe} className="flex items-center gap-3">
-                        <Seat type={tenLoaiGhe} className={tenLoaiGhe === "Couple" ? "md:w-20" : "w-8"} />
-                        <span className="text-gray-300">Ghế {tenLoaiGhe}</span>
+                        <Seat type={tenLoaiGhe} className={tenLoaiGhe === "Ghế đôi" ? "md:w-20" : "w-8"} />
+                        <span className="text-gray-300">{tenLoaiGhe}</span>
                       </div>
                     )
                   })}
 
                   {/* Trạng thái */}
                   <div className="flex items-center gap-3">
-                    <Seat type="Standard" status="DangDuocChon" className="w-8" />
+                    <Seat type="Ghế thường" status="DangDuocChon" className="w-8" />
                     <span className="text-gray-300">Ghế đang chọn</span>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Seat type="Standard" status="DaDat" className="w-8" />
+                    <Seat type="Ghế thường" status="DaDat" className="w-8" />
                     <span className="text-gray-300">Ghế đã đặt</span>
                   </div>
                 </div>
@@ -617,8 +620,8 @@ export default function MovieDetailPage() {
 
       {/* Combo and Products */}
       {selectedShowtime && selectedSeats.length > 0 && (
-        <section className="max-w-7xl mx-auto pb-32">
-          <h2 className="text-4xl font-anton uppercase text-white text-center mb-10">
+        <section className="max-w-7xl mx-auto pb-22 md:pb-32">
+          <h2 className="md:text-4xl text-3xl font-anton uppercase text-white text-center mb-10">
             Chọn Bắp Nước
           </h2>
 
@@ -702,17 +705,19 @@ export default function MovieDetailPage() {
         </section>
       )}
 
-
       {/* Footer - Booking Summary */}
       {selectedShowtime && selectedSeats.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-purple-950 opacity-90 border-t-2 border-yellow-300 z-50">
           <div className="max-w-7xl mx-auto px-4 xl:px-0 py-4">
-            <div className="flex flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex-1 space-y-4">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-6">
+
+              <div className="flex-1 space-y-3 md:space-y-4">
                 <h1 className="text-white font-anton text-2xl md:text-3xl leading-tight">
                   {movieDetail?.tenPhim} <span className="text-yellow-300">({movieDetail?.tenPhanLoaiDoTuoi})</span>
                 </h1>
-                <p className="text-white ">Phòng chiếu: {selectedShowtime?.tenPhongChieu} | Suất chiếu: {formatTime(selectedShowtime?.gioBatDau)}</p>
+                <p className="text-white text-sm md:text-base">
+                  Phòng chiếu: {selectedShowtime?.tenPhongChieu} | Suất chiếu: {formatTime(selectedShowtime?.gioBatDau)}
+                </p>
 
                 {selectedSeats.length > 0 && (
                   <div className="flex flex-wrap gap-2">
@@ -729,7 +734,6 @@ export default function MovieDetailPage() {
                           <span className="text-yellow-200 text-sm">
                             {Number(seat?.giaTien).toLocaleString()} VNĐ
                           </span>
-
                           <button
                             onClick={() => handleSeatClick(maGhe)}
                             className="transition-opacity cursor-pointer text-white text-sm"
@@ -752,10 +756,9 @@ export default function MovieDetailPage() {
                         <span className="text-yellow-200 font-medium text-sm md:text-base">
                           {item.label}
                         </span>
-
                         <button
                           onClick={() => handleFoodChange(item.id, 0)}
-                          className="transition-opacity cursor-pointer text-white text-xs"
+                          className="transition-opacity cursor-pointer text-white text-xs md:text-sm"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -765,24 +768,23 @@ export default function MovieDetailPage() {
                 )}
               </div>
 
-              {/* Right + Total + Button */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <div>
-                  <div className="mb-4 flex gap-4 justify-between items-center">
-                    <p className="text-white text-base">Tổng tiền</p>
-                    <p className="text-yellow-300 text-3xl font-anton">
-                      {(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString()} VNĐ
-                    </p>
-                  </div>
-                  
-                  <Button
-                    variant="yellowToPinkPurple"
-                    className="font-anton text-lg h-10 shadow-lg w-full"
-                    onClick={handleCheckout}
-                  >
-                    <span>Đặt vé</span>
-                  </Button>
+              <div className="flex flex-col items-start md:items-end gap-3 md:gap-4">
+                <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4">
+                  <p className="text-white text-base md:text-base whitespace-nowrap">
+                    Tổng tiền
+                  </p>
+                  <p className="text-yellow-300 text-2xl md:text-3xl font-anton">
+                    {(calculateSeatsTotal() + calculateFoodTotal()).toLocaleString()} VNĐ
+                  </p>
                 </div>
+
+                <Button
+                  variant="yellowToPinkPurple"
+                  className="font-anton text-lg h-10 shadow-lg w-full md:w-full"
+                  onClick={handleCheckout}
+                >
+                  <span>Đặt vé</span>
+                </Button>
               </div>
             </div>
           </div>

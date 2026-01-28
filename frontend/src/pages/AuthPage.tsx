@@ -17,11 +17,11 @@ const AuthPage = () => {
 
   return (
     <UserLayout>
-      <div className="flex flex-col items-center mt-10 px-4">
+      <div className="flex flex-col items-center md:mt-10">
         <div className="w-full max-w-[500px] flex gap-2 mb-2">
           <button
             onClick={() => handleTabChange("login")}
-            className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded-xl ${
+            className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded ${
               activeTab === "login" ? "text-black" : "text-white/50 bg-white/0 hover:bg-white/20"
             }`}
           >
@@ -29,15 +29,15 @@ const AuthPage = () => {
           </button>
           <button
             onClick={() => handleTabChange("register")}
-            className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded-xl ${
-              activeTab === "register" ? "text-black" : "text-white/50 bg-white/0 hover:bg-white/20"
+            className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded ${
+              activeTab === "register" ? "text-black" : "text-white/80 bg-white/0 hover:bg-white/20"
             }`}
           >
             ĐĂNG KÝ
           </button>
         </div>
 
-        <Card className="w-full max-w-[500px]">
+        <Card className="w-full max-w-[500px] rounded py-0">
           <CardContent className="p-8">
             {activeTab === "login" ? (
               <LoginForm />

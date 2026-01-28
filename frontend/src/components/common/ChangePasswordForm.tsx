@@ -46,9 +46,9 @@ export const ChangePasswordForm = ({ onSubmit, submitting }: ChangePasswordFormP
   }
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-purple-50 rounded p-6 border border-purple-200">
+    <div className="bg-gradient-to-br from-purple-50 to-purple-50 rounded md:p-6 p-4 border border-purple-200">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-anton text-gray-800 flex items-center gap-2">
+        <h3 className="md:text-2xl text-lg font-anton text-gray-800 flex items-center gap-2">
           Thay đổi mật khẩu
         </h3>
       </div>
@@ -121,18 +121,18 @@ export const ChangePasswordForm = ({ onSubmit, submitting }: ChangePasswordFormP
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button type="submit" variant="purpleToYellowOrange" disabled={submitting} className="w-60 h-10 font-anton">
-          {submitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Đang lưu...
-            </>
-          ) : (
-            <>
-              <span>Lưu mật khẩu</span>
-            </>
-          )}
-        </Button>
+          <Button type="submit" variant="purpleToYellowOrange" disabled={submitting} className="w-full h-auto md:w-60 h-10 font-anton">
+            {submitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang lưu...
+              </>
+            ) : (
+              <>
+                <span>Lưu mật khẩu</span>
+              </>
+            )}
+          </Button>
         </div>
       </form>
     </div>
