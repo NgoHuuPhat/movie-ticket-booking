@@ -27,7 +27,7 @@ router.use('/products', authenticateToken, productsRouter)
 router.use('/combos', authenticateToken, combosRouter)
 router.use('/discounts', authenticateToken, discountsRouter)
 router.use('/seats', authenticateToken, seatsRouter)
-router.use('/chatbot', authenticateToken, chatbotRouter)
+router.use('/chatbot', chatbotRouter)
 router.use('/profile', authenticateToken, profileRouter)
 
 export default router
