@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { z } from "zod"
 import { ChevronRight, Armchair, X, Loader2, Users } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SeatType } from "@/constants/seat"
 
 const roomSchema = z.object({
   tenPhong: z.string().min(1, "Tên phòng không được để trống"),
@@ -170,10 +171,10 @@ export const RoomForm = ({
     const seatType = seatTypes.find(t => t.maLoaiGhe === maLoaiGhe)
     if (!seatType) return "bg-gray-400 hover:bg-gray-500"
 
-    if (seatType.tenLoaiGhe.includes("Couple")) {
+    if (seatType.tenLoaiGhe.includes(SeatType.Couple)) {
       return "bg-pink-500 hover:bg-pink-600"
     }
-    if (seatType.tenLoaiGhe.includes("VIP")) {
+    if (seatType.tenLoaiGhe.includes(SeatType.VIP)) {
       return "bg-rose-500 hover:bg-rose-600"
     } else {
       return "bg-blue-500 hover:bg-blue-600"
