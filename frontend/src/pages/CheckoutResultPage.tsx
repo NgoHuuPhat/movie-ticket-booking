@@ -51,7 +51,7 @@ export default function CheckoutResultPage() {
             <Button 
               variant="yellowToPinkPurple"
               onClick={() => navigate("/profile?tab=history")}
-              className="px-8 w-full h-8 md:h-12 font-anton text-lg"
+              className="px-8 w-full h-full md:h-12 font-anton md:text-lg"
             >
               <span>Xem lịch sử giao dịch</span>
             </Button>
