@@ -181,7 +181,6 @@ const FoodOrdersPage = () => {
                             </td>
                             <td className="p-4">
                               <div className="font-semibold text-gray-900">{invoice.maHoaDon}</div>
-                              <div className="text-xs text-gray-500 font-mono">{invoice.maQR}</div>
                             </td>
                             <td className="p-4">
                               <div className="font-medium">{invoice.nguoiDung?.hoTen}</div>
@@ -420,10 +419,6 @@ const FoodOrdersPage = () => {
                     <div>
                       <Label className="text-sm text-gray-600">Mã hóa đơn</Label>
                       <p className="font-semibold text-lg">{selectedInvoice.maHoaDon}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm text-gray-600">Mã QR</Label>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{selectedInvoice.maQR}</p>
                     </div>
                     <div>
                       <Label className="text-sm text-gray-600">Khách hàng</Label>

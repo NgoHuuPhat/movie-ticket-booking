@@ -224,7 +224,6 @@ const TicketOrdersPage = () => {
                             </td>
                             <td className="p-4">
                               <div className="font-semibold text-gray-900">{invoice.maHoaDon}</div>
-                              <div className="text-xs text-gray-500 font-mono">{invoice.maQR}</div>
                             </td>
                             <td className="p-4">
                               <div className="font-medium">{invoice.nguoiDung?.hoTen}</div>
@@ -419,10 +418,6 @@ const TicketOrdersPage = () => {
                       <p className="font-semibold text-lg">{selectedInvoice.maHoaDon}</p>
                     </div>
                     <div>
-                      <Label className="text-sm text-gray-600">Mã QR</Label>
-                      <p className="font-mono text-sm bg-white p-2 rounded border">{selectedInvoice.maQR}</p>
-                    </div>
-                    <div>
                       <Label className="text-sm text-gray-600">Khách hàng</Label>
                       <p className="font-medium">{selectedInvoice.nguoiDung?.hoTen}</p>
                       <p className="text-sm text-gray-600">{selectedInvoice.nguoiDung?.email}</p>
@@ -550,7 +545,6 @@ const TicketOrdersPage = () => {
         onScanSuccess={(text) => {
           setCurrentQRCode(text)
           setShowDetail(true)
-          fetchInvoices()
         }}
       />
       
@@ -559,6 +553,7 @@ const TicketOrdersPage = () => {
         open={showDetail}
         onOpenChange={setShowDetail}
         ticketCode={currentQRCode}
+        onSuccess={fetchInvoices}
       />
     </StaffLayout>
   )

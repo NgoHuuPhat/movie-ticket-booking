@@ -12,6 +12,7 @@ interface TicketDetailModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   ticketCode: string
+  onSuccess: () => void
 }
 
 export interface IPhim {
@@ -64,7 +65,7 @@ export interface ScanTicketResponse {
   ves: ITicket[]
 }
 
-const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModalProps) => {
+const TicketDetailModal = ({ open, onOpenChange, ticketCode, onSuccess }: TicketDetailModalProps) => {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
@@ -83,6 +84,7 @@ const TicketDetailModal = ({ open, onOpenChange, ticketCode }: TicketDetailModal
         const res = await scanTicketStaff(ticketCode)
         setSuccess(true)
         setData(res.data)
+        onSuccess()
       } catch (err) {
         setSuccess(false)
         setError(handleError(err))

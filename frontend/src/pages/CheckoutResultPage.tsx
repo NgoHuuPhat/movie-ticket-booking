@@ -48,13 +48,22 @@ export default function CheckoutResultPage() {
           </div>
 
           {isSuccess ? (
-            <Button 
-              variant="yellowToPinkPurple"
-              onClick={() => navigate("/profile?tab=history")}
-              className="px-8 w-full h-full md:h-12 font-anton md:text-lg"
-            >
-              <span>Xem lịch sử giao dịch</span>
-            </Button>
+            <div className="grid grid-cols-2 gap-4">
+              <Button 
+                variant="yellowToPinkPurple"
+                onClick={() => navigate("/")}
+                className="px-8 w-full h-full md:h-12 font-anton md:text-lg"
+              >
+                <span>Về trang chủ</span>
+              </Button>
+              <Button 
+                variant="yellowToPinkPurple"
+                onClick={() => navigate("/profile?tab=history")}
+                className="px-8 w-full h-full md:h-12 font-anton md:text-lg"
+              >
+                <span>Xem lịch sử giao dịch</span>
+              </Button>
+            </div>
           ) : (
             <Button 
               variant="yellowToPinkPurple"

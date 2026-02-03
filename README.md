@@ -191,6 +191,8 @@ JWT_EXPIRE=15m
 JWT_REFRESH_SECRET=your-refresh-secret
 JWT_REFRESH_EXPIRE=7d
 
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-app-password
 

@@ -28,7 +28,7 @@ class PhimsController {
             {
               ngayKhoiChieu: { gt: today },
               suatChieus: {
-                some: { gioBatDau: { gt: new Date() }, hoatDong: true}
+                some: {hoatDong: true}
               }
             }
           ]
