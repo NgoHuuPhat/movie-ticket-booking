@@ -17,12 +17,12 @@ const AuthPage = () => {
 
   return (
     <UserLayout>
-      <div className="flex flex-col items-center md:mt-10">
+      <div className="flex flex-col items-center mt-10">
         <div className="w-full max-w-[500px] flex gap-2 mb-2">
           <button
             onClick={() => handleTabChange("login")}
             className={`flex-1 py-4 font-anton cursor-pointer text-sm transition-all bg-white duration-300 rounded ${
-              activeTab === "login" ? "text-black" : "text-white/50 bg-white/0 hover:bg-white/20"
+              activeTab === "login" ? "text-black" : "text-white/80 bg-white/0 hover:bg-white/20"
             }`}
           >
             ĐĂNG NHẬP

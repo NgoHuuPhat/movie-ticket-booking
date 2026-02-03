@@ -3,7 +3,9 @@ import nodemailer from 'nodemailer'
 
 const sendEmail = async (email: string, subject: string, otp: string) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT),
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -20,7 +22,9 @@ const sendEmail = async (email: string, subject: string, otp: string) => {
 
 const sendTicketEmail = async (email: string, subject: string, ticketData: ITicketData, qrBuffer: Buffer) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT),
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -42,7 +46,9 @@ const sendTicketEmail = async (email: string, subject: string, ticketData: ITick
 
 const sendNewsEmail = async (email: string, title: string, content: string, imageUrl: string) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT),
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
