@@ -4,6 +4,8 @@ services:
   backend:
     image: ${BACKEND_IMAGE:-ngoohuuphat/mtb-backend}:latest
     container_name: mtb-backend
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
     env_file:
       - ./backend/.env.production
     ports:

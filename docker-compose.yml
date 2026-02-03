@@ -4,6 +4,10 @@ services:
     build:
       context: ./backend
     container_name: mtb-backend
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     env_file:
       - ./backend/.env.development
     ports:
