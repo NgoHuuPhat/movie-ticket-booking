@@ -20,7 +20,7 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
   const tiLeHoanThanh = Math.min( Math.round((user.diemTichLuy / DIEM_CAN_THIET) * 100), 100 )
 
   return (
-    <div className="bg-white rounded shadow-2xl p-8 mb-8 border border-purple-200">
+    <div className="bg-white rounded shadow-2xl p-4 md:p-8 mb-8 border border-purple-200">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row items-center gap-4 md:gap-10">
         <div className="relative">
@@ -39,7 +39,7 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
           </h1>
 
           <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 md:px-5 md:py-2 px-3 py-1.5 rounded flex items-center gap-2 shadow-md">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-1.5 rounded flex items-center gap-2 shadow-md">
               <Star className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-semibold">
                 {user.diemTichLuy.toLocaleString()} điểm
@@ -47,7 +47,7 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
             </div>
 
             <div
-              className={`px-5 py-2 rounded flex items-center gap-2 shadow-md ${
+              className={`rounded flex items-center gap-2 shadow-md px-3 py-1.5 ${
                 isVIP
                   ? "bg-gradient-to-r from-yellow-400 to-orange-500"
                   : "bg-gradient-to-r from-blue-500 to-cyan-500"

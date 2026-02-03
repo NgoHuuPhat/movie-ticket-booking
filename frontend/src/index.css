@@ -8,6 +8,10 @@
   --font-anton: "Anton", sans-serif;
 }
 
+.slick-dots li.slick-active div {
+  background: #fbbf24; 
+}
+
 html::-webkit-scrollbar {
   width: 4px;
 }

@@ -52,9 +52,8 @@ export default function Homepage() {
     );
   }
 
-  // Cấu hình slider banner
   const bannerSettings = {
-    dots: false,
+    dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -63,6 +62,9 @@ export default function Homepage() {
     autoplaySpeed: 3000,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
+    customPaging: () => (
+      <div className="w-3 h-3 md:mt-6 mt-4 rounded-full bg-white/50 hover:bg-yellow-400 transition"/>
+    ),
   }
 
   // Fetch banners
@@ -105,14 +107,14 @@ export default function Homepage() {
     <UserLayout>
       <div className="mx-auto max-w-7xl mt-10">
         {/* Banner */}
-        <section className="relative mb-10 md:mb-20">
+        <section className="relative mb-16 md:mb-24">
           <Slider {...bannerSettings}>
             {banners.map((slide: IBanner) => (
-              <Link to={`${slide.duongDanLienKet}`} key={slide.maBanner} className="relative h-40 md:h-80 lg:h-100 rounded shadow-2xl">
+              <Link to={`${slide.duongDanLienKet}`} key={slide.maBanner}>
                 <img
                   src={slide.anhBanner}
                   alt={"Banner quảng cáo"}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-30 md:h-80 object-cover rounded"
                 />
               </Link>
             ))}
