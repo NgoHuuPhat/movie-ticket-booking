@@ -301,6 +301,18 @@ npx prisma db seed
 # Open Prisma Studio to view/edit data
 npx prisma studio
 ```
+## 🔐 Demo Accounts (Test Credentials)
+**Admin**
+- Email: admin@gmail.com
+- Password: 12345678
+
+**Staff**
+- Email: nv@gmail.com
+- Password: 12345678
+
+**Customer**
+- Email: kh@gmail.com
+- Password: 12345678
 
 ## 📦 Available Scripts
 
