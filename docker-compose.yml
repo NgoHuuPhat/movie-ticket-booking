@@ -8,7 +8,6 @@ services:
       - ./backend/.env.development
     ports:
       - "3000:3000"
-    restart: unless-stopped
     networks:
       - app-net
     depends_on:
@@ -23,13 +22,11 @@ services:
     container_name: mtb-frontend
     ports:
       - "8080:80"
-    restart: unless-stopped
     networks:
       - app-net
   postgres:
     image: postgres:17
     container_name: mtb-postgres
-    restart: unless-stopped
     environment:
       - POSTGRES_DB=ledocinema
       - POSTGRES_USER=postgres
@@ -56,7 +53,6 @@ services:
     container_name: mtb-redis
     ports:
       - "6379:6379"
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
